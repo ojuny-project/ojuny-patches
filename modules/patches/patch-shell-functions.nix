@@ -3,7 +3,7 @@
   displayname = "Shell functions";
   icon = "utilities-terminal-symbolic";
   order = 170;
-  description = "Opt-in shell functions ported from omarchy";
+  description = "Opt-in shell functions from an existing Arch and Hyprland setup";
   category = "Patches";
   systems = [ "all" ];
 */

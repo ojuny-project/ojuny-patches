@@ -265,7 +265,7 @@
         # @option widget = "dropdown"; label = "Overlay position"; group = "Webcam"; groupOrder = 40; order = 40; choices = [ "top-left" "top-right" "bottom-left" "bottom-right" ]; visibleWhen.path = "ojuny.patch.screenrecord.webcam.enable"; visibleWhen.equals = true; description = "Position inside the recorded region, or inside the active monitor for fullscreen recordings."
         ojuny.patch.screenrecord.webcam.position = "bottom-right";
 
-        # @option widget = "dropdown"; label = "Overlay shape"; group = "Webcam"; groupOrder = 40; order = 50; choices = [ "8:9" "1:1" "16:9" ]; visibleWhen.path = "ojuny.patch.screenrecord.webcam.enable"; visibleWhen.equals = true; description = "Crop applied to the camera feed. 8:9 matches the Omarchy portrait overlay."
+        # @option widget = "dropdown"; label = "Overlay shape"; group = "Webcam"; groupOrder = 40; order = 50; choices = [ "8:9" "1:1" "16:9" ]; visibleWhen.path = "ojuny.patch.screenrecord.webcam.enable"; visibleWhen.equals = true; description = "Crop applied to the camera feed. 8:9 matches the portrait overlay."
         ojuny.patch.screenrecord.webcam.crop = "8:9";
 
         # @option widget = "text"; label = "Capture format"; group = "Webcam"; groupOrder = 40; order = 60; nullable = true; placeholder = "Device default"; visibleWhen.path = "ojuny.patch.screenrecord.webcam.enable"; visibleWhen.equals = true; description = "Four-character V4L2 pixel format such as MJPG or YUYV. Leave unset to use the device default. An unknown value is rejected and the overlay keeps the device default. Use ojuny-screenrecord list-formats to list supported values."

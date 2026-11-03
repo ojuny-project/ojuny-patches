@@ -113,7 +113,7 @@ For a stricter setup:
    it.
 4. Do not forward Sunshine directly from the public internet.
 
-Omarchy uses this narrower model. This patch documents it but does not
+Some setups use this narrower model. This patch documents it but does not
 implement it automatically in v1.
 
 ## Controller and keyboard input
