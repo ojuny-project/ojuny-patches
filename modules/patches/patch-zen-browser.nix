@@ -30,7 +30,7 @@ in
         browserBind = lib.mkOption {
           type = lib.types.bool;
           default = true;
-          description = "Point the Mango browser keybind at Zen instead of Firefox.";
+          description = "Force the Mango browser keybind to Zen even when Zen is not the registered default browser.";
         };
       };
 
@@ -43,7 +43,7 @@ in
         # @option widget = "switch"; label = "Default browser"; group = "Zen Browser"; visibleWhen.path = "ojuny.patch.zen-browser.enable"; visibleWhen.equals = true; description = "Register Zen for web, PDF, and mail links.";
         ojuny.patch.zen-browser.defaultBrowser = true;
 
-        # @option widget = "switch"; label = "Browser keybind"; group = "Zen Browser"; visibleWhen.path = "ojuny.patch.zen-browser.enable"; visibleWhen.equals = true; description = "Point the Mango browser keybind at Zen.";
+        # @option widget = "switch"; label = "Browser keybind"; group = "Zen Browser"; visibleWhen.path = "ojuny.patch.zen-browser.enable"; visibleWhen.equals = true; description = "Force the Mango browser keybind to Zen even when Zen is not the registered default.";
         ojuny.patch.zen-browser.browserBind = true;
       };
     };
@@ -82,9 +82,8 @@ in
 
         desktop.ojuny.defaultApps = lib.optional hasZen zenPackage;
 
-        desktop.ojuny.mango.binds.common.browser = lib.mkIf cfg.browserBind {
-          args = lib.mkForce "zen --new-window";
-        };
+        ojuny.browser.command =
+          lib.mkIf (cfg.browserBind || cfg.defaultBrowser) (lib.mkForce "zen --new-window");
 
         xdg.mime.enable = lib.mkDefault true;
 
