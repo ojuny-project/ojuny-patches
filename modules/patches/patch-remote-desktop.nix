@@ -19,11 +19,11 @@
       imports = [ self.modules.nixos.remote-desktop-backend ];
 
       config = {
-        # @option widget = "switch"; label = "Remote desktop patch"; group = "Patches"; description = "Install the selected remote desktop clients and the session indicator.";
+        # @option widget = "switch"; label = "Remote desktop patch"; group = "Patches"; groupOrder = 0; description = "Install the selected remote desktop clients and the session indicator.";
         ojuny.patch.remoteDesktop.enable = false;
 
         # @option widget = "switch"; label = "Session indicator"; group = "Session indicator"; groupOrder = 50; order = 10; visibleWhen.path = "ojuny.patch.remoteDesktop.enable"; visibleWhen.equals = true; description = "Show remote and capture activity in the bar. VNC and RDP appear only while a server is listening.";
-        ojuny.patch.remoteDesktop.indicator.enable = true;
+        ojuny.patch.remoteDesktop.indicator.enable = config.ojuny.patch.remoteDesktop.enable;
 
         # @option widget = "switch"; label = "VNC"; group = "Session indicator"; groupOrder = 50; order = 20; visibleWhen.path = "ojuny.patch.remoteDesktop.indicator.enable"; visibleWhen.equals = true; description = "Watch the VNC port. The label means a VNC server is listening, not that a client is connected.";
         ojuny.patch.remoteDesktop.indicator.vnc = true;
@@ -40,10 +40,10 @@
         # @option widget = "switch"; label = "Listening ports"; group = "Session indicator"; groupOrder = 50; order = 60; visibleWhen.path = "ojuny.patch.remoteDesktop.indicator.enable"; visibleWhen.equals = true; description = "Add one Ports pill for other TCP listeners in 1000-9999. It shows a count, not one pill per port. Off by default because it is noisy.";
         ojuny.patch.remoteDesktop.indicator.listeningPorts = false;
 
-        # @option widget = "spin"; label = "VNC port"; group = "Port watches"; groupOrder = 60; order = 10; min = 1000; max = 9999; step = 1; advanced = true; visibleWhen.path = "ojuny.patch.remoteDesktop.indicator.vnc"; visibleWhen.equals = true; description = "VNC TCP port. localServices only scans 1000-9999.";
+        # @option widget = "spin"; label = "VNC port"; group = "Port watches"; groupOrder = 60; order = 10; min = 1000; max = 9999; step = 1; advanced = true; visibleWhen.path = "ojuny.patch.remoteDesktop.enable"; visibleWhen.equals = true; description = "VNC TCP port. localServices only scans 1000-9999.";
         ojuny.patch.remoteDesktop.indicator.vncPort = 5900;
 
-        # @option widget = "spin"; label = "RDP port"; group = "Port watches"; groupOrder = 60; order = 20; min = 1000; max = 9999; step = 1; advanced = true; visibleWhen.path = "ojuny.patch.remoteDesktop.indicator.rdp"; visibleWhen.equals = true; description = "RDP TCP port. localServices only scans 1000-9999.";
+        # @option widget = "spin"; label = "RDP port"; group = "Port watches"; groupOrder = 60; order = 20; min = 1000; max = 9999; step = 1; advanced = true; visibleWhen.path = "ojuny.patch.remoteDesktop.enable"; visibleWhen.equals = true; description = "RDP TCP port. localServices only scans 1000-9999.";
         ojuny.patch.remoteDesktop.indicator.rdpPort = 3389;
 
         # @option widget = "list"; label = "Extra port watches"; group = "Port watches"; groupOrder = 60; order = 30; itemLabel = "Port or range"; addLabel = "Add watch"; advanced = true; visibleWhen.path = "ojuny.patch.remoteDesktop.indicator.enable"; visibleWhen.equals = true; description = "Extra port or range watches, for example 21115-21119 for RustDesk.";

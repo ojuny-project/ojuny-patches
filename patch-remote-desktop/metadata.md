@@ -2,7 +2,7 @@ name: Remote Desktop
 id: patch-remote-desktop
 description: RustDesk, Waypipe, WayVNC, VNC/RDP clients and a privacy-first session watch
 dependencies:
-version: 1
+version: 2
 
 ## What this patch installs
 

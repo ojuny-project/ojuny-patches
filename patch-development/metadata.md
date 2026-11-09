@@ -2,7 +2,7 @@ name: Development
 id: patch-development
 description: VSCodium, per-language LSP toggles, optional coding agents, the dmenu project picker with devshell actions, and multi-repository project scaffolding
 dependencies:
-version: 4
+version: 5
 
 ## Install, enable, remove
 

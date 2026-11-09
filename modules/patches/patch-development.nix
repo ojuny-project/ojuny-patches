@@ -13,31 +13,6 @@
 {
   flake.modules.nixos.patch-development =
     { config, lib, ... }:
-    let
-      languageNames = [
-        "nix"
-        "python"
-        "rust"
-        "c"
-        "cpp"
-        "go"
-        "typescript"
-        "lua"
-        "bash"
-        "yaml"
-        "json"
-        "markdown"
-      ];
-
-      defaultLanguages = [
-        "nix"
-        "python"
-        "rust"
-        "c"
-        "cpp"
-        "bash"
-      ];
-    in
     {
       options.ojuny.patch.development.enable = lib.mkEnableOption "the development patch";
 
@@ -48,18 +23,45 @@
         ojuny.patch.development.enable = false;
 
         # @option widget = "table-attrset"; label = "Languages"; group = "Languages"; columns = [ "enable" ]; columnTypes = [ "bool" ]; visibleWhen.path = "ojuny.patch.development.enable"; visibleWhen.equals = true; description = "Languages whose LSP server, formatter, and editor extension are installed.";
-        ojuny.patch.development.languages = lib.genAttrs languageNames (name: {
-          enable = builtins.elem name defaultLanguages;
-        });
+        ojuny.patch.development.languages = {
+          /* @table-item label = "Nix"; */
+          nix.enable = true;
+          /* @table-item label = "Python"; */
+          python.enable = true;
+          /* @table-item label = "Rust"; */
+          rust.enable = true;
+          /* @table-item label = "C"; */
+          c.enable = true;
+          /* @table-item label = "C++"; */
+          cpp.enable = true;
+          /* @table-item label = "Go"; */
+          go.enable = false;
+          /* @table-item label = "TypeScript"; */
+          typescript.enable = false;
+          /* @table-item label = "Lua"; */
+          lua.enable = false;
+          /* @table-item label = "Bash"; */
+          bash.enable = true;
+          /* @table-item label = "YAML"; */
+          yaml.enable = false;
+          /* @table-item label = "JSON"; */
+          json.enable = false;
+          /* @table-item label = "Markdown"; */
+          markdown.enable = false;
+        };
 
         # @option widget = "switch"; label = "VSCodium"; group = "Editor"; visibleWhen.path = "ojuny.patch.development.enable"; visibleWhen.equals = true; description = "Install and theme VSCodium and use the nix profile as the default launcher.";
         ojuny.patch.development.editors.vscodium.enable = true;
 
         # @option widget = "table-attrset"; label = "Coding agents"; group = "AI"; columns = [ "enable" ]; columnTypes = [ "bool" ]; visibleWhen.path = "ojuny.patch.development.enable"; visibleWhen.equals = true; description = "Opt-in coding agents. No agent is installed by the base image.";
         ojuny.patch.development.agents = {
+          /* @table-item label = "OpenCode"; */
           opencode.enable = true;
+          /* @table-item label = "Claude Code"; */
           claude-code.enable = false;
+          /* @table-item label = "Codex"; */
           codex.enable = false;
+          /* @table-item label = "Gemini CLI"; */
           gemini-cli.enable = false;
         };
 

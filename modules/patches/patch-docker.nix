@@ -8,28 +8,6 @@
   systems = [ "all" ];
 */
 
-/*
-  @snippet
-  name = "container";
-  label = "Add container";
-  snippet = ''
-    # @option widget = "text"; label = "%%name%% image"; group = "Containers"; visibleWhen.path = "ojuny.patch.docker.mode"; visibleWhen.equals = "system"; description = "OCI image with tag, e.g. nginx:latest.";
-    ojuny.patch.docker.containers."%%name%%".image = "%%image%%";
-    # @option widget = "list"; label = "%%name%% ports"; group = "Containers"; visibleWhen.path = "ojuny.patch.docker.mode"; visibleWhen.equals = "system"; description = "Published ports, e.g. 127.0.0.1:8080:8080. A loopback address keeps the port off the network.";
-    ojuny.patch.docker.containers."%%name%%".ports = [ ];
-    # @option widget = "list"; label = "%%name%% volumes"; group = "Containers"; visibleWhen.path = "ojuny.patch.docker.mode"; visibleWhen.equals = "system"; description = "Host:container or named volume mounts, e.g. nginx-html:/usr/share/nginx/html.";
-    ojuny.patch.docker.containers."%%name%%".volumes = [ ];
-    # @option widget = "raw"; label = "%%name%% environment"; group = "Containers"; rows = 4; visibleWhen.path = "ojuny.patch.docker.mode"; visibleWhen.equals = "system"; description = "Environment variables as a Nix attrset.";
-    ojuny.patch.docker.containers."%%name%%".environment = { };
-    # @option widget = "switch"; label = "%%name%% start at boot"; group = "Containers"; visibleWhen.path = "ojuny.patch.docker.mode"; visibleWhen.equals = "system"; description = "Start the container with systemd on boot. Only used in system mode.";
-    ojuny.patch.docker.containers."%%name%%".autoStart = true;
-  '';
-  placeholders.name.label = "Container name";
-  placeholders.name.default = "nginx";
-  placeholders.image.label = "Image";
-  placeholders.image.default = "nginx:latest";
-*/
-
 { self, ... }:
 
 {
@@ -153,14 +131,8 @@
         # @option widget = "switch"; label = "Prune volumes"; group = "Pruning"; visibleWhen.path = "ojuny.patch.docker.autoPrune.enable"; visibleWhen.equals = true; hidden = true; description = "Also prune all volumes. This deletes data in unused volumes.";
         ojuny.patch.docker.autoPrune.allVolumes = lib.mkDefault false;
 
-        ojuny.patch.docker.containers = lib.mkDefault { };
-
-        /*
-          @insert
-          name = "container";
-          group = "Containers";
-          order = 10;
-        */
+        # @option widget = "docker"; label = "Containers"; group = "Containers"; description = "Declarative containers keyed by name. Add, edit or remove whole containers. Only used in system mode.";
+        ojuny.patch.docker.containers = { };
 
         # @option widget = "raw"; label = "Daemon settings"; group = "Advanced"; rows = 6; hidden = true; visibleWhen.path = "ojuny.patch.docker.enable"; visibleWhen.equals = true; description = "dockerd daemon.json settings for the active mode, for example DNS servers or the log driver.";
         ojuny.patch.docker.daemonSettings = lib.mkDefault { };
