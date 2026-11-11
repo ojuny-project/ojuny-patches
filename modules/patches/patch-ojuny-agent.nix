@@ -114,16 +114,24 @@
 
         ## Layout
 
-        - The flake root contains `flake.nix`, `modules/`, `docs/`, `scripts/`, and
-          `tests/`.
+        - The flake root contains `flake.nix` and at least one module file. The
+          directory layout is not fixed.
+        - Install and generation code finds files by the module they declare:
+          `flake.modules.nixos.system-configuration`, `users`, `host-imports`,
+          `system-hardware`, `system-bootloader` and `system-hardware-quirks`.
+          Anonymous generated files fall back to `modules/`.
+        - The facter report is `modules/facter.json` when no existing report is
+          found.
         - A settings page is one `.nix` file with an `@menu` header.
         - An `@option` comment belongs directly above the assignment it controls.
         - Patches live in `modules/patches/patch-*.nix`.
         - `00-patches.nix` imports every installed `patch-*` module when
           `ojuny.patches` is true.
-        - Generated files include `modules/07-system/00-hardware.nix`,
-          `modules/07-system/facter.json`, and
-          `modules/07-system/00-hardware-quirks.nix`. Do not edit them by hand.
+        - Generated files include the detected `system-hardware` module,
+          `facter.json`, and the detected `system-hardware-quirks` module. Do not
+          edit them by hand.
+        - The installed flake location is `ojuny.repoPath`, projected to
+          `/etc/ojuny/flake-path`. Do not hardcode another location.
 
         ## Settings menu rules
 
@@ -301,10 +309,12 @@
         (deny "edit" "*")
         (ask "edit" "${flakeRoot}/**")
         (deny "edit" "${flakeRoot}/flake.lock")
-        (deny "edit" "${flakeRoot}/modules/07-system/00-hardware.nix")
-        (deny "edit" "${flakeRoot}/modules/07-system/facter.json")
-        (deny "edit" "${flakeRoot}/modules/07-system/00-hardware-quirks.nix")
-        (deny "edit" "${flakeRoot}/modules/01-users/01-user.nix")
+        (deny "edit" "${flakeRoot}/modules/00-hardware.nix")
+        (deny "edit" "${flakeRoot}/modules/facter.json")
+        (deny "edit" "${flakeRoot}/modules/backend/00-hardware-quirks.nix")
+        (deny "edit" "${flakeRoot}/modules/00-user.nix")
+        (deny "edit" "${flakeRoot}/modules/00-configuration.nix")
+        (deny "edit" "${flakeRoot}/modules/00-host.nix")
       ];
 
       dangerousShell = [
