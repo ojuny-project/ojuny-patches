@@ -25,8 +25,15 @@ ojuny-patches install patch-zed
 
 `sync` refreshes the local registry. `list available` prints IDs;
 [CATALOGUE.md](CATALOGUE.md) adds descriptions and versions. `install` copies
-`modules/patches/patch-zed.nix` into the flake and leaves the patch disabled.
-Expected output is not recorded.
+`modules/patches/patch-zed.nix` into the flake, stages it with `git add`, and
+leaves the patch disabled. A Nix flake evaluates the git tree, so an unstaged
+module is invisible and the rebuild reports an undefined option.
+
+If you add or edit a module by hand, stage it the same way. The settings GUI
+Sync button stages the flake worktree (and auto-sync does the same when it is
+enabled), so a manual module addition does not need a terminal. Without the GUI,
+run `git add modules/patches/<id>.nix` before rebuilding. Expected output is
+`installed <id>` followed by `staged modules/patches/<id>.nix`.
 
 ## Usage
 

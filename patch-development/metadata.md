@@ -2,7 +2,7 @@ name: Development
 id: patch-development
 description: VSCodium, per-language LSP toggles, optional coding agents, the dmenu project picker with devshell actions, and multi-repository project scaffolding
 dependencies:
-version: 5
+version: 6
 
 ## Install, enable, remove
 
@@ -23,13 +23,15 @@ Each language row installs its LSP server, formatter, VSCodium extension when on
 
 VSCodium uses the `nix` profile as the default launcher. The profile is themed by Stylix. Extensions and settings are selected from the language table.
 
+The package comes from the flake's locked nixpkgs. The template lock currently provides 1.140.06880. Check the resolved binary with `readlink -f "$(command -v codium)"` and `codium --version`; a different version means the Home Manager profile is stale, another profile shadows it, or the host also installs `pkgs.vscodium` in `environment.systemPackages`. The patch owns the Home Manager package and its `--profile nix` wrapper, so do not add a second VSCodium to the host package list. The patch does not pin a VSCodium release.
+
 ## Coding agents
 
-No agent is in the base image. OpenCode is the default agent for this patch. Claude Code, Codex, and Gemini CLI are opt-in. `ojuny-agent` launches the selected default. `ojuny-agent-usage` is installed only when Claude Code or Codex is enabled and uses `ccusage`; OpenCode usage is not collected by this patch.
+No agent is in the base image. OpenCode is the default agent for this patch. Claude Code, Codex, and Gemini CLI are opt-in. `ojuny-agent` launches the selected default. `ojuny-agent-usage` is installed whenever the usage switch is on and runs `ccusage`, which reads Claude Code, Codex, OpenCode, and other detected coding-agent logs.
 
 ## Projects
 
-`SUPER+SHIFT+Tab` opens the `projects` picker. It lists git repositories under the search root with their branch and last commit, then asks for an action: editor, terminal, coding agent, Obsidian vault, or cancel. Actions run through `nix develop -c` when the repository has a `flake.nix` or `shell.nix` and the devshell evaluates. The picker needs `dms` for `dms dmenu` and refuses to start without it. `dms dmenu` has no preview flag, so there is no file preview.
+`SUPER+SHIFT+Tab` opens the `projects` picker. The bind uses the mango `spawn` dispatcher and starts `projects` directly; it does not wrap the DMS dmenu overlay in a terminal. It lists git repositories under the search root with their branch and last commit, then asks for an action: editor, terminal, coding agent, Obsidian vault, or cancel. Actions run through `nix develop -c` when the repository has a `flake.nix` or `shell.nix` and the devshell evaluates. The picker needs `dms` for `dms dmenu` and refuses to start without it. `dms dmenu` has no preview flag, so there is no file preview.
 
 `ojuny-devshell-new <language> [directory]` creates a project shell. It walks `ojuny.patch.development.scaffold.templateRepos` in ascending `priority` order and runs `nix flake init -t <url>#<template>` for the first repository with a mapping for the language. The defaults are `the-nix-way/dev-templates` at commit `9ffac48` and `NixOS/templates` at commit `3348e5b`. A repository without a mapping is skipped.
 

@@ -24,30 +24,54 @@
 
         # @option widget = "table-attrset"; label = "Languages"; group = "Languages"; columns = [ "enable" ]; columnTypes = [ "bool" ]; visibleWhen.path = "ojuny.patch.development.enable"; visibleWhen.equals = true; description = "Languages whose LSP server, formatter, and editor extension are installed.";
         ojuny.patch.development.languages = {
-          /* @table-item label = "Nix"; */
-          nix.enable = true;
-          /* @table-item label = "Python"; */
-          python.enable = true;
-          /* @table-item label = "Rust"; */
-          rust.enable = true;
-          /* @table-item label = "C"; */
-          c.enable = true;
-          /* @table-item label = "C++"; */
-          cpp.enable = true;
-          /* @table-item label = "Go"; */
-          go.enable = false;
-          /* @table-item label = "TypeScript"; */
-          typescript.enable = false;
-          /* @table-item label = "Lua"; */
-          lua.enable = false;
-          /* @table-item label = "Bash"; */
-          bash.enable = true;
-          /* @table-item label = "YAML"; */
-          yaml.enable = false;
-          /* @table-item label = "JSON"; */
-          json.enable = false;
-          /* @table-item label = "Markdown"; */
-          markdown.enable = false;
+          # @table-item label = "Nix";
+          nix = {
+            enable = true;
+          };
+          # @table-item label = "Python";
+          python = {
+            enable = true;
+          };
+          # @table-item label = "Rust";
+          rust = {
+            enable = true;
+          };
+          # @table-item label = "C";
+          c = {
+            enable = true;
+          };
+          # @table-item label = "C++";
+          cpp = {
+            enable = true;
+          };
+          # @table-item label = "Go";
+          go = {
+            enable = false;
+          };
+          # @table-item label = "TypeScript";
+          typescript = {
+            enable = false;
+          };
+          # @table-item label = "Lua";
+          lua = {
+            enable = false;
+          };
+          # @table-item label = "Bash";
+          bash = {
+            enable = true;
+          };
+          # @table-item label = "YAML";
+          yaml = {
+            enable = false;
+          };
+          # @table-item label = "JSON";
+          json = {
+            enable = false;
+          };
+          # @table-item label = "Markdown";
+          markdown = {
+            enable = false;
+          };
         };
 
         # @option widget = "switch"; label = "VSCodium"; group = "Editor"; visibleWhen.path = "ojuny.patch.development.enable"; visibleWhen.equals = true; description = "Install and theme VSCodium and use the nix profile as the default launcher.";
@@ -55,20 +79,28 @@
 
         # @option widget = "table-attrset"; label = "Coding agents"; group = "AI"; columns = [ "enable" ]; columnTypes = [ "bool" ]; visibleWhen.path = "ojuny.patch.development.enable"; visibleWhen.equals = true; description = "Opt-in coding agents. No agent is installed by the base image.";
         ojuny.patch.development.agents = {
-          /* @table-item label = "OpenCode"; */
-          opencode.enable = true;
-          /* @table-item label = "Claude Code"; */
-          claude-code.enable = false;
-          /* @table-item label = "Codex"; */
-          codex.enable = false;
-          /* @table-item label = "Gemini CLI"; */
-          gemini-cli.enable = false;
+          # @table-item label = "OpenCode";
+          opencode = {
+            enable = true;
+          };
+          # @table-item label = "Claude Code";
+          claude-code = {
+            enable = false;
+          };
+          # @table-item label = "Codex";
+          codex = {
+            enable = false;
+          };
+          # @table-item label = "Gemini CLI";
+          gemini-cli = {
+            enable = false;
+          };
         };
 
         # @option widget = "dropdown"; label = "Default agent"; group = "AI"; choices = [ "opencode" "claude-code" "codex" "gemini-cli" "none" ]; visibleWhen.path = "ojuny.patch.development.enable"; visibleWhen.equals = true; description = "Agent launched by ojuny-agent. It must be enabled, or none.";
         ojuny.patch.development.defaultAgent = "opencode";
 
-        # @option widget = "switch"; label = "Agent usage"; group = "AI"; visibleWhen.path = "ojuny.patch.development.enable"; visibleWhen.equals = true; description = "Install ojuny-agent-usage. ccusage covers Claude Code and Codex; OpenCode usage is not collected.";
+        # @option widget = "switch"; label = "Agent usage"; group = "AI"; visibleWhen.path = "ojuny.patch.development.enable"; visibleWhen.equals = true; description = "Install ojuny-agent-usage. ccusage reads Claude Code, Codex, OpenCode, and other detected coding-agent logs.";
         ojuny.patch.development.usage.enable = true;
 
         # @option widget = "switch"; label = "Project menu"; group = "Projects"; visibleWhen.path = "ojuny.patch.development.enable"; visibleWhen.equals = true; description = "Install the projects picker, its alias, and the Super+Shift+Tab keybind.";
@@ -137,15 +169,46 @@
       enabledLanguages = builtins.filter languageEnabled languageNames;
 
       languagePackages = {
-        nix = with pkgs; [ nixd nixfmt statix deadnix ];
-        python = with pkgs; [ pyright ruff black ];
-        rust = with pkgs; [ rust-analyzer rustfmt ];
-        c = with pkgs; [ clang-tools cmake gdb ];
-        cpp = with pkgs; [ clang-tools cmake gdb ];
-        go = with pkgs; [ gopls golangci-lint ];
-        typescript = with pkgs; [ typescript-language-server prettier eslint ];
+        nix = with pkgs; [
+          nixd
+          nixfmt
+          statix
+          deadnix
+        ];
+        python = with pkgs; [
+          pyright
+          ruff
+          black
+        ];
+        rust = with pkgs; [
+          rust-analyzer
+          rustfmt
+        ];
+        c = with pkgs; [
+          clang-tools
+          cmake
+          gdb
+        ];
+        cpp = with pkgs; [
+          clang-tools
+          cmake
+          gdb
+        ];
+        go = with pkgs; [
+          gopls
+          golangci-lint
+        ];
+        typescript = with pkgs; [
+          typescript-language-server
+          prettier
+          eslint
+        ];
         lua = with pkgs; [ lua-language-server ];
-        bash = with pkgs; [ bash-language-server shellcheck shfmt ];
+        bash = with pkgs; [
+          bash-language-server
+          shellcheck
+          shfmt
+        ];
         yaml = with pkgs; [ yaml-language-server ];
         json = with pkgs; [ vscode-json-languageserver ];
         markdown = with pkgs; [ marksman ];
@@ -153,23 +216,62 @@
 
       lspPackages = lib.unique (lib.concatMap (name: languagePackages.${name}) enabledLanguages);
 
-      usageEnabled =
-        cfg.usage.enable
-        && (
-          (cfg.agents.claude-code.enable or false)
-          || (cfg.agents.codex.enable or false)
-        );
+      usageEnabled = cfg.usage.enable;
 
       scaffoldPackages = {
-        python = [ "python3" "pyright" "ruff" "black" ];
-        rust = [ "rustc" "cargo" "rust-analyzer" "rustfmt" ];
-        go = [ "go" "gopls" "golangci-lint" ];
-        typescript = [ "nodejs" "typescript-language-server" "prettier" "eslint" ];
-        c = [ "gcc" "gnumake" "cmake" "gdb" "clang-tools" ];
-        cpp = [ "gcc" "gnumake" "cmake" "gdb" "clang-tools" ];
-        nix = [ "nixd" "nixfmt" "statix" "deadnix" ];
-        lua = [ "lua" "lua-language-server" ];
-        bash = [ "bashInteractive" "bash-language-server" "shellcheck" "shfmt" ];
+        python = [
+          "python3"
+          "pyright"
+          "ruff"
+          "black"
+        ];
+        rust = [
+          "rustc"
+          "cargo"
+          "rust-analyzer"
+          "rustfmt"
+        ];
+        go = [
+          "go"
+          "gopls"
+          "golangci-lint"
+        ];
+        typescript = [
+          "nodejs"
+          "typescript-language-server"
+          "prettier"
+          "eslint"
+        ];
+        c = [
+          "gcc"
+          "gnumake"
+          "cmake"
+          "gdb"
+          "clang-tools"
+        ];
+        cpp = [
+          "gcc"
+          "gnumake"
+          "cmake"
+          "gdb"
+          "clang-tools"
+        ];
+        nix = [
+          "nixd"
+          "nixfmt"
+          "statix"
+          "deadnix"
+        ];
+        lua = [
+          "lua"
+          "lua-language-server"
+        ];
+        bash = [
+          "bashInteractive"
+          "bash-language-server"
+          "shellcheck"
+          "shfmt"
+        ];
       };
 
       templateLanguageMap = {
@@ -200,8 +302,10 @@
           let
             templates = lib.concatMap (
               repo:
-              let template = templateLanguageMap.${repo.name}.${name} or null;
-              in lib.optional (template != null) "${repo.name}|${repo.url}|${template}"
+              let
+                template = templateLanguageMap.${repo.name}.${name} or null;
+              in
+              lib.optional (template != null) "${repo.name}|${repo.url}|${template}"
             ) sortedTemplateRepos;
           in
           ''
@@ -310,7 +414,16 @@
       '';
 
       scaffold = pkgs.writeShellScriptBin "ojuny-devshell-new" ''
-        export PATH=${lib.makeBinPath (with pkgs; [ coreutils gnused findutils ])}:"$PATH"
+        export PATH=${
+          lib.makeBinPath (
+            with pkgs;
+            [
+              coreutils
+              gnused
+              findutils
+            ]
+          )
+        }:"$PATH"
         set -euo pipefail
 
         language="''${1:-}"
@@ -391,7 +504,9 @@
               };
             }
           );
-          default = lib.genAttrs languageNames (name: { enable = builtins.elem name defaultLanguages; });
+          default = lib.genAttrs languageNames (name: {
+            enable = builtins.elem name defaultLanguages;
+          });
           description = "Languages with an LSP server, formatter, VSCodium extension, and OpenCode LSP entry.";
         };
 
@@ -435,7 +550,7 @@
         usage.enable = lib.mkOption {
           type = lib.types.bool;
           default = true;
-          description = "Install ojuny-agent-usage. ccusage covers Claude Code and Codex; OpenCode usage is not collected.";
+          description = "Install ojuny-agent-usage. ccusage reads Claude Code, Codex, OpenCode, and other detected coding-agent logs.";
         };
 
         projects = {
@@ -535,72 +650,71 @@
       };
 
       config = lib.mkIf active {
-          assertions = [
-            {
-              assertion =
-                cfg.defaultAgent == "none" || (cfg.agents.${cfg.defaultAgent}.enable or false);
-              message = "ojuny.patch.development.defaultAgent must name an enabled agent or be none.";
-            }
+        assertions = [
+          {
+            assertion = cfg.defaultAgent == "none" || (cfg.agents.${cfg.defaultAgent}.enable or false);
+            message = "ojuny.patch.development.defaultAgent must name an enabled agent or be none.";
+          }
+        ];
+
+        environment.systemPackages =
+          lspPackages
+          ++ (with pkgs; [
+            nixos-anywhere
+            deploy-rs
+            nvd
+            nix-output-monitor
+            github-cli
+            netcat-openbsd
+            ripgrep
+          ])
+          ++ lib.optional cfg.projects.enable projects
+          ++ lib.optional cfg.scaffold.enable scaffold;
+
+        # @option widget = "table-attrset"; label = "Aliases"; group = "Aliases"; columns = [ "enable" "value" ]; columnTypes = [ "bool" "str" ];
+        ojuny.apps.development.aliases = {
+          llm = {
+            enable = cfg.agents.opencode.enable or false;
+            value = "nix develop -c opencode";
+          };
+          agent = {
+            enable = cfg.defaultAgent != "none";
+            value = "ojuny-agent";
+          };
+          usage = {
+            enable = usageEnabled;
+            value = "ojuny-agent-usage";
+          };
+          projects = {
+            enable = cfg.projects.enable;
+            value = "${projects}/bin/projects";
+          };
+          devnew = {
+            enable = cfg.scaffold.enable;
+            value = "${scaffold}/bin/ojuny-devshell-new";
+          };
+        };
+
+        desktop.ojuny.mango.binds.common.projects = lib.mkIf cfg.projects.enable {
+          # @option widget = "list"; label = "Projects Menu: Modifiers"; group = "Keybind";
+          modifier = [
+            "SUPER"
+            "SHIFT"
           ];
+          # @option widget = "list"; label = "Projects Menu: keys"; group = "Keybind";
+          keys = [ "Tab" ];
+          dispatcher = "spawn";
+          args = "${projects}/bin/projects";
+          description = "Open projects";
+          group = "Applications";
+          subcat = "Launch";
+        };
 
-          environment.systemPackages =
-            lspPackages
-            ++ (with pkgs; [
-              nixos-anywhere
-              deploy-rs
-              nvd
-              nix-output-monitor
-              github-cli
-              netcat-openbsd
-              ripgrep
-            ])
-            ++ lib.optional cfg.projects.enable projects
-            ++ lib.optional cfg.scaffold.enable scaffold;
-
-          # @option widget = "table-attrset"; label = "Aliases"; group = "Aliases"; columns = [ "enable" "value" ]; columnTypes = [ "bool" "str" ];
-          ojuny.apps.development.aliases = {
-            llm = {
-              enable = cfg.agents.opencode.enable or false;
-              value = "nix develop -c opencode";
-            };
-            agent = {
-              enable = cfg.defaultAgent != "none";
-              value = "ojuny-agent";
-            };
-            usage = {
-              enable = usageEnabled;
-              value = "ojuny-agent-usage";
-            };
-            projects = {
-              enable = cfg.projects.enable;
-              value = "${projects}/bin/projects";
-            };
-            devnew = {
-              enable = cfg.scaffold.enable;
-              value = "${scaffold}/bin/ojuny-devshell-new";
-            };
-          };
-
-          desktop.ojuny.mango.binds.common.projects = lib.mkIf cfg.projects.enable {
-            # @option widget = "list"; label = "Projects Menu: Modifiers"; group = "Keybind";
-            modifier = [
-              "SUPER"
-              "SHIFT"
-            ];
-            # @option widget = "list"; label = "Projects Menu: keys"; group = "Keybind";
-            keys = [ "Tab" ];
-            dispatcher = "spawn_shell";
-            args = "ghostty --title='Floating-Menu' -e ${projects}/bin/projects";
-            description = "Open projects";
-            group = "Applications";
-            subcat = "Launch";
-          };
-
-          environment.shellAliases = (
-            lib.mapAttrs (_: entry: entry.value) (
-              lib.filterAttrs (_: entry: entry.enable) config.ojuny.apps.development.aliases
-            )
-          );
+        environment.shellAliases = (
+          lib.mapAttrs (_: entry: entry.value) (
+            lib.filterAttrs (_: entry: entry.enable) config.ojuny.apps.development.aliases
+          )
+        );
       };
     };
 
@@ -761,10 +875,7 @@
             ms-pyright.pyright
           ]
         )
-        ++ lib.optionals (languageEnabled "rust") (
-          with pkgs.vscode-extensions;
-          [ rust-lang.rust-analyzer ]
-        )
+        ++ lib.optionals (languageEnabled "rust") (with pkgs.vscode-extensions; [ rust-lang.rust-analyzer ])
         ++ lib.optionals (languageEnabled "c" || languageEnabled "cpp") (
           with pkgs.vscode-extensions;
           [
@@ -773,14 +884,8 @@
             vadimcn.vscode-lldb
           ]
         )
-        ++ lib.optionals (languageEnabled "go") (
-          with pkgs.vscode-extensions;
-          [ golang.go ]
-        )
-        ++ lib.optionals (languageEnabled "lua") (
-          with pkgs.vscode-extensions;
-          [ sumneko.lua ]
-        )
+        ++ lib.optionals (languageEnabled "go") (with pkgs.vscode-extensions; [ golang.go ])
+        ++ lib.optionals (languageEnabled "lua") (with pkgs.vscode-extensions; [ sumneko.lua ])
         ++ lib.optionals (languageEnabled "bash") (
           with pkgs.vscode-extensions;
           [
@@ -788,29 +893,24 @@
             foxundermoon.shell-format
           ]
         )
-        ++ lib.optionals (languageEnabled "yaml") (
-          with pkgs.vscode-extensions;
-          [ redhat.vscode-yaml ]
-        )
+        ++ lib.optionals (languageEnabled "yaml") (with pkgs.vscode-extensions; [ redhat.vscode-yaml ])
         ++ lib.optionals (languageEnabled "markdown") (
-          with pkgs.vscode-extensions;
-          [ yzhang.markdown-all-in-one ]
+          with pkgs.vscode-extensions; [ yzhang.markdown-all-in-one ]
         );
 
-      usageEnabled = cfg.usage.enable && (onAgent "claude-code" || onAgent "codex");
+      usageEnabled = cfg.usage.enable;
 
-      agent =
-        pkgs.writeShellScriptBin "ojuny-agent" (
-          if cfg.defaultAgent == "none" then
-            ''
-              echo "ojuny-agent: no default agent is configured" >&2
-              exit 1
-            ''
-          else
-            ''
-              exec ${agentCommands.${cfg.defaultAgent}} "$@"
-            ''
-        );
+      agent = pkgs.writeShellScriptBin "ojuny-agent" (
+        if cfg.defaultAgent == "none" then
+          ''
+            echo "ojuny-agent: no default agent is configured" >&2
+            exit 1
+          ''
+        else
+          ''
+            exec ${agentCommands.${cfg.defaultAgent}} "$@"
+          ''
+      );
 
       usage = pkgs.writeShellScriptBin "ojuny-agent-usage" ''
         if [ "''${1:-}" = "--offline" ]; then

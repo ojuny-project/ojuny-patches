@@ -234,12 +234,13 @@
 
           You are ojuny-agent, the full agentic Ojuny maintainer.
 
-          You may edit files inside the Ojuny flake only, and only with explicit user
-          approval for each change. Before every edit, show the file, line, old value,
-          new value, and validation plan. Ask the user to choose Allow once for the
-          edit; Allow always removes the per-change prompt. After every edit, run
-          ojuny-agent-cli validate. If validation fails, fix the change with a new
-          approval or revert it. Never ask the user to rebuild a broken flake.
+          You may edit or create files inside the Ojuny flake only, and only with
+          explicit user approval for each change. Before every edit, show the file,
+          line, old value, new value, and validation plan. Ask the user to choose
+          Allow once for the edit; Allow always removes the per-change prompt. After
+          every edit, run ojuny-agent-cli validate. If validation fails, fix the
+          change with a new approval or revert it. Never ask the user to rebuild a
+          broken flake.
 
           Use ojuny-agent-cli sync for git. Never run raw git pull, merge, rebase,
           reset, checkout, commit, push, clean, or restore. When a sync has conflicts,
@@ -271,9 +272,10 @@
         paths and line references.
 
         Never edit, sync, revert, lock, rebuild, activate, install, or mutate
-        anything. If the user asks for a change, explain the exact setting or file
-        and suggest ojuny-agent or the settings GUI. If the answer is not in the
-        available files, say so.
+        anything. Do not run non-read-only shell commands and do not run network
+        clients such as curl, wget, nc, socat, ssh, scp, or rsync. If the user asks
+        for a change, explain the exact setting or file and suggest ojuny-agent or
+        the settings GUI. If the answer is not in the available files, say so.
       '';
 
       allow = action: resource: {
@@ -305,17 +307,25 @@
         (ask "external_directory" "${flakeRoot}/*")
       ];
 
-      editRules = [
-        (deny "edit" "*")
-        (ask "edit" "${flakeRoot}/**")
-        (deny "edit" "${flakeRoot}/flake.lock")
-        (deny "edit" "${flakeRoot}/modules/00-hardware.nix")
-        (deny "edit" "${flakeRoot}/modules/facter.json")
-        (deny "edit" "${flakeRoot}/modules/backend/00-hardware-quirks.nix")
-        (deny "edit" "${flakeRoot}/modules/00-user.nix")
-        (deny "edit" "${flakeRoot}/modules/00-configuration.nix")
-        (deny "edit" "${flakeRoot}/modules/00-host.nix")
+      fileActions = [
+        "edit"
+        "write"
+        "patch"
       ];
+
+      fileRules = action: [
+        (deny action "*")
+        (ask action "${flakeRoot}/**")
+        (deny action "${flakeRoot}/flake.lock")
+        (deny action "${flakeRoot}/modules/00-hardware.nix")
+        (deny action "${flakeRoot}/modules/facter.json")
+        (deny action "${flakeRoot}/modules/backend/00-hardware-quirks.nix")
+        (deny action "${flakeRoot}/modules/00-user.nix")
+        (deny action "${flakeRoot}/modules/00-configuration.nix")
+        (deny action "${flakeRoot}/modules/00-host.nix")
+      ];
+
+      editRules = lib.concatMap fileRules fileActions;
 
       dangerousShell = [
         (deny "shell" "sudo*")
@@ -383,6 +393,19 @@
         (deny "shell" "ojuny-patches sync*")
         (deny "shell" "ojuny-patches repo add*")
         (deny "shell" "ojuny-patches repo remove*")
+      ];
+
+      networkShell = [
+        (deny "shell" "curl*")
+        (deny "shell" "wget*")
+        (deny "shell" "nc*")
+        (deny "shell" "ncat*")
+        (deny "shell" "socat*")
+        (deny "shell" "telnet*")
+        (deny "shell" "ftp*")
+        (deny "shell" "ssh*")
+        (deny "shell" "scp*")
+        (deny "shell" "rsync*")
       ];
 
       cliRead = [
@@ -477,12 +500,12 @@
       ++ readOnlyShell;
 
       assistShell = [
-        (ask "shell" "*")
+        (deny "shell" "*")
       ]
       ++ dangerousShell
+      ++ networkShell
       ++ [
         (deny "shell" "ojuny *")
-        (ask "shell" "ojuny-agent-cli *")
         (deny "shell" "ojuny-agent-cli sync*")
         (deny "shell" "ojuny-agent-cli revert*")
         (deny "shell" "ojuny-agent-cli lock*")
@@ -496,23 +519,21 @@
         ++ editRules
         ++ agentShell
         ++ [
-          (deny "webfetch" "*")
-          (deny "websearch" "*")
-        ];
-
-      assistPermissions =
-        readRules
-        ++ [
-          (deny "edit" "*")
-        ]
-        ++ assistShell
-        ++ [
           (ask "webfetch" "*")
           (ask "websearch" "*")
         ];
 
-      cli = pkgs.writeTextFile {
-        name = "ojuny-agent-cli";
+      assistPermissions =
+        readRules
+        ++ lib.concatMap (action: [ (deny action "*") ]) fileActions
+        ++ assistShell
+        ++ [
+          (deny "webfetch" "*")
+          (deny "websearch" "*")
+        ];
+
+      cliSource = pkgs.writeTextFile {
+        name = "ojuny-agent-cli-source";
         destination = "/bin/ojuny-agent-cli";
         executable = true;
         text = ''
@@ -535,6 +556,9 @@
           EXIT_BACKEND = 4
           EXIT_VALIDATION = 5
           EXIT_CONFLICT = 6
+
+          INDENTED_OPEN = chr(39) * 2
+          INDENTED_ESCAPE = chr(39) * 3
 
           GUIDE = ${builtins.toJSON guide}
           DEFAULT_FLAKE = ${builtins.toJSON flakeRoot}
@@ -724,7 +748,7 @@
                   text = path.read_text(errors="replace")
               except OSError:
                   return None
-              match = re.search(r"/\\*\\s*@menu(.*?)\\*/", text, re.S)
+              match = re.search(r"/\*\s*@menu(.*?)\*/", text, re.S)
               return match.group(1) if match else None
 
 
@@ -734,10 +758,10 @@
                   return None
               page = {}
               for key in ("displayname", "category", "description", "icon"):
-                  found = re.search(r"\\b" + key + r"\\s*=\\s*\\"([^\\"]*)\\"", block)
+                  found = re.search(r'\b' + key + r'\s*=\s*"([^"]*)"', block)
                   if found:
                       page[key] = found.group(1)
-              found = re.search(r"\\border\\s*=\\s*(-?\\d+)", block)
+              found = re.search(r"\border\s*=\s*(-?\d+)", block)
               page["order"] = int(found.group(1)) if found else 0
               page["file"] = str(path.relative_to(flake))
               page["absolute"] = str(path)
@@ -778,30 +802,87 @@
               return exact if len(exact) == 1 else matches
 
 
+          def nix_comments(text):
+              index = 0
+              line = 1
+              length = len(text)
+              while index < length:
+                  char = text[index]
+                  if char == "#":
+                      start_line = line
+                      start = index + 1
+                      index = text.find("\n", start)
+                      if index == -1:
+                          index = length
+                      yield start_line, line, text[start:index]
+                      continue
+                  if text.startswith("/*", index):
+                      start_line = line
+                      start = index + 2
+                      depth = 1
+                      index = start
+                      while index < length and depth:
+                          if text.startswith("/*", index):
+                              depth += 1
+                              index += 2
+                          elif text.startswith("*/", index):
+                              depth -= 1
+                              index += 2
+                          else:
+                              if text[index] == "\n":
+                                  line += 1
+                              index += 1
+                      yield start_line, line, text[start:index - 2]
+                      continue
+                  if text.startswith(INDENTED_OPEN, index):
+                      index += 2
+                      while index < length:
+                          if text.startswith(INDENTED_ESCAPE, index) or text.startswith(
+                              INDENTED_OPEN + "$", index
+                          ):
+                              index += 3
+                              continue
+                          if text.startswith(INDENTED_OPEN, index):
+                              index += 2
+                              break
+                          if text[index] == "\n":
+                              line += 1
+                          index += 1
+                      continue
+                  if char == '"':
+                      index += 1
+                      while index < length:
+                          if text[index] == "\\":
+                              index += 2
+                              continue
+                          if text[index] == '"':
+                              index += 1
+                              break
+                          if text[index] == "\n":
+                              line += 1
+                          index += 1
+                      continue
+                  if char == "\n":
+                      line += 1
+                  index += 1
+
+
           def option_rows(path):
               try:
-                  lines = path.read_text(errors="replace").splitlines()
+                  text = path.read_text(errors="replace")
               except OSError:
                   return []
+              lines = text.splitlines()
               rows = []
-              for index, line in enumerate(lines):
-                  if "@option" not in line:
+              for start_line, end_line, body in nix_comments(text):
+                  if not any(item.strip().startswith("@option") for item in body.splitlines()):
                       continue
-                  cursor = index + 1
-                  while cursor < len(lines):
-                      candidate = lines[cursor].strip()
-                      if (
-                          candidate
-                          and not candidate.startswith("#")
-                          and not candidate.startswith("/*")
-                          and not candidate.startswith("*")
-                          and not candidate.startswith("*/")
-                      ):
-                          break
+                  cursor = end_line
+                  while cursor < len(lines) and not lines[cursor].strip():
                       cursor += 1
                   assignment = lines[cursor].strip() if cursor < len(lines) else ""
                   rows.append(
-                      {"line": index + 1, "annotation": line.strip(), "assignment": assignment}
+                      {"line": start_line, "annotation": body.strip(), "assignment": assignment}
                   )
               return rows
 
@@ -936,7 +1017,7 @@
               if path is None or not path.is_file():
                   return fields
               for line in path.read_text(errors="replace").splitlines():
-                  match = re.match(r"^(name|id|description|dependencies|version):\\s*(.*)$", line)
+                  match = re.match(r"^(name|id|description|dependencies|version):\s*(.*)$", line)
                   if match:
                       fields[match.group(1)] = match.group(2).strip()
               return fields
@@ -1001,7 +1082,7 @@
                   "memory": capture(["free", "-h"]),
                   "disks": capture(["df", "-h", "/", "/home"]),
                   "graphics": capture(
-                      ["bash", "-c", "lspci -k 2>/dev/null | grep -A3 -E \\"VGA|3D|Display\\" || true"]
+                      ["bash", "-c", 'lspci -k 2>/dev/null | grep -A3 -E "VGA|3D|Display" || true']
                   ),
                   "flake": capture(["nix", "flake", "metadata", "--json", str(flake)]),
               }
@@ -1205,7 +1286,7 @@
                   ["git", "-C", str(flake), "diff", "--name-only", "--diff-filter=U"]
               ).splitlines()
               if conflicts:
-                  die(EXIT_CONFLICT, "unresolved conflicts remain", "\\n".join(conflicts))
+                  die(EXIT_CONFLICT, "unresolved conflicts remain", "\n".join(conflicts))
               validation = validate_data(flake, resolve_host())
               if not validation["ok"]:
                   die(EXIT_VALIDATION, "validation failed; merge left in progress", "Fix the checks or run sync --abort.")
@@ -1281,30 +1362,30 @@
 
           def print_help():
               print(
-                  "usage: ojuny-agent-cli [--flake PATH] [--host NAME] [--json] [--yes] COMMAND ...\\n"
-                  "\\n"
-                  "Read-only commands:\\n"
-                  "  guide                     Print the Ojuny agent guide\\n"
-                  "  status                    Show flake and system status\\n"
-                  "  settings list             List settings pages\\n"
-                  "  settings show <page>      Show a settings page and its options\\n"
-                  "  patches list              List installed patches\\n"
-                  "  patches show <id>         Show one installed patch\\n"
-                  "  diagnose                  Run fixed read-only diagnostics\\n"
-                  "  docs                      Show governing document paths\\n"
-                  "  diff                      Show the flake worktree diff\\n"
-                  "  validate                  Validate the flake worktree\\n"
-                  "  sync --status             Show git sync state\\n"
-                  "  sync --dry-run            Print the planned sync commands\\n"
-                  "\\n"
-                  "Mutating commands, all requiring --yes:\\n"
-                  "  sync                      Fetch and prepare a fast-forward or merge\\n"
-                  "  sync --continue           Validate and commit a prepared merge\\n"
-                  "  sync --abort              Abort an in-progress merge\\n"
-                  "  revert <path>             Revert one path inside the flake\\n"
-                  "  revert --all              Revert tracked changes inside the flake\\n"
-                  "  lock                      Regenerate flake.lock and validate\\n"
-                  "\\n"
+                  "usage: ojuny-agent-cli [--flake PATH] [--host NAME] [--json] [--yes] COMMAND ...\n"
+                  "\n"
+                  "Read-only commands:\n"
+                  "  guide                     Print the Ojuny agent guide\n"
+                  "  status                    Show flake and system status\n"
+                  "  settings list             List settings pages\n"
+                  "  settings show <page>      Show a settings page and its options\n"
+                  "  patches list              List installed patches\n"
+                  "  patches show <id>         Show one installed patch\n"
+                  "  diagnose                  Run fixed read-only diagnostics\n"
+                  "  docs                      Show governing document paths\n"
+                  "  diff                      Show the flake worktree diff\n"
+                  "  validate                  Validate the flake worktree\n"
+                  "  sync --status             Show git sync state\n"
+                  "  sync --dry-run            Print the planned sync commands\n"
+                  "\n"
+                  "Mutating commands, all requiring --yes:\n"
+                  "  sync                      Fetch and prepare a fast-forward or merge\n"
+                  "  sync --continue           Validate and commit a prepared merge\n"
+                  "  sync --abort              Abort an in-progress merge\n"
+                  "  revert <path>             Revert one path inside the flake\n"
+                  "  revert --all              Revert tracked changes inside the flake\n"
+                  "  lock                      Regenerate flake.lock and validate\n"
+                  "\n"
                   "Mutating commands never accept --flake and always use the configured Ojuny flake."
               )
 
@@ -1333,7 +1414,7 @@
                       die(
                           EXIT_USAGE,
                           "multiple settings pages match: " + args[1],
-                          "\\n".join(page["file"] for page in matches),
+                          "\n".join(page["file"] for page in matches),
                       )
                   page = matches[0]
                   options = option_rows(flake / page["file"])
@@ -1508,6 +1589,16 @@
               sys.exit(main(sys.argv[1:]))
         '';
       };
+
+      cli =
+        pkgs.runCommandLocal "ojuny-agent-cli"
+          {
+            nativeBuildInputs = [ pkgs.python3 ];
+          }
+          ''
+            install -Dm755 ${cliSource}/bin/ojuny-agent-cli $out/bin/ojuny-agent-cli
+            python3 -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $out/bin/ojuny-agent-cli
+          '';
     in
     {
       config = lib.mkIf active {

@@ -15,7 +15,7 @@ Total patches: 45
 | patch-cloud-storage | Cloud Storage | 1 | FOSS cloud storage clients with provider selection and Nix-configured autostart |
 | patch-custom-fastfetch | Custom Fastfetch | 1 | Fully configurable fastfetch settings through a raw GUI option |
 | patch-databases | Databases | 1 | Local PostgreSQL, MariaDB and Redis containers with connection presets |
-| patch-development | Development | 5 | VSCodium, per-language LSP toggles, optional coding agents, the dmenu project picker with devshell actions, and multi-repository project scaffolding |
+| patch-development | Development | 6 | VSCodium, per-language LSP toggles, optional coding agents, the dmenu project picker with devshell actions, and multi-repository project scaffolding |
 | patch-development-tools | Development Tools | 1 | Command line development tools |
 | patch-dictation | Dictation | 1 | Speech-to-text with Voxtype, a Superwhisper adapter, an external backend contract, a hotkey, and a microphone indicator |
 | patch-distrobox | Distrobox | 1 | Container-based distro environments backed by Podman |
@@ -35,7 +35,7 @@ Total patches: 45
 | patch-multi-kernel | Multi-kernel | 1 | Multiple Linux kernels with a boot selector and generation rollback |
 | patch-nixshell | Nix Shell Shortcuts | 1 | provides configurable nix shell aliasses |
 | patch-nixvim | Nixvim | 1 | Neovim via Nixvim with LSP servers and Stylix theming, with a native Neovim fallback |
-| patch-ojuny-agent | Ojuny agent | 1 | Approval-gated maintenance agent and read-only assistant for the Ojuny flake, with a flake-safe CLI for validation and git sync |
+| patch-ojuny-agent | Ojuny agent | 2 | Approval-gated maintenance agent and read-only assistant for the Ojuny flake, with a flake-safe CLI for validation and git sync |
 | patch-password-manager | Password manager | 1 | KeePassXC GUI vaults with an optional pass or gopass CLI store |
 | patch-print-scan | Printing and Scanning | 1 | CUPS printing with Avahi network discovery and optional SANE scanning |
 | patch-prismlauncher | Prism Launcher | 1 | Prism Launcher with per-instance Java and modloaders for Minecraft |

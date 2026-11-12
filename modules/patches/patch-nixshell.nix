@@ -76,7 +76,7 @@
 
         # The with-scope below maps every pkgs attribute to its own name, so bare names evaluate to strings and nixpkgs# refs stay exact.
         # @option widget = "packages"; label = "pydev packages"; group = "Aliases"; description = "Packages opened by the pydev alias.";
-        ojuny.apps.nixshell.aliases."pydev".packages = with pkgs; [
+        ojuny.apps.nixshell.aliases."pydev".packages = with (builtins.mapAttrs (n: _: n) pkgs); [
           python3
           pyright
           pylint
@@ -85,7 +85,7 @@
         ];
 
         # @option widget = "packages"; label = "tsdev packages"; group = "Aliases"; description = "Packages opened by the tsdev alias.";
-        ojuny.apps.nixshell.aliases."tsdev".packages = with pkgs; [
+        ojuny.apps.nixshell.aliases."tsdev".packages = with (builtins.mapAttrs (n: _: n) pkgs); [
           nodejs
           typescript-language-server
           prettier
@@ -93,7 +93,7 @@
         ];
 
         # @option widget = "packages"; label = "rsdev packages"; group = "Aliases"; description = "Packages opened by the rsdev alias.";
-        ojuny.apps.nixshell.aliases."rsdev".packages = with pkgs; [
+        ojuny.apps.nixshell.aliases."rsdev".packages = with (builtins.mapAttrs (n: _: n) pkgs); [
           rustc
           cargo
           rust-analyzer
@@ -101,14 +101,14 @@
         ];
 
         # @option widget = "packages"; label = "godev packages"; group = "Aliases"; description = "Packages opened by the godev alias.";
-        ojuny.apps.nixshell.aliases."godev".packages = with pkgs; [
+        ojuny.apps.nixshell.aliases."godev".packages = with (builtins.mapAttrs (n: _: n) pkgs); [
           go
           gopls
           golangci-lint
         ];
 
         # @option widget = "packages"; label = "cppdev packages"; group = "Aliases"; description = "Packages opened by the cppdev alias.";
-        ojuny.apps.nixshell.aliases."cppdev".packages = with pkgs; [
+        ojuny.apps.nixshell.aliases."cppdev".packages = with (builtins.mapAttrs (n: _: n) pkgs); [
           gcc
           clang-tools
           cmake
@@ -117,7 +117,7 @@
         ];
 
         # @option widget = "packages"; label = "javadev packages"; group = "Aliases"; description = "Packages opened by the javadev alias.";
-        ojuny.apps.nixshell.aliases."javadev".packages = with pkgs; [
+        ojuny.apps.nixshell.aliases."javadev".packages = with (builtins.mapAttrs (n: _: n) pkgs); [
           jdk
           jdt-language-server
           maven
@@ -125,7 +125,7 @@
         ];
 
         # @option widget = "packages"; label = "nixdev packages"; group = "Aliases"; description = "Packages opened by the nixdev alias.";
-        ojuny.apps.nixshell.aliases."nixdev".packages = with pkgs; [
+        ojuny.apps.nixshell.aliases."nixdev".packages = with (builtins.mapAttrs (n: _: n) pkgs); [
           nixd
           nixfmt
           statix
@@ -133,14 +133,14 @@
         ];
 
         # @option widget = "packages"; label = "shdev packages"; group = "Aliases"; description = "Packages opened by the shdev alias.";
-        ojuny.apps.nixshell.aliases."shdev".packages = with pkgs; [
+        ojuny.apps.nixshell.aliases."shdev".packages = with (builtins.mapAttrs (n: _: n) pkgs); [
           bash
           shellcheck
           shfmt
         ];
 
         # @option widget = "packages"; label = "dbgtools packages"; group = "Aliases"; description = "Packages opened by the dbgtools alias.";
-        ojuny.apps.nixshell.aliases."dbgtools".packages = with pkgs; [
+        ojuny.apps.nixshell.aliases."dbgtools".packages = with (builtins.mapAttrs (n: _: n) pkgs); [
           gdb
           strace
           ltrace
@@ -149,7 +149,7 @@
         ];
 
         # @option widget = "packages"; label = "netdbg packages"; group = "Aliases"; description = "Packages opened by the netdbg alias.";
-        ojuny.apps.nixshell.aliases."netdbg".packages = with pkgs; [
+        ojuny.apps.nixshell.aliases."netdbg".packages = with (builtins.mapAttrs (n: _: n) pkgs); [
           tcpdump
           wireshark
           nmap
@@ -157,7 +157,7 @@
         ];
 
         # @option widget = "packages"; label = "androiddbg packages"; group = "Aliases"; description = "Packages opened by the androiddbg alias.";
-        ojuny.apps.nixshell.aliases."androiddbg".packages = with pkgs; [
+        ojuny.apps.nixshell.aliases."androiddbg".packages = with (builtins.mapAttrs (n: _: n) pkgs); [
           android-tools
           jdk
           gradle
@@ -166,6 +166,11 @@
         ];
 
         # Derived, no @option: every non-empty alias becomes "nix shell nixpkgs#<name> ...".
+        assertions = lib.mapAttrsToList (name: alias: {
+          assertion = lib.all lib.isString alias.packages;
+          message = "patch-nixshell: alias ${name} packages must be package names, not packages.";
+        }) config.ojuny.apps.nixshell.aliases;
+
         environment.shellAliases = lib.mapAttrs (
           _: entry: "nix shell ${lib.concatMapStringsSep " " (name: "nixpkgs#${name}") entry.packages}"
         ) (lib.filterAttrs (_: entry: entry.packages != [ ]) config.ojuny.apps.nixshell.aliases);

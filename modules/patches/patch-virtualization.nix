@@ -49,7 +49,7 @@
     {
       config = lib.mkIf active {
 
-        # @option widget = "switch"; label = "Libvirt daemon"; group = "Libvirt"; visibleWhen.path = "ojuny.patch.virt.enable"; visibleWhen.equals = true; description = "Manage virtual machines with libvirt. Users in the libvirtd group can control it.";
+        # @option widget = "switch"; label = "Libvirt daemon"; group = "Libvirt"; visibleWhen.path = "ojuny.patch.virt.enable"; visibleWhen.equals = true; description = "Manage virtual machines with libvirt. Polkit authorises the local session; the patch does not add users to the libvirtd group.";
         virtualisation.libvirtd.enable = true;
 
         # @option widget = "dropdown"; label = "Guests on host boot"; group = "Libvirt"; visibleWhen.path = "virtualisation.libvirtd.enable"; visibleWhen.equals = true; choices = [ "start" "ignore" ]; description = "Start formerly running guests, or leave them to their own autostart.";

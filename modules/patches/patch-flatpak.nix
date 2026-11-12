@@ -3,7 +3,7 @@
   displayname = "Flatpak";
   icon = "system-software-install-symbolic";
   order = 20;
-  description = "Sandboxed application distribution via flathub";
+  description = "Sandboxed application distribution with the Bazaar store";
   category = "Patches";
   systems = [ "all" ];
 */
@@ -38,7 +38,7 @@
     in
     {
       config = lib.mkIf cfg.enable {
-        # @option widget = "switch"; label = "Flatpak service"; group = "Flatpak"; description = "Enable the Flatpak service and its xdg portal integration.";
+        # @option widget = "switch"; label = "Flatpak service"; group = "Flatpak"; description = "Enable the Flatpak service and its xdg portal integration. Bazaar prompts to add the Flathub remote on first launch; this patch does not add a remote by itself.";
         services.flatpak.enable = true;
 
         environment.systemPackages = lib.mkIf config.services.flatpak.enable [ pkgs.bazaar ];

@@ -16,7 +16,9 @@ ojuny-patches sync
 ojuny-patches install patch-zen-browser
 ```
 
-Then enable Zen Browser on the Patches page.
+Then enable Zen Browser on the Patches page. `ojuny-patches install` stages the
+module with `git add`; if you add it by hand, use the settings GUI Sync button or
+`git add modules/patches/patch-zen-browser.nix` before rebuilding.
 
 The patch declares its flake input with:
 

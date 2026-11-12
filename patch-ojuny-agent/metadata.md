@@ -2,7 +2,7 @@ name: Ojuny agent
 id: patch-ojuny-agent
 description: Approval-gated maintenance agent and read-only assistant for the Ojuny flake, with a flake-safe CLI for validation and git sync
 dependencies: patch-development
-version: 1
+version: 2
 
 # Ojuny agent
 
@@ -18,7 +18,10 @@ ojuny-patches sync
 ojuny-patches install patch-ojuny-agent
 ```
 
-Installing copies one Nix module and enables nothing. Open the settings GUI, go
+Installing copies one Nix module and enables nothing. `ojuny-patches install`
+stages the module with `git add`, because a Nix flake ignores an untracked
+module. If you add a module by hand, stage it with the settings GUI Sync button
+or `git add modules/patches/patch-ojuny-agent.nix`. Open the settings GUI, go
 to Patches, turn on Ojuny agent, confirm that Development and its OpenCode agent
 are enabled, then rebuild.
 
@@ -33,16 +36,19 @@ evaluation.
 
 ## Agents
 
-`ojuny-agent` is the full agentic flavour. It can edit the flake only with
-explicit approval, validate every edit, show a diff, revert changes, and sync
-the flake git. It cannot rebuild, activate, use sudo, install packages, or change
+`ojuny-agent` is the full agentic flavour. It can edit or create files inside
+the flake only with explicit approval, validate every edit, show a diff, revert
+changes, and sync the flake git. It can ask to use network clients and web
+fetching. It cannot rebuild, activate, use sudo, install packages, or change
 services. Runtime `ojuny` commands are denied by default. The Allow runtime
 actions switch turns them into approval-gated commands, but sudo and rebuilds
 stay denied.
 
 `ojuny-assist` is the read-only flavour. It answers questions about Ojuny, the
-settings menu, patches, the flake, and the `ojuny` CLI. It cannot edit, sync,
-revert, lock, rebuild, or mutate anything.
+settings menu, patches, the flake, and the `ojuny` CLI. It cannot edit, create,
+sync, revert, lock, rebuild, or mutate anything. Its shell is read-only, and
+network clients such as `curl`, `wget`, `nc`, `socat`, `ssh`, `scp`, and `rsync`
+are denied.
 
 Both agents load the flake `AGENTS.md` when it exists. The patch does not create
 that file; the agent guide works without it.
@@ -97,6 +103,8 @@ then runs `sync --continue`. `sync --abort` aborts an in-progress merge.
 - No edits to generated hardware, account, or secret files.
 - No reads of `.env`, key, age, or secret files.
 - No raw `git pull`, merge, rebase, reset, commit, push, or clean. Use the CLI.
+- The explain agent denies write actions and network clients. The full agent asks
+  for approval before it edits, creates, fetches, or runs a network client.
 - The CLI does not push.
 
 ## Documentation
