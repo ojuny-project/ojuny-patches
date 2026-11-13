@@ -1,0 +1,10 @@
+# Tests
+# Local test record for this repository.
+# Run against commit a0ec786 on 2026-11-13.
+# Device: ojuny test laptop, NixOS 26.11.20261111.d4f25a3, kernel 6.18.63.
+# Result: all listed tests passed.
+
+- PASS PATCH-07: patch installation stages its module. Method: copy the deployed flake, run `ojuny-patches --flake <copy> --yes install patch-custom-fastfetch`, and check `git status` for `A modules/patches/patch-custom-fastfetch.nix`. Evidence: RUN-02.
+- PASS PATCH-03: agent usage builds and runs with OpenCode. Method: build the development patch with `usage.enable` on, run `ccusage --version` and `ojuny-agent-usage --offline`, and confirm the `{}` result. Evidence: RUN-03, `ccusage 20.0.47`.
+- PASS registry copy identity: the registry and template patch modules are byte-identical. Method: `cmp` the two `patch-development.nix` copies; also enforced by a `ojuny-test-all.sh` gate. Evidence: RUN-03, 68 checks.
+- PASS PATCH-06: Docker, Flatpak, and virtualization defaults behave as documented. Method: build the patch generation, confirm `docker` and `libvirtd` are active, run `sudo docker run --rm hello-world`, confirm `den` is not in the service groups, check `flatpak remotes` is empty with Bazaar installed, and run `virsh -c qemu:///system list` as root. Evidence: RUN-02.
