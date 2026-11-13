@@ -912,12 +912,17 @@
           ''
       );
 
+      ccusage = pkgs.ccusage.overrideAttrs (old: {
+        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.pkg-config ];
+        buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.zstd ];
+      });
+
       usage = pkgs.writeShellScriptBin "ojuny-agent-usage" ''
         if [ "''${1:-}" = "--offline" ]; then
           printf '%s\n' '{}'
           exit 0
         fi
-        exec ${pkgs.ccusage}/bin/ccusage "$@"
+        exec ${ccusage}/bin/ccusage "$@"
       '';
     in
     {
@@ -1005,7 +1010,7 @@
           lib.optionals (cfg.defaultAgent != "none" && enabledAgentNames != [ ]) [ agent ]
           ++ lib.optionals usageEnabled [
             usage
-            pkgs.ccusage
+            ccusage
           ]
           ++ lib.optionals (onAgent "claude-code") [ pkgs.claude-code ]
           ++ lib.optionals (onAgent "codex") [ pkgs.codex ]
