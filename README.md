@@ -100,4 +100,3 @@ A patch pull request includes the metadata file, the module, and a regenerated
 
 GNU General Public License version 3, see [LICENSE](LICENSE). Installed
 upstream packages and assets keep their own licenses.
-
