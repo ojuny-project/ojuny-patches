@@ -21,6 +21,16 @@
           default = false;
           description = "Allow the maintenance agent to ask for mutating ojuny commands. Off by default; the default profile is flake-only.";
         };
+        assistDefault = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Open ojuny-assist instead of ojuny-agent when the ojuny-agent launcher starts OpenCode.";
+        };
+        model = lib.mkOption {
+          type = lib.types.str;
+          default = "opencode/deepseek-v4.1-flash-free";
+          description = "OpenCode model used by both agents, as provider/model.";
+        };
       };
 
       imports = [ self.modules.nixos.ojuny-agent-backend ];
@@ -31,6 +41,9 @@
 
         # @option widget = "switch"; label = "Allow runtime actions"; group = "Agents"; visibleWhen.path = "ojuny.patch.ojuny-agent.enable"; visibleWhen.equals = true; description = "Allow the maintenance agent to ask for mutating ojuny commands. Every request still needs approval, and sudo, rebuilds, and package changes stay denied.";
         ojuny.patch.ojuny-agent.runtimeActions = false;
+
+        # @option widget = "switch"; label = "Open the assistant by default"; group = "Agents"; visibleWhen.path = "ojuny.patch.ojuny-agent.enable"; visibleWhen.equals = true; description = "Start the ojuny-agent launcher in the read-only ojuny-assist agent. Off starts ojuny-agent.";
+        ojuny.patch.ojuny-agent.assistDefault = false;
 
         home-manager.sharedModules = lib.mkIf (
           config.ojuny.patch.ojuny-agent.enable && (config.ojuny.patches or true)
@@ -131,7 +144,8 @@
           `facter.json`, and the detected `system-hardware-quirks` module. Do not
           edit them by hand.
         - The installed flake location is `ojuny.repoPath`, projected to
-          `/etc/ojuny/flake-path`. Do not hardcode another location.
+          `/etc/ojuny/flake-path`. For this install the flake root is
+          `${flakeRoot}`. Do not hardcode another location.
 
         ## Settings menu rules
 
@@ -211,6 +225,10 @@
 
         ## Limits
 
+        - The shell starts in the flake root. Do not run `cd`.
+        - Use the `read`, `grep` and `glob` tools for files. `ojuny-assist` does
+          not allow `cat`, `head`, `tail` or `grep` through the shell, because
+          those bypass the read permission rules.
         - Never edit outside the flake.
         - Never edit generated hardware, account, or secret files.
         - Never run `sudo`, rebuild, activate, install packages, or change services
@@ -225,6 +243,8 @@
           "Runtime actions are enabled. You may ask for mutating ojuny commands, and every request still needs explicit approval."
         else
           "Runtime actions are disabled. Do not run mutating ojuny commands. Explain them and ask the user to run them.";
+
+      agentModel = cfg.model or "opencode/deepseek-v4.1-flash-free";
 
       agentPrompt =
         guide
@@ -292,7 +312,10 @@
       };
 
       readRules = [
-        (deny "*" "*")
+        (deny "subagent" "*")
+        (deny "skill" "*")
+        (deny "generate_image" "*")
+        (deny "execute" "*")
         (allow "read" "*")
         (deny "read" "*.env")
         (deny "read" "*.env.*")
@@ -463,6 +486,18 @@
       ojunyReadRules = map (command: allow "shell" ("ojuny " + command + "*")) ojunyRead;
 
       readOnlyShell = [
+        (allow "shell" "cd *")
+        (allow "shell" "ls *")
+        (allow "shell" "pwd")
+        (allow "shell" "wc *")
+        (allow "shell" "stat *")
+        (allow "shell" "file *")
+        (allow "shell" "df *")
+        (allow "shell" "free *")
+        (allow "shell" "uptime")
+        (allow "shell" "uname *")
+        (allow "shell" "whoami")
+        (allow "shell" "id")
         (allow "shell" "git status*")
         (allow "shell" "git diff*")
         (allow "shell" "git log*")
@@ -500,7 +535,7 @@
       ++ readOnlyShell;
 
       assistShell = [
-        (deny "shell" "*")
+        (ask "shell" "*")
       ]
       ++ dangerousShell
       ++ networkShell
@@ -1617,6 +1652,7 @@
               "ojuny-agent" = {
                 description = "Maintain the Ojuny flake with approval-gated edits, validation, and flake-only git sync.";
                 mode = "primary";
+                model = agentModel;
                 steps = 24;
                 system = agentPrompt;
                 permissions = agentPermissions;
@@ -1624,6 +1660,7 @@
               "ojuny-assist" = {
                 description = "Explain Ojuny, its settings menu, and its patches without editing anything.";
                 mode = "primary";
+                model = agentModel;
                 steps = 12;
                 system = assistPrompt;
                 permissions = assistPermissions;

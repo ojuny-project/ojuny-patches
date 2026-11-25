@@ -168,6 +168,11 @@
       languageEnabled = name: cfg.languages.${name}.enable or false;
       enabledLanguages = builtins.filter languageEnabled languageNames;
 
+      projectsAgent =
+        cfg.projects.enable
+        && cfg.defaultAgent != "none"
+        && (lib.attrByPath [ cfg.defaultAgent "enable" ] false cfg.agents);
+
       languagePackages = {
         nix = with pkgs; [
           nixd
@@ -363,30 +368,43 @@
           exit 0
         fi
 
-        ACTION=$(printf '%s\n' \
-          "Open in editor" \
-          "Open terminal" \
-          "Start agent" \
-          "Open Obsidian vault" \
-          "Cancel" \
+        editor=${lib.escapeShellArg cfg.projects.editorCommand}
+        terminal=${lib.escapeShellArg cfg.projects.terminalCommand}
+        assistant=${lib.escapeShellArg cfg.projects.assistantCommand}
+
+        obsidian_available() {
+          command -v obsidian >/dev/null 2>&1 && return 0
+          [ -n "$(xdg-mime query default x-scheme-handler/obsidian 2>/dev/null)" ]
+        }
+
+        actions=("Open in editor" "Open terminal")
+        if [ ${lib.boolToString projectsAgent} = true ] && command -v "$assistant" >/dev/null 2>&1; then
+          actions+=("Start agent")
+        fi
+        if obsidian_available; then
+          actions+=("Open Obsidian vault")
+        fi
+        actions+=("Cancel")
+
+        ACTION=$(printf '%s\n' "''${actions[@]}" \
           | dms dmenu --prompt "$(basename "$SELECTED")" --lines 6 --no-custom)
 
         if [ -z "$ACTION" ] || [ "$ACTION" = "Cancel" ]; then
           exit 0
         fi
 
-        editor=${lib.escapeShellArg cfg.projects.editorCommand}
-        terminal=${lib.escapeShellArg cfg.projects.terminalCommand}
-        assistant=${lib.escapeShellArg cfg.projects.assistantCommand}
-
         run_in_devshell() {
+          local command="$1"
+          shift
           if [ -f "$SELECTED/flake.nix" ] || [ -f "$SELECTED/shell.nix" ]; then
             if ( cd "$SELECTED" && nix develop -c true >/dev/null 2>&1 ); then
-              ( cd "$SELECTED" && nix develop -c "$@" )
-              return
+              if ( cd "$SELECTED" && nix develop -c sh -c 'command -v "$1" >/dev/null 2>&1' _ "$command" ); then
+                ( cd "$SELECTED" && nix develop -c "$command" "$@" )
+                return
+              fi
             fi
           fi
-          ( cd "$SELECTED" && "$@" )
+          ( cd "$SELECTED" && "$command" "$@" )
         }
 
         case "$ACTION" in
@@ -400,13 +418,24 @@
             fi
             ;;
           "Open terminal")
-            run_in_devshell "$terminal"
+            if [ "$(basename "$terminal")" = "ghostty" ]; then
+              run_in_devshell "$terminal" --working-directory="$SELECTED"
+            else
+              run_in_devshell "$terminal"
+            fi
             ;;
           "Start agent")
-            run_in_devshell "$assistant"
+            if [ "$(basename "$assistant")" = "opencode" ]; then
+              run_in_devshell "$assistant" "$SELECTED"
+            else
+              run_in_devshell "$assistant"
+            fi
             ;;
           "Open Obsidian vault")
             vault_path="$SELECTED"
+            if command -v obsidian >/dev/null 2>&1 && obsidian vault="$vault_path" >/dev/null 2>&1; then
+              exit 0
+            fi
             vault_path="''${vault_path// /%20}"
             xdg-open "obsidian://open?path=$vault_path" >/dev/null 2>&1 &
             ;;
@@ -730,10 +759,25 @@
       cfg = osConfig.ojuny.patch.development or { enable = false; };
       active = cfg.enable && (osConfig.ojuny.patches or true);
 
-      flakeRef = "git+file://${
+      ojunyAgent =
+        osConfig.ojuny.patch.ojuny-agent or {
+          enable = false;
+          assistDefault = false;
+        };
+
+      ojunyAgentSelected =
+        if ojunyAgent.assistDefault or false then "ojuny-assist" else "ojuny-agent";
+
+      ojunyAgentModel = ojunyAgent.model or "opencode/deepseek-v4.1-flash-free";
+      ojunyAgentModelParts = lib.splitString "/" ojunyAgentModel;
+      ojunyAgentModelProvider = builtins.head ojunyAgentModelParts;
+      ojunyAgentModelId = builtins.concatStringsSep "/" (builtins.tail ojunyAgentModelParts);
+
+      flakeRoot =
         osConfig.environment.variables.OJUNY_REPO_PATH
-          or "${config.home.homeDirectory}/${osConfig.ojuny.repoPath or "repos/nix-flake"}"
-      }";
+          or "${config.home.homeDirectory}/${osConfig.ojuny.repoPath or "repos/nix-flake"}";
+
+      flakeRef = "git+file://${flakeRoot}";
 
       languageEnabled = name: cfg.languages.${name}.enable or false;
       onAgent = name: cfg.agents.${name}.enable or false;
@@ -906,8 +950,19 @@
             echo "ojuny-agent: no default agent is configured" >&2
             exit 1
           ''
+        else if cfg.defaultAgent == "opencode" && (ojunyAgent.enable or false) then
+          ''
+            cd ${lib.escapeShellArg flakeRoot} || exit 1
+            session=$(${agentCommands.opencode} api post /api/session -d '{"agent":"${ojunyAgentSelected}","model":{"providerID":"${ojunyAgentModelProvider}","id":"${ojunyAgentModelId}"}}' 2>/dev/null || true)
+            session_id=$(printf '%s' "$session" | ${pkgs.jq}/bin/jq -r '.data.id // empty' 2>/dev/null || true)
+            if [ -n "$session_id" ]; then
+              exec ${agentCommands.opencode} --session "$session_id" "$@"
+            fi
+            exec ${agentCommands.opencode} "$@"
+          ''
         else
           ''
+            cd ${lib.escapeShellArg flakeRoot} || exit 1
             exec ${agentCommands.${cfg.defaultAgent}} "$@"
           ''
       );
