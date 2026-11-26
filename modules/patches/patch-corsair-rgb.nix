@@ -19,64 +19,64 @@
       imports = [ self.modules.nixos.corsair-rgb-backend ];
 
       config = {
-        /* @option widget = "switch"; label = "Corsair RGB"; group = "Corsair RGB"; groupOrder = 10; order = 10; description = "Enable ckb-next and the dynamic RGB daemon."; */
+        # @option widget = "switch"; label = "Corsair RGB"; group = "Corsair RGB"; groupOrder = 10; order = 10; description = "Enable ckb-next and the dynamic RGB daemon.";
         ojuny.patch.corsair-rgb.enable = false;
 
-        /* @option widget = "dropdown"; label = "Ambient"; group = "Palette"; groupOrder = 20; order = 10; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Baseline color for every key. selectionBackground is brighter than defaultBackground."; */
+        # @option widget = "dropdown"; label = "Ambient"; group = "Palette"; groupOrder = 20; order = 10; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Baseline color for every key. selectionBackground is brighter than defaultBackground.";
         ojuny.patch.corsair-rgb.palette.ambient = "selectionBackground";
 
-        /* @option widget = "dropdown"; label = "Unlit"; group = "Palette"; groupOrder = 20; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for unlit volume keys and empty indicators."; */
+        # @option widget = "dropdown"; label = "Unlit"; group = "Palette"; groupOrder = 20; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for unlit volume keys and empty indicators.";
         ojuny.patch.corsair-rgb.palette.unlit = "comments";
 
-        /* @option widget = "dropdown"; label = "Muted"; group = "Palette"; groupOrder = 20; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for muted or inactive text-like states."; */
+        # @option widget = "dropdown"; label = "Muted"; group = "Palette"; groupOrder = 20; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for muted or inactive text-like states.";
         ojuny.patch.corsair-rgb.palette.muted = "darkForeground";
 
-        /* @option widget = "dropdown"; label = "Neutral"; group = "Palette"; groupOrder = 20; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Neutral foreground color."; */
+        # @option widget = "dropdown"; label = "Neutral"; group = "Palette"; groupOrder = 20; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Neutral foreground color.";
         ojuny.patch.corsair-rgb.palette.neutral = "defaultForeground";
 
-        /* @option widget = "dropdown"; label = "Bright"; group = "Palette"; groupOrder = 20; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Bright foreground color."; */
+        # @option widget = "dropdown"; label = "Bright"; group = "Palette"; groupOrder = 20; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Bright foreground color.";
         ojuny.patch.corsair-rgb.palette.bright = "lightForeground";
 
-        /* @option widget = "dropdown"; label = "Primary"; group = "Palette"; groupOrder = 20; order = 60; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Primary accent for active keymode binds."; */
+        # @option widget = "dropdown"; label = "Primary"; group = "Palette"; groupOrder = 20; order = 60; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Primary accent for active keymode binds.";
         ojuny.patch.corsair-rgb.palette.primary = "functions";
 
-        /* @option widget = "dropdown"; label = "Secondary"; group = "Palette"; groupOrder = 20; order = 70; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Secondary accent."; */
+        # @option widget = "dropdown"; label = "Secondary"; group = "Palette"; groupOrder = 20; order = 70; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Secondary accent.";
         ojuny.patch.corsair-rgb.palette.secondary = "keywords";
 
-        /* @option widget = "dropdown"; label = "Accent"; group = "Palette"; groupOrder = 20; order = 80; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Information accent."; */
+        # @option widget = "dropdown"; label = "Accent"; group = "Palette"; groupOrder = 20; order = 80; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Information accent.";
         ojuny.patch.corsair-rgb.palette.accent = "support";
 
-        /* @option widget = "dropdown"; label = "Success"; group = "Palette"; groupOrder = 20; order = 90; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Success color."; */
+        # @option widget = "dropdown"; label = "Success"; group = "Palette"; groupOrder = 20; order = 90; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Success color.";
         ojuny.patch.corsair-rgb.palette.success = "strings";
 
-        /* @option widget = "dropdown"; label = "Warning"; group = "Palette"; groupOrder = 20; order = 100; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Warning color."; */
+        # @option widget = "dropdown"; label = "Warning"; group = "Palette"; groupOrder = 20; order = 100; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Warning color.";
         ojuny.patch.corsair-rgb.palette.warning = "classes";
 
-        /* @option widget = "dropdown"; label = "Attention"; group = "Palette"; groupOrder = 20; order = 110; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Attention color for stay-awake and mid-volume states."; */
+        # @option widget = "dropdown"; label = "Attention"; group = "Palette"; groupOrder = 20; order = 110; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Attention color for stay-awake and mid-volume states.";
         ojuny.patch.corsair-rgb.palette.attention = "integers";
 
-        /* @option widget = "dropdown"; label = "Error"; group = "Palette"; groupOrder = 20; order = 120; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Error, urgent and high-volume color."; */
+        # @option widget = "dropdown"; label = "Error"; group = "Palette"; groupOrder = 20; order = 120; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Error, urgent and high-volume color.";
         ojuny.patch.corsair-rgb.palette.error = "variables";
 
-        /* @option widget = "dropdown"; label = "Special"; group = "Palette"; groupOrder = 20; order = 130; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Special workspace color."; */
+        # @option widget = "dropdown"; label = "Special"; group = "Palette"; groupOrder = 20; order = 130; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Special workspace color.";
         ojuny.patch.corsair-rgb.palette.special = "deprecated";
 
-        /* @option widget = "slider"; label = "Gamma"; group = "Palette"; groupOrder = 20; order = 140; min = 1.0; max = 3.5; step = 0.1; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "LED gamma correction. 2.8 matches the old CachyOS daemon."; */
+        # @option widget = "slider"; label = "Gamma"; group = "Palette"; groupOrder = 20; order = 140; min = 1.0; max = 3.5; step = 0.1; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "LED gamma correction. 2.8 matches the old CachyOS daemon.";
         ojuny.patch.corsair-rgb.gamma = 2.8;
 
-        /* @option widget = "text"; label = "Devices"; group = "Runtime"; groupOrder = 30; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "auto detects rgb-capable ckb-next devices. A comma-separated list such as ckb1,ckb2 forces devices."; */
+        # @option widget = "text"; label = "Devices"; group = "Runtime"; groupOrder = 30; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "auto detects rgb-capable ckb-next devices. A comma-separated list such as ckb1,ckb2 forces devices.";
         ojuny.patch.corsair-rgb.devices = "auto";
 
-        /* @option widget = "spin"; label = "Refresh seconds"; group = "Runtime"; groupOrder = 30; order = 20; min = 5; max = 600; unit = "s"; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Fallback reapply interval when no state event arrives."; */
+        # @option widget = "spin"; label = "Refresh seconds"; group = "Runtime"; groupOrder = 30; order = 20; min = 5; max = 600; unit = "s"; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Fallback reapply interval when no state event arrives.";
         ojuny.patch.corsair-rgb.refreshSeconds = 60;
 
-        /* @option widget = "spin"; label = "State refresh seconds"; group = "Runtime"; groupOrder = 30; order = 30; min = 1; max = 60; unit = "s"; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "How often DMS and volume state are sampled."; */
+        # @option widget = "spin"; label = "State refresh seconds"; group = "Runtime"; groupOrder = 30; order = 30; min = 1; max = 60; unit = "s"; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "How often DMS and volume state are sampled.";
         ojuny.patch.corsair-rgb.stateRefreshSeconds = 2;
 
-        /* @option widget = "switch"; label = "Volume bar"; group = "Volume bar"; groupOrder = 40; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light the configured keys as a volume bar."; */
+        # @option widget = "switch"; label = "Volume bar"; group = "Volume bar"; groupOrder = 40; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light the configured keys as a volume bar.";
         ojuny.patch.corsair-rgb.volumeBar.enable = true;
 
-        /* @option widget = "list"; label = "Volume keys"; group = "Volume bar"; groupOrder = 40; order = 20; itemType = "string"; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.enable"; visibleWhen.equals = true; description = "Keys used for the volume bar, in low-to-high order."; */
+        # @option widget = "list"; label = "Volume keys"; group = "Volume bar"; groupOrder = 40; order = 20; itemType = "string"; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.enable"; visibleWhen.equals = true; description = "Keys used for the volume bar, in low-to-high order.";
         ojuny.patch.corsair-rgb.volumeBar.keys = [
           "f1"
           "f2"
@@ -92,43 +92,43 @@
           "f12"
         ];
 
-        /* @option widget = "dropdown"; label = "Volume mode"; group = "Volume bar"; groupOrder = 40; order = 30; choices = [ "solid" "ramp" "heat" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.enable"; visibleWhen.equals = true; description = "solid uses one color. ramp colors each lit key by position. heat colors the whole bar by level."; */
+        # @option widget = "dropdown"; label = "Volume mode"; group = "Volume bar"; groupOrder = 40; order = 30; choices = [ "solid" "ramp" "heat" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.enable"; visibleWhen.equals = true; description = "solid uses one color. ramp colors each lit key by position. heat colors the whole bar by level.";
         ojuny.patch.corsair-rgb.volumeBar.mode = "solid";
 
-        /* @option widget = "dropdown"; label = "Volume color"; group = "Volume bar"; groupOrder = 40; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.enable"; visibleWhen.equals = true; description = "Color used by solid mode."; */
+        # @option widget = "dropdown"; label = "Volume color"; group = "Volume bar"; groupOrder = 40; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.enable"; visibleWhen.equals = true; description = "Color used by solid mode.";
         ojuny.patch.corsair-rgb.volumeBar.color = "functions";
 
-        /* @option widget = "dropdown"; label = "Volume low"; group = "Volume bar"; groupOrder = 40; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.enable"; visibleWhen.equals = true; description = "Low band color for ramp and heat modes."; */
+        # @option widget = "dropdown"; label = "Volume low"; group = "Volume bar"; groupOrder = 40; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.enable"; visibleWhen.equals = true; description = "Low band color for ramp and heat modes.";
         ojuny.patch.corsair-rgb.volumeBar.low = "strings";
 
-        /* @option widget = "dropdown"; label = "Volume mid"; group = "Volume bar"; groupOrder = 40; order = 60; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.enable"; visibleWhen.equals = true; description = "Mid band color for ramp and heat modes."; */
+        # @option widget = "dropdown"; label = "Volume mid"; group = "Volume bar"; groupOrder = 40; order = 60; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.enable"; visibleWhen.equals = true; description = "Mid band color for ramp and heat modes.";
         ojuny.patch.corsair-rgb.volumeBar.mid = "integers";
 
-        /* @option widget = "dropdown"; label = "Volume high"; group = "Volume bar"; groupOrder = 40; order = 70; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.enable"; visibleWhen.equals = true; description = "High band color for ramp and heat modes."; */
+        # @option widget = "dropdown"; label = "Volume high"; group = "Volume bar"; groupOrder = 40; order = 70; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.enable"; visibleWhen.equals = true; description = "High band color for ramp and heat modes.";
         ojuny.patch.corsair-rgb.volumeBar.high = "variables";
 
-        /* @option widget = "switch"; label = "Tag indicators"; group = "Tags"; groupOrder = 50; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light number keys 1 to 0 for the active Mango tags."; */
+        # @option widget = "switch"; label = "Tag indicators"; group = "Tags"; groupOrder = 50; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light number keys 1 to 0 for the active Mango tags.";
         ojuny.patch.corsair-rgb.tags.enable = true;
 
-        /* @option widget = "dropdown"; label = "Tag active"; group = "Tags"; groupOrder = 50; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.enable"; visibleWhen.equals = true; description = "Color for active tags."; */
+        # @option widget = "dropdown"; label = "Tag active"; group = "Tags"; groupOrder = 50; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.enable"; visibleWhen.equals = true; description = "Color for active tags.";
         ojuny.patch.corsair-rgb.tags.active = "functions";
 
-        /* @option widget = "dropdown"; label = "Tag occupied"; group = "Tags"; groupOrder = 50; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.enable"; visibleWhen.equals = true; description = "Color for inactive tags that hold clients."; */
+        # @option widget = "dropdown"; label = "Tag occupied"; group = "Tags"; groupOrder = 50; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.enable"; visibleWhen.equals = true; description = "Color for inactive tags that hold clients.";
         ojuny.patch.corsair-rgb.tags.occupied = "defaultForeground";
 
-        /* @option widget = "dropdown"; label = "Tag urgent"; group = "Tags"; groupOrder = 50; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.enable"; visibleWhen.equals = true; description = "Color for urgent tags."; */
+        # @option widget = "dropdown"; label = "Tag urgent"; group = "Tags"; groupOrder = 50; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.enable"; visibleWhen.equals = true; description = "Color for urgent tags.";
         ojuny.patch.corsair-rgb.tags.urgent = "variables";
 
-        /* @option widget = "dropdown"; label = "Tag empty"; group = "Tags"; groupOrder = 50; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.enable"; visibleWhen.equals = true; description = "Color for empty tags."; */
+        # @option widget = "dropdown"; label = "Tag empty"; group = "Tags"; groupOrder = 50; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.enable"; visibleWhen.equals = true; description = "Color for empty tags.";
         ojuny.patch.corsair-rgb.tags.empty = "comments";
 
-        /* @option widget = "switch"; label = "Keymode binds"; group = "Keymode"; groupOrder = 60; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light the keys and modifiers used by the active Mango keymode."; */
+        # @option widget = "switch"; label = "Keymode binds"; group = "Keymode"; groupOrder = 60; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light the keys and modifiers used by the active Mango keymode.";
         ojuny.patch.corsair-rgb.keymode.enable = true;
 
-        /* @option widget = "dropdown"; label = "Modifier color"; group = "Keymode"; groupOrder = 60; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.keymode.enable"; visibleWhen.equals = true; description = "Color for modifier keys used by active binds."; */
+        # @option widget = "dropdown"; label = "Modifier color"; group = "Keymode"; groupOrder = 60; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.keymode.enable"; visibleWhen.equals = true; description = "Color for modifier keys used by active binds.";
         ojuny.patch.corsair-rgb.keymode.modifierColor = "support";
 
-        /* @option widget = "table-list"; label = "State binds"; group = "State binds"; groupOrder = 70; order = 10; columns = [ "name" "match" "probe" "color" "enabled" ]; columnTypes = [ "str" "str" "str" "dropdown" "bool" ]; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Highlight the key bound to a function while that DMS state is active. match is a case-insensitive substring of the bind action. probe is dms-night, dms-dnd, dms-inhibit, audio-muted, media-playing, or custom:<command>."; */
+        # @option widget = "table-list"; label = "State binds"; group = "State binds"; groupOrder = 70; order = 10; columns = [ "name" "match" "probe" "color" "enabled" ]; columnTypes = [ "str" "str" "str" "dropdown" "bool" ]; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Highlight the key bound to a function while that DMS state is active. match is a case-insensitive substring of the bind action. probe is dms-night, dms-dnd, dms-inhibit, audio-muted, media-playing, or custom:<command>.";
         ojuny.patch.corsair-rgb.stateBinds = [
           {
             name = "Night mode";
@@ -167,7 +167,7 @@
           }
         ];
 
-        /* @option widget = "switch"; label = "DMS menu entry"; group = "DMS"; groupOrder = 80; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Add Dynamic RGB rows to the Ojuny menu."; */
+        # @option widget = "switch"; label = "DMS menu entry"; group = "DMS"; groupOrder = 80; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Add Dynamic RGB rows to the Ojuny menu.";
         ojuny.patch.corsair-rgb.dms.menuEntry = true;
       };
     };
@@ -176,6 +176,7 @@
     {
       config,
       lib,
+      options,
       pkgs,
       ...
     }:
@@ -204,7 +205,7 @@
 
       colorType = lib.types.enum namedColors;
 
-      stylixAvailable = config ? lib.stylix.colors;
+      stylixAvailable = options ? stylix;
       colors = if stylixAvailable then config.lib.stylix.colors else null;
       hex = name: colors.${name}.hex;
 
@@ -1082,9 +1083,7 @@
 
       bindsJson = pkgs.writeText "ojuny-rgb-binds.json" (
         builtins.toJSON {
-          modes = builtins.mapAttrs (
-            _mode: modeBinds: map bindJson (builtins.attrValues modeBinds)
-          ) bindMap;
+          modes = builtins.mapAttrs (_mode: modeBinds: map bindJson (builtins.attrValues modeBinds)) bindMap;
         }
       );
 
@@ -1160,19 +1159,71 @@
         };
 
         palette = {
-          ambient = lib.mkOption { type = colorType; default = "selectionBackground"; description = "Baseline key color."; };
-          unlit = lib.mkOption { type = colorType; default = "comments"; description = "Unlit volume and empty indicator color."; };
-          muted = lib.mkOption { type = colorType; default = "darkForeground"; description = "Muted color."; };
-          neutral = lib.mkOption { type = colorType; default = "defaultForeground"; description = "Neutral foreground."; };
-          bright = lib.mkOption { type = colorType; default = "lightForeground"; description = "Bright foreground."; };
-          primary = lib.mkOption { type = colorType; default = "functions"; description = "Primary accent."; };
-          secondary = lib.mkOption { type = colorType; default = "keywords"; description = "Secondary accent."; };
-          accent = lib.mkOption { type = colorType; default = "support"; description = "Information accent."; };
-          success = lib.mkOption { type = colorType; default = "strings"; description = "Success color."; };
-          warning = lib.mkOption { type = colorType; default = "classes"; description = "Warning color."; };
-          attention = lib.mkOption { type = colorType; default = "integers"; description = "Attention color."; };
-          error = lib.mkOption { type = colorType; default = "variables"; description = "Error color."; };
-          special = lib.mkOption { type = colorType; default = "deprecated"; description = "Special workspace color."; };
+          ambient = lib.mkOption {
+            type = colorType;
+            default = "selectionBackground";
+            description = "Baseline key color.";
+          };
+          unlit = lib.mkOption {
+            type = colorType;
+            default = "comments";
+            description = "Unlit volume and empty indicator color.";
+          };
+          muted = lib.mkOption {
+            type = colorType;
+            default = "darkForeground";
+            description = "Muted color.";
+          };
+          neutral = lib.mkOption {
+            type = colorType;
+            default = "defaultForeground";
+            description = "Neutral foreground.";
+          };
+          bright = lib.mkOption {
+            type = colorType;
+            default = "lightForeground";
+            description = "Bright foreground.";
+          };
+          primary = lib.mkOption {
+            type = colorType;
+            default = "functions";
+            description = "Primary accent.";
+          };
+          secondary = lib.mkOption {
+            type = colorType;
+            default = "keywords";
+            description = "Secondary accent.";
+          };
+          accent = lib.mkOption {
+            type = colorType;
+            default = "support";
+            description = "Information accent.";
+          };
+          success = lib.mkOption {
+            type = colorType;
+            default = "strings";
+            description = "Success color.";
+          };
+          warning = lib.mkOption {
+            type = colorType;
+            default = "classes";
+            description = "Warning color.";
+          };
+          attention = lib.mkOption {
+            type = colorType;
+            default = "integers";
+            description = "Attention color.";
+          };
+          error = lib.mkOption {
+            type = colorType;
+            default = "variables";
+            description = "Error color.";
+          };
+          special = lib.mkOption {
+            type = colorType;
+            default = "deprecated";
+            description = "Special workspace color.";
+          };
         };
 
         volumeBar = {
@@ -1207,19 +1258,51 @@
             description = "Volume bar color mode.";
           };
 
-          color = lib.mkOption { type = colorType; default = "functions"; description = "Solid volume color."; };
-          low = lib.mkOption { type = colorType; default = "strings"; description = "Low volume color."; };
-          mid = lib.mkOption { type = colorType; default = "integers"; description = "Mid volume color."; };
-          high = lib.mkOption { type = colorType; default = "variables"; description = "High volume color."; };
+          color = lib.mkOption {
+            type = colorType;
+            default = "functions";
+            description = "Solid volume color.";
+          };
+          low = lib.mkOption {
+            type = colorType;
+            default = "strings";
+            description = "Low volume color.";
+          };
+          mid = lib.mkOption {
+            type = colorType;
+            default = "integers";
+            description = "Mid volume color.";
+          };
+          high = lib.mkOption {
+            type = colorType;
+            default = "variables";
+            description = "High volume color.";
+          };
         };
 
         tags = {
           enable = lib.mkEnableOption "tag indicators";
 
-          active = lib.mkOption { type = colorType; default = "functions"; description = "Active tag color."; };
-          occupied = lib.mkOption { type = colorType; default = "defaultForeground"; description = "Occupied tag color."; };
-          urgent = lib.mkOption { type = colorType; default = "variables"; description = "Urgent tag color."; };
-          empty = lib.mkOption { type = colorType; default = "comments"; description = "Empty tag color."; };
+          active = lib.mkOption {
+            type = colorType;
+            default = "functions";
+            description = "Active tag color.";
+          };
+          occupied = lib.mkOption {
+            type = colorType;
+            default = "defaultForeground";
+            description = "Occupied tag color.";
+          };
+          urgent = lib.mkOption {
+            type = colorType;
+            default = "variables";
+            description = "Urgent tag color.";
+          };
+          empty = lib.mkOption {
+            type = colorType;
+            default = "comments";
+            description = "Empty tag color.";
+          };
         };
 
         keymode = {
@@ -1236,11 +1319,28 @@
           type = lib.types.listOf (
             lib.types.submodule {
               options = {
-                name = lib.mkOption { type = lib.types.str; description = "Display name."; };
-                match = lib.mkOption { type = lib.types.str; description = "Case-insensitive bind action substring."; };
-                probe = lib.mkOption { type = lib.types.str; description = "DMS state probe or custom:<command>."; };
-                color = lib.mkOption { type = colorType; default = "support"; description = "Highlight color."; };
-                enabled = lib.mkOption { type = lib.types.bool; default = true; description = "Enable this state."; };
+                name = lib.mkOption {
+                  type = lib.types.str;
+                  description = "Display name.";
+                };
+                match = lib.mkOption {
+                  type = lib.types.str;
+                  description = "Case-insensitive bind action substring.";
+                };
+                probe = lib.mkOption {
+                  type = lib.types.str;
+                  description = "DMS state probe or custom:<command>.";
+                };
+                color = lib.mkOption {
+                  type = colorType;
+                  default = "support";
+                  description = "Highlight color.";
+                };
+                enabled = lib.mkOption {
+                  type = lib.types.bool;
+                  default = true;
+                  description = "Enable this state.";
+                };
               };
             }
           );
@@ -1257,7 +1357,7 @@
         (lib.mkIf active {
           assertions = [
             {
-              assertion = config ? desktop.ojuny.mango.binds;
+              assertion = options ? desktop.ojuny.mango.binds;
               message = "patch-corsair-rgb: desktop.ojuny.mango.binds is required for bind-driven highlighting.";
             }
             {
@@ -1315,8 +1415,8 @@
             };
           };
         })
-        (lib.optionalAttrs (active && stylixAvailable && cfg.dms.menuEntry && config ? desktop.ojuny.dankMenu) {
-          desktop.ojuny.dankMenu.extraEntries = {
+        (lib.optionalAttrs (options ? desktop.ojuny.dankMenu) {
+          desktop.ojuny.dankMenu.extraEntries = lib.mkIf (active && stylixAvailable && cfg.dms.menuEntry) {
             "trigger.ojuny-rgb" = {
               icon = "lightbulb";
               label = "Dynamic RGB";
