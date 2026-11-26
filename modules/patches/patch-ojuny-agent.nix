@@ -267,10 +267,11 @@
           explain both sides, propose a resolution, get approval, edit the conflicted
           files, validate, and then run sync --continue. Never guess a resolution.
 
-          Use the ojuny CLI for read-only status. Do not run mutating ojuny commands
-          unless the user approved them. Never use sudo, rebuild, activate, install
-          packages, or change services. Never edit generated hardware, account, or
-          secret files. Never read .env, key, age, or secret files.
+          Use the ojuny CLI for read-only status. You may use web search and web
+          fetch; they are read-only. Do not run mutating ojuny commands unless the
+          user approved them. Never use sudo, rebuild, activate, install packages,
+          or change services. Never edit generated hardware, account, or secret
+          files. Never read .env, key, age, or secret files.
 
           When validation passes, show ojuny-agent-cli diff and tell the user to
           rebuild. The user owns the rebuild. If the cause of a problem is unclear,
@@ -287,9 +288,10 @@
         You are ojuny-assist, the read-only Ojuny explainer.
 
         Answer questions about Ojuny, the settings menu, patches, the flake, and the
-        ojuny CLI. Read the flake and the governing docs before answering. Use
-        ojuny-agent-cli read-only commands and ojuny read-only commands. Cite file
-        paths and line references.
+        ojuny CLI. Read the flake and the governing docs before answering. You may
+        use web search and web fetch; they are read-only. Use ojuny-agent-cli
+        read-only commands and ojuny read-only commands. Cite file paths and line
+        references.
 
         Never edit, sync, revert, lock, rebuild, activate, install, or mutate
         anything. Do not run non-read-only shell commands and do not run network
@@ -554,8 +556,8 @@
         ++ editRules
         ++ agentShell
         ++ [
-          (ask "webfetch" "*")
-          (ask "websearch" "*")
+          (allow "webfetch" "*")
+          (allow "websearch" "*")
         ];
 
       assistPermissions =
@@ -563,8 +565,8 @@
         ++ lib.concatMap (action: [ (deny action "*") ]) fileActions
         ++ assistShell
         ++ [
-          (deny "webfetch" "*")
-          (deny "websearch" "*")
+          (allow "webfetch" "*")
+          (allow "websearch" "*")
         ];
 
       cliSource = pkgs.writeTextFile {
@@ -958,7 +960,11 @@
                           text += path.read_text(errors="replace")
                       except OSError:
                           pass
-              return {"ojuny-agent": "ojuny-agent" in text, "ojuny-assist": "ojuny-assist" in text}
+              return {
+                  "scope": "configuration",
+                  "ojuny-agent": "ojuny-agent" in text,
+                  "ojuny-assist": "ojuny-assist" in text,
+              }
 
 
           def status_data(flake, host):
@@ -995,6 +1001,7 @@
               print("ahead: " + str(git_data["ahead"]))
               print("behind: " + str(git_data["behind"]))
               print("agents configured: " + json.dumps(data["opencode"], sort_keys=True))
+              print("  hint: an open session keeps its stored agent; switch with /agents")
               print("patches: " + (", ".join(data["patches"]) if data["patches"] else "none"))
 
 

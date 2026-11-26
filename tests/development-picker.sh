@@ -51,35 +51,36 @@ script=${script//'${cfg.projects.searchRoot}'/$repos}
 script=${script//'${lib.escapeShellArg cfg.projects.editorCommand}'/editor-stub}
 script=${script//'${lib.escapeShellArg cfg.projects.terminalCommand}'/terminal-stub}
 script=${script//'${lib.escapeShellArg cfg.projects.assistantCommand}'/assistant-stub}
+script=${script//'${lib.boolToString projectsAgent}'/true}
 [[ "$script" != *'${cfg.'* && "$script" != *'${lib.'* ]] || fail "unresolved Nix interpolation in the extracted script"
 
 mkdir -p "$tmp/bin" "$tmp/empty" "$repos/alpha/.git" "$repos/beta/.git"
 printf '{ }\n' > "$repos/alpha/flake.nix"
 
-cat > "$tmp/bin/dms" <<'STUB'
-#!/usr/bin/env bash
+cat > "$tmp/bin/dms" <<STUB
+#!$BASH
 set -euo pipefail
-cat >> "$DMS_LOG"
-if grep -aqx 'Open in editor' "$DMS_LOG"; then
+cat >> "\$DMS_LOG"
+if grep -aqx 'Open in editor' "\$DMS_LOG"; then
   printf '%s\n' 'Open in editor'
   exit 0
 fi
-printf '%s\n' "$PICKER_REPO"
+printf '%s\n' "\$PICKER_REPO"
 STUB
 
-cat > "$tmp/bin/nix" <<'STUB'
-#!/usr/bin/env bash
-printf '%s\n' "$*" >> "$NIX_LOG"
-if [[ "${1:-}" == develop && "${2:-}" == -c ]]; then
+cat > "$tmp/bin/nix" <<STUB
+#!$BASH
+printf '%s\n' "\$*" >> "\$NIX_LOG"
+if [[ "\${1:-}" == develop && "\${2:-}" == -c ]]; then
   shift 2
-  "$@"
+  "\$@"
 fi
 STUB
 
-for name in editor-stub terminal-stub assistant-stub; do
-  cat > "$tmp/bin/$name" <<'STUB'
-#!/usr/bin/env bash
-printf '%s\n' "$*" >> "$STUB_LOG"
+for name in editor-stub terminal-stub assistant-stub obsidian; do
+  cat > "$tmp/bin/$name" <<STUB
+#!$BASH
+printf '%s\n' "\$*" >> "\$STUB_LOG"
 STUB
 done
 

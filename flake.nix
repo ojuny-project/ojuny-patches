@@ -76,6 +76,30 @@
                 touch $out
               '';
 
+          agent-permissions =
+            pkgs.runCommand "check-agent-permissions"
+              {
+                nativeBuildInputs = [ pkgs.python3 ];
+              }
+              ''
+                python3 ${source}/tests/check-agent-permissions.py ${source}/modules/patches/patch-ojuny-agent.nix
+                touch $out
+              '';
+
+          development-picker =
+            pkgs.runCommand "check-development-picker"
+              {
+                nativeBuildInputs = [
+                  pkgs.bash
+                  pkgs.coreutils
+                  pkgs.gnugrep
+                ];
+              }
+              ''
+                bash ${source}/tests/development-picker.sh
+                touch $out
+              '';
+
           catalogue =
             pkgs.runCommand "check-patch-catalogue"
               {
@@ -99,6 +123,8 @@
             echo ${self.checks.${system}.embedded-python} >/dev/null
             echo ${self.checks.${system}.option-scan} >/dev/null
             echo ${self.checks.${system}.nixshell-aliases} >/dev/null
+            echo ${self.checks.${system}.agent-permissions} >/dev/null
+            echo ${self.checks.${system}.development-picker} >/dev/null
             touch $out
           '';
         }

@@ -418,7 +418,7 @@
             fi
             ;;
           "Open terminal")
-            if [ "$(basename "$terminal")" = "ghostty" ]; then
+            if [ "$(basename "$terminal")" = "ghostty" ] || [ "$(basename "$terminal")" = "ojuny-ghostty" ]; then
               run_in_devshell "$terminal" --working-directory="$SELECTED"
             else
               run_in_devshell "$terminal"
@@ -433,11 +433,12 @@
             ;;
           "Open Obsidian vault")
             vault_path="$SELECTED"
-            if command -v obsidian >/dev/null 2>&1 && obsidian vault="$vault_path" >/dev/null 2>&1; then
-              exit 0
+            vault_uri="obsidian://open?path=''${vault_path// /%20}"
+            if command -v obsidian >/dev/null 2>&1; then
+              obsidian --new-window "$vault_uri" >/dev/null 2>&1 &
+            else
+              xdg-open "$vault_uri" >/dev/null 2>&1 &
             fi
-            vault_path="''${vault_path// /%20}"
-            xdg-open "obsidian://open?path=$vault_path" >/dev/null 2>&1 &
             ;;
         esac
       '';
@@ -765,8 +766,7 @@
           assistDefault = false;
         };
 
-      ojunyAgentSelected =
-        if ojunyAgent.assistDefault or false then "ojuny-assist" else "ojuny-agent";
+      ojunyAgentSelected = if ojunyAgent.assistDefault or false then "ojuny-assist" else "ojuny-agent";
 
       ojunyAgentModel = ojunyAgent.model or "opencode/deepseek-v4.1-flash-free";
       ojunyAgentModelParts = lib.splitString "/" ojunyAgentModel;
