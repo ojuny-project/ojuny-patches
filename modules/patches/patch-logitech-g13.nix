@@ -29,21 +29,44 @@ let
     "custom"
   ];
 
+  colorNames = [
+    "defaultBackground"
+    "lighterBackground"
+    "selectionBackground"
+    "comments"
+    "darkForeground"
+    "defaultForeground"
+    "lightForeground"
+    "lightBackground"
+    "variables"
+    "integers"
+    "classes"
+    "strings"
+    "support"
+    "functions"
+    "keywords"
+    "deprecated"
+  ];
+
   bindFields = [
+    "key"
+    "label"
+    "subcat"
     "modifier"
     "keys"
     "dispatcher"
     "args"
     "description"
     "group"
-    "subcat"
     "repeats"
   ];
 
   bindFieldTypes = [
-    "list"
-    "list"
     "str"
+    "str"
+    "str"
+    "list"
+    "list"
     "str"
     "str"
     "str"
@@ -53,8 +76,6 @@ let
 
   bindPreview = [
     "subcat"
-    "modifier"
-    "keys"
   ];
 in
 {
@@ -78,7 +99,7 @@ in
         type = lib.types.submodule {
           options = {
             refresh = lib.mkOption {
-              type = lib.types.int;
+              type = lib.types.float;
               default = refresh;
               description = "Refresh interval in seconds.";
             };
@@ -93,8 +114,52 @@ in
         description = "Detector settings.";
       };
 
-      mkBindRow = bankName: lib.types.submodule {
+      mkDisplaySource = order: enabled: variables: lib.mkOption {
+        type = lib.types.submodule {
+          options = {
+            enable = lib.mkOption {
+              type = lib.types.bool;
+              default = enabled;
+              description = "Show this source on the LCD.";
+            };
+            order = lib.mkOption {
+              type = lib.types.int;
+              default = order;
+              description = "Display order; lower numbers come first.";
+            };
+            preset = lib.mkOption {
+              type = lib.types.enum [ "default" "compact" "detailed" "custom" ];
+              default = "default";
+              description = "Format preset. custom uses the format field.";
+            };
+            format = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = "Custom format, only used when preset is custom. Available variables: ${variables}.";
+            };
+          };
+        };
+        default = { };
+        description = "LCD line settings.";
+      };
+
+      mkBindRow = lib.types.submodule {
         options = {
+          key = lib.mkOption {
+            type = lib.types.str;
+            default = "";
+            description = "G13 key name, for example g1, thumb-left, or stick-up.";
+          };
+          label = lib.mkOption {
+            type = lib.types.str;
+            default = "";
+            description = "Visible action title.";
+          };
+          subcat = lib.mkOption {
+            type = lib.types.str;
+            default = "";
+            description = "Visible G13 key label, for example G1 or Stick Left.";
+          };
           modifier = lib.mkOption {
             type = lib.types.listOf lib.types.str;
             default = [ ];
@@ -108,27 +173,22 @@ in
           dispatcher = lib.mkOption {
             type = lib.types.str;
             default = "";
-            description = "Mango dispatcher shown in the keybinds menu.";
+            description = "Mango dispatcher for this action.";
           };
           args = lib.mkOption {
             type = lib.types.str;
             default = "";
-            description = "Mango dispatcher arguments shown in the keybinds menu.";
+            description = "Mango dispatcher arguments.";
           };
           description = lib.mkOption {
             type = lib.types.str;
             default = "";
-            description = "Visible bind description.";
+            description = "Visible helper text.";
           };
           group = lib.mkOption {
             type = lib.types.str;
-            default = bankName;
-            description = "DMS keybinds category.";
-          };
-          subcat = lib.mkOption {
-            type = lib.types.str;
             default = "";
-            description = "Visible G13 key label.";
+            description = "DMS keybinds category.";
           };
           repeats = lib.mkOption {
             type = lib.types.int;
@@ -138,10 +198,22 @@ in
         };
       };
 
-      mkBank = bankName: lib.mkOption {
-        type = lib.types.attrsOf (mkBindRow bankName);
-        default = { };
-        description = "Bind rows keyed by G13 key in the ${bankName} bank.";
+      mkBank = lib.mkOption {
+        type = lib.types.listOf mkBindRow;
+        default = [ ];
+        description = "Bind rows in physical device order.";
+      };
+
+      mkColorName = default: lib.mkOption {
+        type = lib.types.enum (colorNames ++ [ "custom" ]);
+        inherit default;
+        description = "LCD backlight color. Choose a Stylix name or custom.";
+      };
+
+      mkCustomColor = lib.mkOption {
+        type = lib.types.str;
+        default = "#89b4fa";
+        description = "Custom LCD backlight color as #rrggbb.";
       };
     in
     {
@@ -159,69 +231,70 @@ in
             default = 500;
             description = "LCD render interval in milliseconds.";
           };
-          lines = lib.mkOption {
-            type = lib.types.listOf (
-              lib.types.submodule {
-                options = {
-                  source = lib.mkOption {
-                    type = lib.types.enum detectorSources;
-                    default = "cpu";
-                    description = "Detector source for this line.";
-                  };
-                  format = lib.mkOption {
-                    type = lib.types.str;
-                    default = "";
-                    description = "Line template with $variable placeholders.";
-                  };
-                  enabled = lib.mkOption {
-                    type = lib.types.bool;
-                    default = true;
-                    description = "Show this line on the LCD.";
-                  };
-                };
-              }
-            );
-            default = [ ];
-            description = "Up to five LCD lines.";
+          sources = {
+            cpu = mkDisplaySource 10 true "$cpu_clock, $cpu_usage, $cpu_temp, $time";
+            ram = mkDisplaySource 20 true "$ram_used, $ram_cached, $ram_free, $ram_total, $ram_percent";
+            disk = mkDisplaySource 30 true "$disk_used, $disk_free, $disk_read, $disk_write";
+            gpu = mkDisplaySource 40 true "$gpu_vendor, $gpu_usage, $gpu_clock, $gpu_vram, $gpu_temp";
+            media = mkDisplaySource 50 true "$media_title, $media_status, $media_artist, $media_album, $media_position, $media_length";
+            network = mkDisplaySource 60 false "$network_interface, $network_state, $network_connection, $network_ip, $network_signal, $network_rx, $network_tx";
+            battery = mkDisplaySource 70 false "$battery_percent, $battery_state, $battery_time";
+            audio = mkDisplaySource 80 false "$audio_volume, $audio_muted, $audio_source_volume, $audio_source_muted";
+            workspace = mkDisplaySource 90 false "$workspace, $workspace_layout, $workspace_monitor";
+            keymode = mkDisplaySource 100 false "$keymode";
+            layout = mkDisplaySource 110 false "$layout";
+            clock = mkDisplaySource 120 false "$time";
+            date = mkDisplaySource 130 false "$date, $weekday, $day, $month, $year";
+            uptime = mkDisplaySource 140 false "$uptime, $uptime_days, $uptime_hours";
+            weather = mkDisplaySource 150 false "$weather_location, $weather_temp, $weather_condition, $weather_humidity, $weather_wind";
+            custom = mkDisplaySource 160 false "$custom, $custom_<key>";
           };
         };
 
         detectors = {
-          cpu = mkDetector 1 { };
-          ram = mkDetector 1 { };
-          disk = mkDetector 2 {
+          cpu = mkDetector 1.0 { };
+          ram = mkDetector 1.0 { };
+          disk = mkDetector 2.0 {
             mount = textOption "/" "Mount point used for disk usage and read/write rates.";
           };
-          gpu = mkDetector 1 {
-            vendor = enumOption [ "auto" "nvidia" "amd" "intel" ] "auto" "GPU vendor. auto checks sysfs and nvidia-smi.";
+          gpu = mkDetector 1.0 {
+            vendor = enumOption [ "auto" "nvidia" "amd" "intel" ] "auto" "GPU vendor. auto prefers a working nvidia-smi, then AMD, then Intel. Choose a vendor when detection picks the wrong GPU.";
           };
-          network = mkDetector 1 {
+          network = mkDetector 1.0 {
             interface = textOption "auto" "Network interface. auto uses the default route interface.";
           };
-          battery = mkDetector 30 {
+          battery = mkDetector 30.0 {
             device = textOption "auto" "UPower battery device. auto uses the first battery.";
           };
-          audio = mkDetector 1 { };
-          media = mkDetector 1 { };
-          workspace = mkDetector 1 { };
-          keymode = mkDetector 1 { };
-          layout = mkDetector 1 { };
-          clock = mkDetector 1 { };
-          date = mkDetector 60 { };
-          uptime = mkDetector 60 { };
-          weather = mkDetector 900 {
+          audio = mkDetector 1.0 { };
+          media = mkDetector 0.35 { };
+          workspace = mkDetector 1.0 { };
+          keymode = mkDetector 1.0 { };
+          layout = mkDetector 1.0 { };
+          clock = mkDetector 1.0 { };
+          date = mkDetector 60.0 { };
+          uptime = mkDetector 60.0 { };
+          weather = mkDetector 900.0 {
             location = textOption "" "Location passed to wttr.in. Empty uses the request IP location.";
           };
-          custom = mkDetector 5 {
+          custom = mkDetector 5.0 {
             command = textOption "" "Shell command whose output is exposed as $custom and $custom_<key>.";
           };
         };
 
         bindings = {
-          bank1 = mkBank "Workspaces";
-          bank2 = mkBank "Windows";
-          bank3 = mkBank "Media";
-          bank4 = mkBank "Apps";
+          bank1 = mkBank;
+          bank2 = mkBank;
+          bank3 = mkBank;
+          bank4 = mkBank;
+          bank1Color = mkColorName "functions";
+          bank1CustomColor = mkCustomColor;
+          bank2Color = mkColorName "keywords";
+          bank2CustomColor = mkCustomColor;
+          bank3Color = mkColorName "strings";
+          bank3CustomColor = mkCustomColor;
+          bank4Color = mkColorName "support";
+          bank4CustomColor = mkCustomColor;
         };
       };
 
@@ -237,194 +310,166 @@ in
         # @option widget = "spin"; label = "Refresh interval"; group = "Display"; groupOrder = 20; order = 20; min = 100; step = 100; unit = "ms"; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "How often the render loop builds and compares a frame.";
         ojuny.patch.logitech-g13.display.refreshMs = 500;
 
-        # @option widget = "table-list"; label = "LCD lines"; group = "Display"; groupOrder = 20; order = 30; columns = [ "source" "format" "enabled" ]; columnTypes = [ "dropdown" "str" "bool" ]; choices = [ "cpu" "ram" "disk" "gpu" "network" "battery" "audio" "media" "workspace" "keymode" "layout" "clock" "date" "uptime" "weather" "custom" ]; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Up to five lines. Each line is truncated to 25 characters.";
-        ojuny.patch.logitech-g13.display.lines = [
-          { source = "cpu"; format = "$cpu_clock $cpu_usage% $cpu_temp   $time"; enabled = true; }
-          { source = "ram"; format = "u$ram_used c$ram_cached f$ram_free"; enabled = true; }
-          { source = "disk"; format = "$disk_used R$disk_read W$disk_write"; enabled = true; }
-          { source = "gpu"; format = "$gpu_usage% $gpu_clock $gpu_vram $gpu_temp"; enabled = true; }
-          { source = "media"; format = "$media_title"; enabled = true; }
-        ];
+        # @option widget = "submodule"; label = "CPU line"; group = "Display"; groupOrder = 20; order = 30; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the CPU line.";
+        ojuny.patch.logitech-g13.display.sources.cpu = { enable = true; order = 10; preset = "default"; format = ""; };
+
+        # @option widget = "submodule"; label = "RAM line"; group = "Display"; groupOrder = 20; order = 40; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the RAM line.";
+        ojuny.patch.logitech-g13.display.sources.ram = { enable = true; order = 20; preset = "default"; format = ""; };
+
+        # @option widget = "submodule"; label = "Disk line"; group = "Display"; groupOrder = 20; order = 50; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the disk line.";
+        ojuny.patch.logitech-g13.display.sources.disk = { enable = true; order = 30; preset = "default"; format = ""; };
+
+        # @option widget = "submodule"; label = "GPU line"; group = "Display"; groupOrder = 20; order = 60; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the GPU line.";
+        ojuny.patch.logitech-g13.display.sources.gpu = { enable = true; order = 40; preset = "default"; format = ""; };
+
+        # @option widget = "submodule"; label = "Media line"; group = "Display"; groupOrder = 20; order = 70; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the media line. The title scrolls.";
+        ojuny.patch.logitech-g13.display.sources.media = { enable = true; order = 50; preset = "default"; format = ""; };
+
+        # @option widget = "submodule"; label = "Network line"; group = "Display"; groupOrder = 20; order = 80; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the network line.";
+        ojuny.patch.logitech-g13.display.sources.network = { enable = false; order = 60; preset = "default"; format = ""; };
+
+        # @option widget = "submodule"; label = "Battery line"; group = "Display"; groupOrder = 20; order = 90; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the battery line.";
+        ojuny.patch.logitech-g13.display.sources.battery = { enable = false; order = 70; preset = "default"; format = ""; };
+
+        # @option widget = "submodule"; label = "Audio line"; group = "Display"; groupOrder = 20; order = 100; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the audio line.";
+        ojuny.patch.logitech-g13.display.sources.audio = { enable = false; order = 80; preset = "default"; format = ""; };
+
+        # @option widget = "submodule"; label = "Workspace line"; group = "Display"; groupOrder = 20; order = 110; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the workspace line.";
+        ojuny.patch.logitech-g13.display.sources.workspace = { enable = false; order = 90; preset = "default"; format = ""; };
+
+        # @option widget = "submodule"; label = "Keymode line"; group = "Display"; groupOrder = 20; order = 120; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the keymode line.";
+        ojuny.patch.logitech-g13.display.sources.keymode = { enable = false; order = 100; preset = "default"; format = ""; };
+
+        # @option widget = "submodule"; label = "Keyboard layout line"; group = "Display"; groupOrder = 20; order = 130; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the keyboard layout line.";
+        ojuny.patch.logitech-g13.display.sources.layout = { enable = false; order = 110; preset = "default"; format = ""; };
+
+        # @option widget = "submodule"; label = "Clock line"; group = "Display"; groupOrder = 20; order = 140; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the clock line.";
+        ojuny.patch.logitech-g13.display.sources.clock = { enable = false; order = 120; preset = "default"; format = ""; };
+
+        # @option widget = "submodule"; label = "Date line"; group = "Display"; groupOrder = 20; order = 150; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the date line.";
+        ojuny.patch.logitech-g13.display.sources.date = { enable = false; order = 130; preset = "default"; format = ""; };
+
+        # @option widget = "submodule"; label = "Uptime line"; group = "Display"; groupOrder = 20; order = 160; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the uptime line.";
+        ojuny.patch.logitech-g13.display.sources.uptime = { enable = false; order = 140; preset = "default"; format = ""; };
+
+        # @option widget = "submodule"; label = "Weather line"; group = "Display"; groupOrder = 20; order = 170; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the weather line.";
+        ojuny.patch.logitech-g13.display.sources.weather = { enable = false; order = 150; preset = "default"; format = ""; };
+
+        # @option widget = "submodule"; label = "Custom line"; group = "Display"; groupOrder = 20; order = 180; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the custom line.";
+        ojuny.patch.logitech-g13.display.sources.custom = { enable = false; order = 160; preset = "default"; format = ""; };
 
         # @option widget = "submodule"; label = "CPU detector"; group = "Detectors"; groupOrder = 30; order = 10; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "CPU clock, usage, temperature and time.";
-        ojuny.patch.logitech-g13.detectors.cpu = { refresh = 1; timeout = 2; };
+        ojuny.patch.logitech-g13.detectors.cpu = { refresh = 1.0; timeout = 2; };
 
         # @option widget = "submodule"; label = "RAM detector"; group = "Detectors"; groupOrder = 30; order = 20; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Used, cached and free memory.";
-        ojuny.patch.logitech-g13.detectors.ram = { refresh = 1; timeout = 2; };
+        ojuny.patch.logitech-g13.detectors.ram = { refresh = 1.0; timeout = 2; };
 
         # @option widget = "submodule"; label = "Disk detector"; group = "Detectors"; groupOrder = 30; order = 30; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Disk usage and read/write rates.";
-        ojuny.patch.logitech-g13.detectors.disk = { refresh = 2; timeout = 2; mount = "/"; };
+        ojuny.patch.logitech-g13.detectors.disk = { refresh = 2.0; timeout = 2; mount = "/"; };
 
-        # @option widget = "submodule"; label = "GPU detector"; group = "Detectors"; groupOrder = 30; order = 40; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "GPU usage, clock, VRAM and temperature.";
-        ojuny.patch.logitech-g13.detectors.gpu = { refresh = 1; timeout = 2; vendor = "auto"; };
+        # @option widget = "submodule"; label = "GPU detector"; group = "Detectors"; groupOrder = 30; order = 40; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "GPU usage, clock, VRAM and temperature. auto prefers a working nvidia-smi, then AMD, then Intel.";
+        ojuny.patch.logitech-g13.detectors.gpu = { refresh = 1.0; timeout = 2; vendor = "auto"; };
 
         # @option widget = "submodule"; label = "Network detector"; group = "Detectors"; groupOrder = 30; order = 50; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Interface state, address, signal and traffic rates.";
-        ojuny.patch.logitech-g13.detectors.network = { refresh = 1; timeout = 2; interface = "auto"; };
+        ojuny.patch.logitech-g13.detectors.network = { refresh = 1.0; timeout = 2; interface = "auto"; };
 
         # @option widget = "submodule"; label = "Battery detector"; group = "Detectors"; groupOrder = 30; order = 60; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Battery percentage, state and remaining time.";
-        ojuny.patch.logitech-g13.detectors.battery = { refresh = 30; timeout = 2; device = "auto"; };
+        ojuny.patch.logitech-g13.detectors.battery = { refresh = 30.0; timeout = 2; device = "auto"; };
 
         # @option widget = "submodule"; label = "Audio detector"; group = "Detectors"; groupOrder = 30; order = 70; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Output and input volume and mute state.";
-        ojuny.patch.logitech-g13.detectors.audio = { refresh = 1; timeout = 2; };
+        ojuny.patch.logitech-g13.detectors.audio = { refresh = 1.0; timeout = 2; };
 
-        # @option widget = "submodule"; label = "Media detector"; group = "Detectors"; groupOrder = 30; order = 80; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Player status, title, artist, album and timing.";
-        ojuny.patch.logitech-g13.detectors.media = { refresh = 1; timeout = 2; };
+        # @option widget = "submodule"; label = "Media detector"; group = "Detectors"; groupOrder = 30; order = 80; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Player status, title, artist, album and timing. The title scrolls.";
+        ojuny.patch.logitech-g13.detectors.media = { refresh = 0.35; timeout = 2; };
 
         # @option widget = "submodule"; label = "Workspace detector"; group = "Detectors"; groupOrder = 30; order = 90; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Active Mango workspace and its layout.";
-        ojuny.patch.logitech-g13.detectors.workspace = { refresh = 1; timeout = 2; };
+        ojuny.patch.logitech-g13.detectors.workspace = { refresh = 1.0; timeout = 2; };
 
         # @option widget = "submodule"; label = "Keymode detector"; group = "Detectors"; groupOrder = 30; order = 100; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Current Mango keymode.";
-        ojuny.patch.logitech-g13.detectors.keymode = { refresh = 1; timeout = 2; };
+        ojuny.patch.logitech-g13.detectors.keymode = { refresh = 1.0; timeout = 2; };
 
         # @option widget = "submodule"; label = "Keyboard layout detector"; group = "Detectors"; groupOrder = 30; order = 110; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Current XKB keyboard layout.";
-        ojuny.patch.logitech-g13.detectors.layout = { refresh = 1; timeout = 2; };
+        ojuny.patch.logitech-g13.detectors.layout = { refresh = 1.0; timeout = 2; };
 
         # @option widget = "submodule"; label = "Clock detector"; group = "Detectors"; groupOrder = 30; order = 120; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Current local time.";
-        ojuny.patch.logitech-g13.detectors.clock = { refresh = 1; timeout = 2; };
+        ojuny.patch.logitech-g13.detectors.clock = { refresh = 1.0; timeout = 2; };
 
         # @option widget = "submodule"; label = "Date detector"; group = "Detectors"; groupOrder = 30; order = 130; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Current local date.";
-        ojuny.patch.logitech-g13.detectors.date = { refresh = 60; timeout = 2; };
+        ojuny.patch.logitech-g13.detectors.date = { refresh = 60.0; timeout = 2; };
 
         # @option widget = "submodule"; label = "Uptime detector"; group = "Detectors"; groupOrder = 30; order = 140; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "System uptime.";
-        ojuny.patch.logitech-g13.detectors.uptime = { refresh = 60; timeout = 2; };
+        ojuny.patch.logitech-g13.detectors.uptime = { refresh = 60.0; timeout = 2; };
 
         # @option widget = "submodule"; label = "Weather detector"; group = "Detectors"; groupOrder = 30; order = 150; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Weather from wttr.in.";
-        ojuny.patch.logitech-g13.detectors.weather = { refresh = 900; timeout = 2; location = ""; };
+        ojuny.patch.logitech-g13.detectors.weather = { refresh = 900.0; timeout = 2; location = ""; };
 
         # @option widget = "submodule"; label = "Custom detector"; group = "Detectors"; groupOrder = 30; order = 160; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Run a shell command and expose its output.";
-        ojuny.patch.logitech-g13.detectors.custom = { refresh = 5; timeout = 2; command = ""; };
+        ojuny.patch.logitech-g13.detectors.custom = { refresh = 5.0; timeout = 2; command = ""; };
 
-        # @option widget = "keybinds"; label = "Bank 1: Workspaces"; group = "Banks"; groupOrder = 40; order = 10; bindFields = [ "modifier" "keys" "dispatcher" "args" "description" "group" "subcat" "repeats" ]; bindFieldTypes = [ "list" "list" "str" "str" "str" "str" "str" "int" ]; bindPreview = [ "subcat" "modifier" "keys" ]; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "G1 to G22 workspace and overview chords, plus the thumb and stick rows.";
-        ojuny.patch.logitech-g13.bindings.bank1 = {
-          g1 = { modifier = [ "SUPER" ]; keys = [ "1" ]; dispatcher = "comboview"; args = "1"; description = "Switch to workspace, hold for multi-tag"; group = "Workspaces"; subcat = "G1"; repeats = 0; };
-          g2 = { modifier = [ "SUPER" ]; keys = [ "2" ]; dispatcher = "comboview"; args = "2"; description = "Switch to workspace, hold for multi-tag"; group = "Workspaces"; subcat = "G2"; repeats = 0; };
-          g3 = { modifier = [ "SUPER" ]; keys = [ "3" ]; dispatcher = "comboview"; args = "3"; description = "Switch to workspace, hold for multi-tag"; group = "Workspaces"; subcat = "G3"; repeats = 0; };
-          g4 = { modifier = [ "SUPER" ]; keys = [ "4" ]; dispatcher = "comboview"; args = "4"; description = "Switch to workspace, hold for multi-tag"; group = "Workspaces"; subcat = "G4"; repeats = 0; };
-          g5 = { modifier = [ "SUPER" ]; keys = [ "5" ]; dispatcher = "comboview"; args = "5"; description = "Switch to workspace, hold for multi-tag"; group = "Workspaces"; subcat = "G5"; repeats = 0; };
-          g6 = { modifier = [ "SUPER" ]; keys = [ "6" ]; dispatcher = "comboview"; args = "6"; description = "Switch to workspace, hold for multi-tag"; group = "Workspaces"; subcat = "G6"; repeats = 0; };
-          g7 = { modifier = [ "SUPER" ]; keys = [ "7" ]; dispatcher = "comboview"; args = "7"; description = "Switch to workspace, hold for multi-tag"; group = "Workspaces"; subcat = "G7"; repeats = 0; };
-          g8 = { modifier = [ "SUPER" ]; keys = [ "8" ]; dispatcher = "comboview"; args = "8"; description = "Switch to workspace, hold for multi-tag"; group = "Workspaces"; subcat = "G8"; repeats = 0; };
-          g9 = { modifier = [ "SUPER" ]; keys = [ "9" ]; dispatcher = "comboview"; args = "9"; description = "Switch to workspace, hold for multi-tag"; group = "Workspaces"; subcat = "G9"; repeats = 0; };
-          g10 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "1" ]; dispatcher = "tagsilent"; args = "1"; description = "Move window to workspace"; group = "Workspaces"; subcat = "G10"; repeats = 0; };
-          g11 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "2" ]; dispatcher = "tagsilent"; args = "2"; description = "Move window to workspace"; group = "Workspaces"; subcat = "G11"; repeats = 0; };
-          g12 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "3" ]; dispatcher = "tagsilent"; args = "3"; description = "Move window to workspace"; group = "Workspaces"; subcat = "G12"; repeats = 0; };
-          g13 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "4" ]; dispatcher = "tagsilent"; args = "4"; description = "Move window to workspace"; group = "Workspaces"; subcat = "G13"; repeats = 0; };
-          g14 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "5" ]; dispatcher = "tagsilent"; args = "5"; description = "Move window to workspace"; group = "Workspaces"; subcat = "G14"; repeats = 0; };
-          g15 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "6" ]; dispatcher = "tagsilent"; args = "6"; description = "Move window to workspace"; group = "Workspaces"; subcat = "G15"; repeats = 0; };
-          g16 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "7" ]; dispatcher = "tagsilent"; args = "7"; description = "Move window to workspace"; group = "Workspaces"; subcat = "G16"; repeats = 0; };
-          g17 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "8" ]; dispatcher = "tagsilent"; args = "8"; description = "Move window to workspace"; group = "Workspaces"; subcat = "G17"; repeats = 0; };
-          g18 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "9" ]; dispatcher = "tagsilent"; args = "9"; description = "Move window to workspace"; group = "Workspaces"; subcat = "G18"; repeats = 0; };
-          g19 = { modifier = [ "ALT" ]; keys = [ "Tab" ]; dispatcher = "overcircle"; args = "next"; description = "Toggle or cycle overview"; group = "Workspaces"; subcat = "G19"; repeats = 0; };
-          g20 = { modifier = [ "SUPER" ]; keys = [ "SPACE" ]; dispatcher = "spawn"; args = "dms ipc call spotlight toggle"; description = "Toggle launcher"; group = "Workspaces"; subcat = "G20"; repeats = 0; };
-          g21 = { modifier = [ "SUPER" ]; keys = [ "Return" ]; dispatcher = "spawn"; args = "ojuny-ghostty"; description = "Open terminal"; group = "Workspaces"; subcat = "G21"; repeats = 0; };
-          g22 = { modifier = [ "SUPER" ]; keys = [ "X" ]; dispatcher = "spawn"; args = "dms ipc call dankMenu toggle root"; description = "Toggle menu"; group = "Workspaces"; subcat = "G22"; repeats = 0; };
-          thumb-left = { modifier = [ ]; keys = [ "Escape" ]; dispatcher = "key"; args = "Escape"; description = "Send Escape"; group = "Workspaces"; subcat = "Thumb Left"; repeats = 0; };
-          thumb-down = { modifier = [ ]; keys = [ "Enter" ]; dispatcher = "key"; args = "Enter"; description = "Send Enter"; group = "Workspaces"; subcat = "Thumb Down"; repeats = 0; };
-          thumb-top = { modifier = [ ]; keys = [ "Space" ]; dispatcher = "key"; args = "Space"; description = "Send Space"; group = "Workspaces"; subcat = "Thumb Top"; repeats = 0; };
-          stick-left = { modifier = [ "SUPER" ]; keys = [ "A" ]; dispatcher = "focusdir"; args = "left"; description = "Focus window left"; group = "Workspaces"; subcat = "Stick Left"; repeats = 0; };
-          stick-right = { modifier = [ "SUPER" ]; keys = [ "D" ]; dispatcher = "focusdir"; args = "right"; description = "Focus window right"; group = "Workspaces"; subcat = "Stick Right"; repeats = 0; };
-          stick-up = { modifier = [ "SUPER" ]; keys = [ "W" ]; dispatcher = "focusdir"; args = "up"; description = "Focus window up"; group = "Workspaces"; subcat = "Stick Up"; repeats = 0; };
-          stick-down = { modifier = [ "SUPER" ]; keys = [ "S" ]; dispatcher = "focusdir"; args = "down"; description = "Focus window down"; group = "Workspaces"; subcat = "Stick Down"; repeats = 0; };
-        };
+        # @option widget = "keybinds"; label = "Bank 1: Main"; group = "Banks"; groupOrder = 40; order = 10; bindFields = [ "key" "label" "subcat" "modifier" "keys" "dispatcher" "args" "description" "group" "repeats" ]; bindFieldTypes = [ "str" "str" "str" "list" "list" "str" "str" "str" "str" "int" ]; bindPreview = [ "subcat" ]; bindSort = [ ]; bindKeyField = "label"; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Rows are in physical order: G1 to G7, G8 to G14, G15 to G19, G20 to G22, thumb, then stick. No tag or main-keyboard duplicate rows.";
+        ojuny.patch.logitech-g13.bindings.bank1 = [
+          { key = "g1"; label = "Minimize to scratchpad"; subcat = "G1"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "A" ]; dispatcher = "minimized"; args = ""; description = "Send the focused window to the scratchpad"; group = "Scratchpad"; repeats = 0; }
+          { key = "g2"; label = "Toggle scratchpad"; subcat = "G2"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "B" ]; dispatcher = "toggle_scratchpad"; args = ""; description = "Show or hide the scratchpad"; group = "Scratchpad"; repeats = 0; }
+          { key = "g3"; label = "Restore minimized"; subcat = "G3"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "C" ]; dispatcher = "restore_minimized"; args = ""; description = "Restore the minimized window to the current workspace"; group = "Scratchpad"; repeats = 0; }
+          { key = "g4"; label = "Toggle floating"; subcat = "G4"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "D" ]; dispatcher = "togglefloating"; args = ""; description = "Toggle the focused window floating state"; group = "Window"; repeats = 0; }
+          { key = "g5"; label = "Toggle fake fullscreen"; subcat = "G5"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "E" ]; dispatcher = "togglefakefullscreen"; args = ""; description = "Toggle fake fullscreen without covering the bar"; group = "Window"; repeats = 0; }
+          { key = "g6"; label = "Toggle global or sticky"; subcat = "G6"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "F" ]; dispatcher = "toggleglobal"; args = ""; description = "Show the focused window on every workspace"; group = "Window"; repeats = 0; }
+          { key = "g7"; label = "Toggle overlay"; subcat = "G7"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "G" ]; dispatcher = "toggleoverlay"; args = ""; description = "Toggle overlay state for the focused window"; group = "Window"; repeats = 0; }
+          { key = "g8"; label = "Layout: monocle"; subcat = "G8"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "H" ]; dispatcher = "setlayout"; args = "monocle"; description = "Switch the current workspace to monocle"; group = "Layout"; repeats = 0; }
+          { key = "g9"; label = "Layout: dwindle"; subcat = "G9"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "I" ]; dispatcher = "setlayout"; args = "dwindle"; description = "Switch the current workspace to dwindle"; group = "Layout"; repeats = 0; }
+          { key = "g10"; label = "Layout: scroller"; subcat = "G10"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "J" ]; dispatcher = "setlayout"; args = "scroller"; description = "Switch the current workspace to scroller"; group = "Layout"; repeats = 0; }
+          { key = "g11"; label = "Layout: tile"; subcat = "G11"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "K" ]; dispatcher = "setlayout"; args = "tile"; description = "Switch the current workspace to tile"; group = "Layout"; repeats = 0; }
+          { key = "g12"; label = "Night mode"; subcat = "G12"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "L" ]; dispatcher = "spawn"; args = "dms ipc call night toggle"; description = "Toggle the DMS night mode"; group = "DMS"; repeats = 0; }
+          { key = "g13"; label = "Stay awake"; subcat = "G13"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "M" ]; dispatcher = "spawn"; args = "dms ipc call inhibit toggle"; description = "Toggle the DMS idle inhibitor"; group = "DMS"; repeats = 0; }
+          { key = "g14"; label = "Do not disturb"; subcat = "G14"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "N" ]; dispatcher = "spawn"; args = "dms ipc call notifications toggleDoNotDisturb"; description = "Toggle DMS do not disturb"; group = "DMS"; repeats = 0; }
+          { key = "g15"; label = "Lock screen"; subcat = "G15"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "O" ]; dispatcher = "spawn"; args = "dms ipc call lock lock"; description = "Lock the session"; group = "DMS"; repeats = 0; }
+          { key = "g16"; label = "Power menu"; subcat = "G16"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "P" ]; dispatcher = "spawn"; args = "dms ipc call powermenu toggle"; description = "Open the DMS power menu"; group = "DMS"; repeats = 0; }
+          { key = "g17"; label = "Control center"; subcat = "G17"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "Q" ]; dispatcher = "spawn"; args = "dms ipc call control-center toggle"; description = "Toggle the DMS control center"; group = "DMS"; repeats = 0; }
+          { key = "g18"; label = "Notification center"; subcat = "G18"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "R" ]; dispatcher = "spawn"; args = "dms ipc call notifications toggle"; description = "Toggle the DMS notification center"; group = "DMS"; repeats = 0; }
+          { key = "g19"; label = "Task manager"; subcat = "G19"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "S" ]; dispatcher = "spawn"; args = "dms ipc call processlist toggle"; description = "Toggle the DMS task manager"; group = "DMS"; repeats = 0; }
+          { key = "g20"; label = "Movement mode"; subcat = "G20"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "T" ]; dispatcher = "setkeymode"; args = "movement"; description = "Enter movement mode; press again to return"; group = "Modes"; repeats = 0; }
+          { key = "g21"; label = "Groups mode"; subcat = "G21"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "U" ]; dispatcher = "setkeymode"; args = "groups"; description = "Enter groups mode; press again to return"; group = "Modes"; repeats = 0; }
+          { key = "g22"; label = "Resize mode"; subcat = "G22"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "V" ]; dispatcher = "setkeymode"; args = "resize"; description = "Enter resize mode; press again to return"; group = "Modes"; repeats = 0; }
+          { key = "thumb-left"; label = "Previous stack window"; subcat = "Thumb Left"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "W" ]; dispatcher = "focusstack"; args = "prev"; description = "Previous stack window in default mode; previous exchange or group member in movement and groups"; group = "Navigation"; repeats = 0; }
+          { key = "thumb-down"; label = "Next stack window"; subcat = "Thumb Down"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "X" ]; dispatcher = "focusstack"; args = "next"; description = "Next stack window in default mode; next exchange or group member in movement and groups"; group = "Navigation"; repeats = 0; }
+          { key = "stick-left"; label = "Stick left"; subcat = "Stick Left"; modifier = [ ]; keys = [ "F13" ]; dispatcher = "focusdir"; args = "left"; description = "Focus, exchange, group join, or resize left by mode"; group = "Navigation"; repeats = 0; }
+          { key = "stick-right"; label = "Stick right"; subcat = "Stick Right"; modifier = [ ]; keys = [ "F14" ]; dispatcher = "focusdir"; args = "right"; description = "Focus, exchange, group join, or resize right by mode"; group = "Navigation"; repeats = 0; }
+          { key = "stick-up"; label = "Stick up"; subcat = "Stick Up"; modifier = [ ]; keys = [ "F15" ]; dispatcher = "focusdir"; args = "up"; description = "Focus, exchange, group join, or resize up by mode"; group = "Navigation"; repeats = 0; }
+          { key = "stick-down"; label = "Stick down"; subcat = "Stick Down"; modifier = [ ]; keys = [ "F16" ]; dispatcher = "focusdir"; args = "down"; description = "Focus, exchange, group join, or resize down by mode"; group = "Navigation"; repeats = 0; }
+        ];
 
-        # @option widget = "keybinds"; label = "Bank 2: Windows"; group = "Banks"; groupOrder = 40; order = 20; bindFields = [ "modifier" "keys" "dispatcher" "args" "description" "group" "subcat" "repeats" ]; bindFieldTypes = [ "list" "list" "str" "str" "str" "str" "str" "int" ]; bindPreview = [ "subcat" "modifier" "keys" ]; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Focus, movement, window, screenshot and system chords, plus the thumb and stick rows.";
-        ojuny.patch.logitech-g13.bindings.bank2 = {
-          g1 = { modifier = [ "SUPER" ]; keys = [ "W" ]; dispatcher = "focusdir"; args = "up"; description = "Focus window up"; group = "Windows"; subcat = "G1"; repeats = 0; };
-          g2 = { modifier = [ "SUPER" ]; keys = [ "A" ]; dispatcher = "focusdir"; args = "left"; description = "Focus window left"; group = "Windows"; subcat = "G2"; repeats = 0; };
-          g3 = { modifier = [ "SUPER" ]; keys = [ "S" ]; dispatcher = "focusdir"; args = "down"; description = "Focus window down"; group = "Windows"; subcat = "G3"; repeats = 0; };
-          g4 = { modifier = [ "SUPER" ]; keys = [ "D" ]; dispatcher = "focusdir"; args = "right"; description = "Focus window right"; group = "Windows"; subcat = "G4"; repeats = 0; };
-          g5 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "W" ]; dispatcher = "move_client"; args = "up"; description = "Move window up"; group = "Windows"; subcat = "G5"; repeats = 0; };
-          g6 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "A" ]; dispatcher = "move_client"; args = "left"; description = "Move window left"; group = "Windows"; subcat = "G6"; repeats = 0; };
-          g7 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "S" ]; dispatcher = "move_client"; args = "down"; description = "Move window down"; group = "Windows"; subcat = "G7"; repeats = 0; };
-          g8 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "D" ]; dispatcher = "move_client"; args = "right"; description = "Move window right"; group = "Windows"; subcat = "G8"; repeats = 0; };
-          g9 = { modifier = [ "SUPER" ]; keys = [ "Q" ]; dispatcher = "killclient"; args = ""; description = "Kill client"; group = "Windows"; subcat = "G9"; repeats = 0; };
-          g10 = { modifier = [ "SUPER" ]; keys = [ "F" ]; dispatcher = "togglemaximizescreen"; args = ""; description = "Toggle maximize"; group = "Windows"; subcat = "G10"; repeats = 0; };
-          g11 = { modifier = [ "SUPER" ]; keys = [ "F11" ]; dispatcher = "togglefullscreen"; args = ""; description = "Toggle fullscreen"; group = "Windows"; subcat = "G11"; repeats = 0; };
-          g12 = { modifier = [ "SUPER" ]; keys = [ "H" ]; dispatcher = "spawn_shell"; args = "ojuny-snap"; description = "Float, unfloat or snap the focused window"; group = "Windows"; subcat = "G12"; repeats = 0; };
-          g13 = { modifier = [ "SUPER" ]; keys = [ "T" ]; dispatcher = "tag_special_tag"; args = ""; description = "Move window into or out of special workspace"; group = "Windows"; subcat = "G13"; repeats = 0; };
-          g14 = { modifier = [ "SUPER" "ALT" ]; keys = [ "SPACE" ]; dispatcher = "toggle_special_tag"; args = ""; description = "Toggle special workspace"; group = "Windows"; subcat = "G14"; repeats = 0; };
-          g15 = { modifier = [ "SUPER" ]; keys = [ "V" ]; dispatcher = "spawn_shell"; args = "ojuny-g13-paste"; description = "Paste clipboard"; group = "Windows"; subcat = "G15"; repeats = 0; };
-          g16 = { modifier = [ "SUPER" ]; keys = [ "Z" ]; dispatcher = "groupleave"; args = ""; description = "Leave group"; group = "Windows"; subcat = "G16"; repeats = 0; };
-          g17 = { modifier = [ "SUPER" ]; keys = [ "R" ]; dispatcher = "reload_config"; args = ""; description = "Reload configuration"; group = "Windows"; subcat = "G17"; repeats = 0; };
-          g18 = { modifier = [ "SUPER" ]; keys = [ "K" ]; dispatcher = "spawn"; args = "dms ipc call keybinds open binds"; description = "Show keybinds"; group = "Windows"; subcat = "G18"; repeats = 0; };
-          g19 = { modifier = [ ]; keys = [ "PRINT" ]; dispatcher = "spawn"; args = "dms screenshot"; description = "Selection screenshot"; group = "Windows"; subcat = "G19"; repeats = 0; };
-          g20 = { modifier = [ "SUPER" ]; keys = [ "PRINT" ]; dispatcher = "spawn"; args = "dms screenshot window"; description = "Focused window screenshot"; group = "Windows"; subcat = "G20"; repeats = 0; };
-          g21 = { modifier = [ "ALT" ]; keys = [ "PRINT" ]; dispatcher = "spawn"; args = "dms screenshot full"; description = "Fullscreen screenshot"; group = "Windows"; subcat = "G21"; repeats = 0; };
-          g22 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "Escape" ]; dispatcher = "quit"; args = ""; description = "Quit Mango"; group = "Windows"; subcat = "G22"; repeats = 0; };
-          thumb-left = { modifier = [ ]; keys = [ "Escape" ]; dispatcher = "key"; args = "Escape"; description = "Send Escape"; group = "Windows"; subcat = "Thumb Left"; repeats = 0; };
-          thumb-down = { modifier = [ ]; keys = [ "Enter" ]; dispatcher = "key"; args = "Enter"; description = "Send Enter"; group = "Windows"; subcat = "Thumb Down"; repeats = 0; };
-          thumb-top = { modifier = [ ]; keys = [ "Space" ]; dispatcher = "key"; args = "Space"; description = "Send Space"; group = "Windows"; subcat = "Thumb Top"; repeats = 0; };
-          stick-left = { modifier = [ "SUPER" ]; keys = [ "A" ]; dispatcher = "focusdir"; args = "left"; description = "Focus window left"; group = "Windows"; subcat = "Stick Left"; repeats = 0; };
-          stick-right = { modifier = [ "SUPER" ]; keys = [ "D" ]; dispatcher = "focusdir"; args = "right"; description = "Focus window right"; group = "Windows"; subcat = "Stick Right"; repeats = 0; };
-          stick-up = { modifier = [ "SUPER" ]; keys = [ "W" ]; dispatcher = "focusdir"; args = "up"; description = "Focus window up"; group = "Windows"; subcat = "Stick Up"; repeats = 0; };
-          stick-down = { modifier = [ "SUPER" ]; keys = [ "S" ]; dispatcher = "focusdir"; args = "down"; description = "Focus window down"; group = "Windows"; subcat = "Stick Down"; repeats = 0; };
-        };
+        # @option widget = "keybinds"; label = "Bank 2"; group = "Banks"; groupOrder = 40; order = 20; bindFields = [ "key" "label" "subcat" "modifier" "keys" "dispatcher" "args" "description" "group" "repeats" ]; bindFieldTypes = [ "str" "str" "str" "list" "list" "str" "str" "str" "str" "int" ]; bindPreview = [ "subcat" ]; bindSort = [ ]; bindKeyField = "label"; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Empty by default. Add the rows you want for the second hardware bank.";
+        ojuny.patch.logitech-g13.bindings.bank2 = [ ];
 
-        # @option widget = "keybinds"; label = "Bank 3: Media"; group = "Banks"; groupOrder = 40; order = 30; bindFields = [ "modifier" "keys" "dispatcher" "args" "description" "group" "subcat" "repeats" ]; bindFieldTypes = [ "list" "list" "str" "str" "str" "str" "str" "int" ]; bindPreview = [ "subcat" "modifier" "keys" ]; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Media keys and application, screenshot, overview and window actions, plus the thumb and stick rows.";
-        ojuny.patch.logitech-g13.bindings.bank3 = {
-          g1 = { modifier = [ ]; keys = [ "mute" ]; dispatcher = "spawn"; args = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; description = "Mute output"; group = "Media"; subcat = "G1"; repeats = 0; };
-          g2 = { modifier = [ ]; keys = [ "volumedown" ]; dispatcher = "spawn"; args = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"; description = "Lower output volume"; group = "Media"; subcat = "G2"; repeats = 0; };
-          g3 = { modifier = [ ]; keys = [ "volumeup" ]; dispatcher = "spawn"; args = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"; description = "Raise output volume"; group = "Media"; subcat = "G3"; repeats = 0; };
-          g4 = { modifier = [ ]; keys = [ "playpause" ]; dispatcher = "spawn"; args = "playerctl play-pause"; description = "Play or pause media"; group = "Media"; subcat = "G4"; repeats = 0; };
-          g5 = { modifier = [ ]; keys = [ "previoussong" ]; dispatcher = "spawn"; args = "playerctl previous"; description = "Previous track"; group = "Media"; subcat = "G5"; repeats = 0; };
-          g6 = { modifier = [ ]; keys = [ "nextsong" ]; dispatcher = "spawn"; args = "playerctl next"; description = "Next track"; group = "Media"; subcat = "G6"; repeats = 0; };
-          g7 = { modifier = [ ]; keys = [ "brightnessdown" ]; dispatcher = "spawn"; args = "brightnessctl set 5%-"; description = "Decrease screen brightness"; group = "Media"; subcat = "G7"; repeats = 0; };
-          g8 = { modifier = [ ]; keys = [ "brightnessup" ]; dispatcher = "spawn"; args = "brightnessctl set +5%"; description = "Increase screen brightness"; group = "Media"; subcat = "G8"; repeats = 0; };
-          g9 = { modifier = [ "SUPER" ]; keys = [ "B" ]; dispatcher = "spawn"; args = "firefox --new-window"; description = "Open browser"; group = "Media"; subcat = "G9"; repeats = 0; };
-          g10 = { modifier = [ "SUPER" ]; keys = [ "E" ]; dispatcher = "spawn"; args = "dfiles open"; description = "Open files"; group = "Media"; subcat = "G10"; repeats = 0; };
-          g11 = { modifier = [ "SUPER" ]; keys = [ "SPACE" ]; dispatcher = "spawn"; args = "dms ipc call spotlight toggle"; description = "Toggle launcher"; group = "Media"; subcat = "G11"; repeats = 0; };
-          g12 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "E" ]; dispatcher = "spawn"; args = "dms ipc call spotlight toggleQuery ':e '"; description = "Emoji picker"; group = "Media"; subcat = "G12"; repeats = 0; };
-          g13 = { modifier = [ "SUPER" ]; keys = [ "Return" ]; dispatcher = "spawn"; args = "ojuny-ghostty"; description = "Open terminal"; group = "Media"; subcat = "G13"; repeats = 0; };
-          g14 = { modifier = [ "ALT" ]; keys = [ "Tab" ]; dispatcher = "overcircle"; args = "next"; description = "Toggle or cycle overview"; group = "Media"; subcat = "G14"; repeats = 0; };
-          g15 = { modifier = [ ]; keys = [ "PRINT" ]; dispatcher = "spawn"; args = "dms screenshot"; description = "Selection screenshot"; group = "Media"; subcat = "G15"; repeats = 0; };
-          g16 = { modifier = [ "SUPER" ]; keys = [ "PRINT" ]; dispatcher = "spawn"; args = "dms screenshot window"; description = "Focused window screenshot"; group = "Media"; subcat = "G16"; repeats = 0; };
-          g17 = { modifier = [ "ALT" ]; keys = [ "PRINT" ]; dispatcher = "spawn"; args = "dms screenshot full"; description = "Fullscreen screenshot"; group = "Media"; subcat = "G17"; repeats = 0; };
-          g18 = { modifier = [ "SUPER" ]; keys = [ "Q" ]; dispatcher = "killclient"; args = ""; description = "Kill client"; group = "Media"; subcat = "G18"; repeats = 0; };
-          g19 = { modifier = [ "SUPER" ]; keys = [ "F" ]; dispatcher = "togglemaximizescreen"; args = ""; description = "Toggle maximize"; group = "Media"; subcat = "G19"; repeats = 0; };
-          g20 = { modifier = [ "SUPER" ]; keys = [ "F11" ]; dispatcher = "togglefullscreen"; args = ""; description = "Toggle fullscreen"; group = "Media"; subcat = "G20"; repeats = 0; };
-          g21 = { modifier = [ "SUPER" ]; keys = [ "H" ]; dispatcher = "spawn_shell"; args = "ojuny-snap"; description = "Float, unfloat or snap the focused window"; group = "Media"; subcat = "G21"; repeats = 0; };
-          g22 = { modifier = [ "SUPER" ]; keys = [ "K" ]; dispatcher = "spawn"; args = "dms ipc call keybinds open binds"; description = "Show keybinds"; group = "Media"; subcat = "G22"; repeats = 0; };
-          thumb-left = { modifier = [ ]; keys = [ "Escape" ]; dispatcher = "key"; args = "Escape"; description = "Send Escape"; group = "Media"; subcat = "Thumb Left"; repeats = 0; };
-          thumb-down = { modifier = [ ]; keys = [ "Enter" ]; dispatcher = "key"; args = "Enter"; description = "Send Enter"; group = "Media"; subcat = "Thumb Down"; repeats = 0; };
-          thumb-top = { modifier = [ ]; keys = [ "Space" ]; dispatcher = "key"; args = "Space"; description = "Send Space"; group = "Media"; subcat = "Thumb Top"; repeats = 0; };
-          stick-left = { modifier = [ "SUPER" ]; keys = [ "A" ]; dispatcher = "focusdir"; args = "left"; description = "Focus window left"; group = "Media"; subcat = "Stick Left"; repeats = 0; };
-          stick-right = { modifier = [ "SUPER" ]; keys = [ "D" ]; dispatcher = "focusdir"; args = "right"; description = "Focus window right"; group = "Media"; subcat = "Stick Right"; repeats = 0; };
-          stick-up = { modifier = [ "SUPER" ]; keys = [ "W" ]; dispatcher = "focusdir"; args = "up"; description = "Focus window up"; group = "Media"; subcat = "Stick Up"; repeats = 0; };
-          stick-down = { modifier = [ "SUPER" ]; keys = [ "S" ]; dispatcher = "focusdir"; args = "down"; description = "Focus window down"; group = "Media"; subcat = "Stick Down"; repeats = 0; };
-        };
+        # @option widget = "keybinds"; label = "Bank 3"; group = "Banks"; groupOrder = 40; order = 30; bindFields = [ "key" "label" "subcat" "modifier" "keys" "dispatcher" "args" "description" "group" "repeats" ]; bindFieldTypes = [ "str" "str" "str" "list" "list" "str" "str" "str" "str" "int" ]; bindPreview = [ "subcat" ]; bindSort = [ ]; bindKeyField = "label"; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Empty by default. Add the rows you want for the third hardware bank.";
+        ojuny.patch.logitech-g13.bindings.bank3 = [ ];
 
-        # @option widget = "keybinds"; label = "Bank 4: Apps"; group = "Banks"; groupOrder = 40; order = 40; bindFields = [ "modifier" "keys" "dispatcher" "args" "description" "group" "subcat" "repeats" ]; bindFieldTypes = [ "list" "list" "str" "str" "str" "str" "str" "int" ]; bindPreview = [ "subcat" "modifier" "keys" ]; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Application, launcher, menu, screenshot, window and workspace actions, plus the thumb and stick rows.";
-        ojuny.patch.logitech-g13.bindings.bank4 = {
-          g1 = { modifier = [ "SUPER" ]; keys = [ "B" ]; dispatcher = "spawn"; args = "firefox --new-window"; description = "Open browser"; group = "Apps"; subcat = "G1"; repeats = 0; };
-          g2 = { modifier = [ "SUPER" ]; keys = [ "E" ]; dispatcher = "spawn"; args = "dfiles open"; description = "Open files"; group = "Apps"; subcat = "G2"; repeats = 0; };
-          g3 = { modifier = [ "SUPER" ]; keys = [ "SPACE" ]; dispatcher = "spawn"; args = "dms ipc call spotlight toggle"; description = "Toggle launcher"; group = "Apps"; subcat = "G3"; repeats = 0; };
-          g4 = { modifier = [ "SUPER" ]; keys = [ "X" ]; dispatcher = "spawn"; args = "dms ipc call dankMenu toggle root"; description = "Toggle menu"; group = "Apps"; subcat = "G4"; repeats = 0; };
-          g5 = { modifier = [ "SUPER" ]; keys = [ "Return" ]; dispatcher = "spawn"; args = "ojuny-ghostty"; description = "Open terminal"; group = "Apps"; subcat = "G5"; repeats = 0; };
-          g6 = { modifier = [ "SUPER" ]; keys = [ "Tab" ]; dispatcher = "spawn"; args = "ojuny-ghostty"; description = "Open terminal"; group = "Apps"; subcat = "G6"; repeats = 0; };
-          g7 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "E" ]; dispatcher = "spawn"; args = "dms ipc call spotlight toggleQuery ':e '"; description = "Emoji picker"; group = "Apps"; subcat = "G7"; repeats = 0; };
-          g8 = { modifier = [ "SUPER" "SHIFT" ]; keys = [ "V" ]; dispatcher = "spawn"; args = "dms ipc call clipboard toggle"; description = "Clipboard history"; group = "Apps"; subcat = "G8"; repeats = 0; };
-          g9 = { modifier = [ "SUPER" ]; keys = [ "K" ]; dispatcher = "spawn"; args = "dms ipc call keybinds open binds"; description = "Show keybinds"; group = "Apps"; subcat = "G9"; repeats = 0; };
-          g10 = { modifier = [ "ALT" ]; keys = [ "Tab" ]; dispatcher = "overcircle"; args = "next"; description = "Toggle or cycle overview"; group = "Apps"; subcat = "G10"; repeats = 0; };
-          g11 = { modifier = [ ]; keys = [ "PRINT" ]; dispatcher = "spawn"; args = "dms screenshot"; description = "Selection screenshot"; group = "Apps"; subcat = "G11"; repeats = 0; };
-          g12 = { modifier = [ "SUPER" ]; keys = [ "PRINT" ]; dispatcher = "spawn"; args = "dms screenshot window"; description = "Focused window screenshot"; group = "Apps"; subcat = "G12"; repeats = 0; };
-          g13 = { modifier = [ "ALT" ]; keys = [ "PRINT" ]; dispatcher = "spawn"; args = "dms screenshot full"; description = "Fullscreen screenshot"; group = "Apps"; subcat = "G13"; repeats = 0; };
-          g14 = { modifier = [ "SUPER" ]; keys = [ "Q" ]; dispatcher = "killclient"; args = ""; description = "Kill client"; group = "Apps"; subcat = "G14"; repeats = 0; };
-          g15 = { modifier = [ "SUPER" ]; keys = [ "F" ]; dispatcher = "togglemaximizescreen"; args = ""; description = "Toggle maximize"; group = "Apps"; subcat = "G15"; repeats = 0; };
-          g16 = { modifier = [ "SUPER" ]; keys = [ "F11" ]; dispatcher = "togglefullscreen"; args = ""; description = "Toggle fullscreen"; group = "Apps"; subcat = "G16"; repeats = 0; };
-          g17 = { modifier = [ "SUPER" ]; keys = [ "H" ]; dispatcher = "spawn_shell"; args = "ojuny-snap"; description = "Float, unfloat or snap the focused window"; group = "Apps"; subcat = "G17"; repeats = 0; };
-          g18 = { modifier = [ "SUPER" ]; keys = [ "Z" ]; dispatcher = "groupleave"; args = ""; description = "Leave group"; group = "Apps"; subcat = "G18"; repeats = 0; };
-          g19 = { modifier = [ "SUPER" ]; keys = [ "T" ]; dispatcher = "tag_special_tag"; args = ""; description = "Move window into or out of special workspace"; group = "Apps"; subcat = "G19"; repeats = 0; };
-          g20 = { modifier = [ "SUPER" "ALT" ]; keys = [ "SPACE" ]; dispatcher = "toggle_special_tag"; args = ""; description = "Toggle special workspace"; group = "Apps"; subcat = "G20"; repeats = 0; };
-          g21 = { modifier = [ "SUPER" ]; keys = [ "Right" ]; dispatcher = "viewtoright"; args = "0"; description = "Next workspace"; group = "Apps"; subcat = "G21"; repeats = 0; };
-          g22 = { modifier = [ "SUPER" ]; keys = [ "Left" ]; dispatcher = "viewtoleft"; args = "0"; description = "Previous workspace"; group = "Apps"; subcat = "G22"; repeats = 0; };
-          thumb-left = { modifier = [ ]; keys = [ "Escape" ]; dispatcher = "key"; args = "Escape"; description = "Send Escape"; group = "Apps"; subcat = "Thumb Left"; repeats = 0; };
-          thumb-down = { modifier = [ ]; keys = [ "Enter" ]; dispatcher = "key"; args = "Enter"; description = "Send Enter"; group = "Apps"; subcat = "Thumb Down"; repeats = 0; };
-          thumb-top = { modifier = [ ]; keys = [ "Space" ]; dispatcher = "key"; args = "Space"; description = "Send Space"; group = "Apps"; subcat = "Thumb Top"; repeats = 0; };
-          stick-left = { modifier = [ "SUPER" ]; keys = [ "A" ]; dispatcher = "focusdir"; args = "left"; description = "Focus window left"; group = "Apps"; subcat = "Stick Left"; repeats = 0; };
-          stick-right = { modifier = [ "SUPER" ]; keys = [ "D" ]; dispatcher = "focusdir"; args = "right"; description = "Focus window right"; group = "Apps"; subcat = "Stick Right"; repeats = 0; };
-          stick-up = { modifier = [ "SUPER" ]; keys = [ "W" ]; dispatcher = "focusdir"; args = "up"; description = "Focus window up"; group = "Apps"; subcat = "Stick Up"; repeats = 0; };
-          stick-down = { modifier = [ "SUPER" ]; keys = [ "S" ]; dispatcher = "focusdir"; args = "down"; description = "Focus window down"; group = "Apps"; subcat = "Stick Down"; repeats = 0; };
-        };
+        # @option widget = "keybinds"; label = "Bank 4"; group = "Banks"; groupOrder = 40; order = 40; bindFields = [ "key" "label" "subcat" "modifier" "keys" "dispatcher" "args" "description" "group" "repeats" ]; bindFieldTypes = [ "str" "str" "str" "list" "list" "str" "str" "str" "str" "int" ]; bindPreview = [ "subcat" ]; bindSort = [ ]; bindKeyField = "label"; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Empty by default. Add the rows you want for the fourth hardware bank.";
+        ojuny.patch.logitech-g13.bindings.bank4 = [ ];
+
+        # @option widget = "dropdown"; label = "Bank 1 color"; group = "Bank colors"; groupOrder = 50; order = 10; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" "custom" ]; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "LCD backlight color for bank 1. Choose a Stylix name or custom.";
+        ojuny.patch.logitech-g13.bindings.bank1Color = "functions";
+
+        # @option widget = "color"; label = "Bank 1 custom color"; group = "Bank colors"; groupOrder = 50; order = 11; visibleWhen.path = "ojuny.patch.logitech-g13.bindings.bank1Color"; visibleWhen.equals = "custom"; description = "Custom bank 1 backlight color.";
+        ojuny.patch.logitech-g13.bindings.bank1CustomColor = "#89b4fa";
+
+        # @option widget = "dropdown"; label = "Bank 2 color"; group = "Bank colors"; groupOrder = 50; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" "custom" ]; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "LCD backlight color for bank 2. Choose a Stylix name or custom.";
+        ojuny.patch.logitech-g13.bindings.bank2Color = "keywords";
+
+        # @option widget = "color"; label = "Bank 2 custom color"; group = "Bank colors"; groupOrder = 50; order = 21; visibleWhen.path = "ojuny.patch.logitech-g13.bindings.bank2Color"; visibleWhen.equals = "custom"; description = "Custom bank 2 backlight color.";
+        ojuny.patch.logitech-g13.bindings.bank2CustomColor = "#cba6f7";
+
+        # @option widget = "dropdown"; label = "Bank 3 color"; group = "Bank colors"; groupOrder = 50; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" "custom" ]; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "LCD backlight color for bank 3. Choose a Stylix name or custom.";
+        ojuny.patch.logitech-g13.bindings.bank3Color = "strings";
+
+        # @option widget = "color"; label = "Bank 3 custom color"; group = "Bank colors"; groupOrder = 50; order = 31; visibleWhen.path = "ojuny.patch.logitech-g13.bindings.bank3Color"; visibleWhen.equals = "custom"; description = "Custom bank 3 backlight color.";
+        ojuny.patch.logitech-g13.bindings.bank3CustomColor = "#a6e3a1";
+
+        # @option widget = "dropdown"; label = "Bank 4 color"; group = "Bank colors"; groupOrder = 50; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" "custom" ]; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "LCD backlight color for bank 4. Choose a Stylix name or custom.";
+        ojuny.patch.logitech-g13.bindings.bank4Color = "support";
+
+        # @option widget = "color"; label = "Bank 4 custom color"; group = "Bank colors"; groupOrder = 50; order = 41; visibleWhen.path = "ojuny.patch.logitech-g13.bindings.bank4Color"; visibleWhen.equals = "custom"; description = "Custom bank 4 backlight color.";
+        ojuny.patch.logitech-g13.bindings.bank4CustomColor = "#89dceb";
 
         home-manager.sharedModules = lib.mkIf active [
           self.modules.homeManager.logitech-g13-backend
@@ -635,7 +680,7 @@ in
             total_delta = total2 - total1
             if total_delta <= 0:
                 return ""
-            return f"{100.0 * (1.0 - (idle2 - idle1) / total_delta):.0f}"
+            return f"{100.0 * (1.0 - (idle2 - idle1) / total_delta):3.0f}"
 
 
         def cpu_temp():
@@ -650,7 +695,7 @@ in
             if not candidates:
                 return ""
             candidates.sort(key=lambda item: item[0])
-            return f"{candidates[0][1] / 1000.0:.0f}c"
+            return f"{candidates[0][1] / 1000.0:.0f}c".rjust(4)
 
 
         def detect_cpu(cfg, timeout):
@@ -747,10 +792,16 @@ in
             return None
 
 
-        def gpu_vendor(cfg):
+        def gpu_vendor(cfg, timeout):
             selected = cfg.get("vendor", "auto")
             if selected != "auto":
                 return selected
+            code, _, _ = run(["nvidia-smi", "-L"], timeout)
+            if code == 0:
+                return "nvidia"
+            for base in sorted(Path("/sys/class/drm").glob("card[0-9]*")):
+                if (base / "device" / "gpu_busy_percent").exists():
+                    return "amd"
             for base in sorted(Path("/sys/class/drm").glob("card[0-9]*")):
                 vendor = read_text(base / "device" / "vendor").strip().lower()
                 if vendor == "0x10de":
@@ -773,7 +824,7 @@ in
 
 
         def detect_gpu(cfg, timeout):
-            vendor = gpu_vendor(cfg)
+            vendor = gpu_vendor(cfg, timeout)
             values = {
                 "gpu_vendor": vendor,
                 "gpu_usage": "",
@@ -981,6 +1032,9 @@ in
             return values
 
 
+        MEDIA_SCROLL = {"title": "", "offset": 0}
+
+
         def detect_media(cfg, timeout):
             fields = {
                 "media_status": "{{status}}",
@@ -995,6 +1049,19 @@ in
                 code, out, _ = run(["playerctl", "metadata", "--format", template], timeout)
                 if code == 0:
                     values[name] = out
+            title = values["media_title"]
+            if title != MEDIA_SCROLL["title"]:
+                MEDIA_SCROLL["title"] = title
+                MEDIA_SCROLL["offset"] = 0
+            if len(title) > 25:
+                doubled = title + " | " + title
+                offset = MEDIA_SCROLL["offset"] % max(1, len(title))
+                values["media_title"] = doubled[offset : offset + 25]
+                values["media_title_full"] = title
+                MEDIA_SCROLL["offset"] = (MEDIA_SCROLL["offset"] + 1) % max(1, len(title))
+            else:
+                values["media_title"] = title
+                values["media_title_full"] = title
             return values
 
 
@@ -1163,7 +1230,7 @@ in
             if detector is None or function is None:
                 print("ojuny-g13: unknown detector " + source, file=sys.stderr)
                 return 1
-            interval = max(1, int(detector.get("refresh", 1)))
+            interval = max(0.1, float(detector.get("refresh", 1.0)))
             timeout = max(1, int(detector.get("timeout", 2)))
             while True:
                 started = time.monotonic()
@@ -1326,11 +1393,212 @@ in
         '';
       };
 
+      pythonEvdev = pkgs.python3.withPackages (ps: [ ps.evdev ]);
+
+      filterSource = pkgs.writeText "g13-filter.py" ''
+        #!${pythonEvdev}/bin/python3
+        """Debounce the G13 stick directions."""
+
+        import time
+
+        import evdev
+        from evdev import ecodes
+
+        STICK_CODES = {
+            ecodes.KEY_F13,
+            ecodes.KEY_F14,
+            ecodes.KEY_F15,
+            ecodes.KEY_F16,
+        }
+        LOCKOUT = 0.3
+
+
+        def find_device():
+            for path in evdev.list_devices():
+                try:
+                    device = evdev.InputDevice(path)
+                except OSError:
+                    continue
+                if device.name == "G13":
+                    return device
+                device.close()
+            return None
+
+
+        def run():
+            while True:
+                source = find_device()
+                if source is None:
+                    time.sleep(1.0)
+                    continue
+                output = None
+                try:
+                    source.grab()
+                    output = evdev.UInput.from_device(source, name="G13 Filtered")
+                    last_code = None
+                    last_time = 0.0
+                    suppressed = set()
+                    for event in source.read():
+                        if event.type == ecodes.EV_KEY and event.code in STICK_CODES:
+                            now = time.monotonic()
+                            if event.value == 1:
+                                if (
+                                    last_code is not None
+                                    and event.code != last_code
+                                    and now - last_time < LOCKOUT
+                                ):
+                                    suppressed.add(event.code)
+                                    continue
+                                last_code = event.code
+                                last_time = now
+                                suppressed.discard(event.code)
+                            elif event.value == 0:
+                                if event.code in suppressed:
+                                    suppressed.discard(event.code)
+                                    continue
+                        output.write_event(event)
+                except OSError:
+                    pass
+                finally:
+                    if output is not None:
+                        output.close()
+                    try:
+                        source.ungrab()
+                    except OSError:
+                        pass
+                    source.close()
+                    time.sleep(1.0)
+
+
+        run()
+      '';
+
+      filterScript = pkgs.runCommandLocal "g13-filter.py" {
+        nativeBuildInputs = [ pythonEvdev ];
+      } ''
+        install -Dm755 ${filterSource} $out/bin/g13-filter.py
+        python3 -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $out/bin/g13-filter.py
+      '';
+
+      g13Filter = pkgs.writeShellApplication {
+        name = "g13-filter";
+        runtimeInputs = [ pythonEvdev ];
+        text = ''
+          exec ${filterScript}/bin/g13-filter.py "$@"
+        '';
+      };
+
+      displayPresets = {
+        cpu = {
+          default = "$cpu_clock $cpu_usage% $cpu_temp    $time";
+          compact = "$cpu_usage% $cpu_temp";
+          detailed = "$cpu_clock $cpu_usage% $cpu_temp $ram_used $ram_free $time";
+        };
+        ram = {
+          default = "u$ram_used c$ram_cached f$ram_free";
+          compact = "$ram_percent";
+          detailed = "u$ram_used c$ram_cached f$ram_free t$ram_total";
+        };
+        disk = {
+          default = "$disk_used R$disk_read W$disk_write";
+          compact = "$disk_used";
+          detailed = "$disk_used f$disk_free R$disk_read W$disk_write";
+        };
+        gpu = {
+          default = "$gpu_usage% $gpu_clock $gpu_vram $gpu_temp";
+          compact = "$gpu_usage% $gpu_temp";
+          detailed = "$gpu_vendor $gpu_usage% $gpu_clock $gpu_vram $gpu_temp";
+        };
+        network = {
+          default = "$network_interface $network_state $network_ip";
+          compact = "$network_connection";
+          detailed = "$network_interface $network_ip $network_rx $network_tx";
+        };
+        battery = {
+          default = "$battery_percent $battery_state $battery_time";
+          compact = "$battery_percent";
+          detailed = "$battery_percent $battery_state $battery_time";
+        };
+        audio = {
+          default = "$audio_volume $audio_muted";
+          compact = "$audio_volume";
+          detailed = "$audio_volume $audio_muted src$audio_source_volume";
+        };
+        media = {
+          default = "$media_title";
+          compact = "$media_title";
+          detailed = "$media_status $media_title";
+        };
+        workspace = {
+          default = "$workspace";
+          compact = "$workspace";
+          detailed = "$workspace_monitor $workspace $workspace_layout";
+        };
+        keymode = {
+          default = "$keymode";
+          compact = "$keymode";
+          detailed = "$keymode";
+        };
+        layout = {
+          default = "$layout";
+          compact = "$layout";
+          detailed = "$layout";
+        };
+        clock = {
+          default = "$time";
+          compact = "$time";
+          detailed = "$time";
+        };
+        date = {
+          default = "$date";
+          compact = "$date";
+          detailed = "$weekday $date";
+        };
+        uptime = {
+          default = "$uptime";
+          compact = "$uptime";
+          detailed = "$uptime";
+        };
+        weather = {
+          default = "$weather_temp $weather_condition";
+          compact = "$weather_temp";
+          detailed = "$weather_location $weather_temp $weather_condition $weather_humidity $weather_wind";
+        };
+        custom = {
+          default = "$custom";
+          compact = "$custom";
+          detailed = "$custom";
+        };
+      };
+
+      resolveDisplayFormat = source: line:
+        if line.preset == "custom" then
+          line.format
+        else
+          displayPresets.${source}.${line.preset} or displayPresets.${source}.default;
+
+      displayEntries = lib.mapAttrsToList (
+        source: line:
+        {
+          inherit source;
+          inherit (line) enable order preset format;
+        }
+      ) cfg.display.sources;
+
+      enabledDisplayEntries = lib.sort (a: b: a.order < b.order) (
+        builtins.filter (entry: entry.enable) displayEntries
+      );
+
+      displayLines = map (entry: {
+        inherit (entry) source;
+        format = resolveDisplayFormat entry.source entry;
+      }) (lib.take 5 enabledDisplayEntries);
+
       configFile = pkgs.writeText "ojuny-g13.json" (
         builtins.toJSON {
           display = {
             inherit (cfg.display) enable refreshMs;
-            lines = map (line: { inherit (line) source format enabled; }) cfg.display.lines;
+            lines = displayLines;
           };
           detectors = cfg.detectors;
         }
@@ -1354,13 +1622,112 @@ in
           upower
         ]
         ++ [ ojunyG13 g13Cli ]
-        ++ lib.optional (mangoPackage != null) mangoPackage;
+        ++ lib.optional (mangoPackage != null) mangoPackage
+        ++ lib.optional (nvidiaPackage != null) nvidiaPackage;
 
       mangoPackage = self.packages.${pkgs.stdenv.hostPlatform.system}.mango or null;
+      nvidiaPackage =
+        if lib.elem "nvidia" (config.services.xserver.videoDrivers or [ ]) then
+          config.hardware.nvidia.package or null
+        else
+          null;
 
-      detectorSources = lib.unique (
-        map (line: line.source) (builtins.filter (line: line.enabled) cfg.display.lines)
+      detectorSources = lib.unique (map (line: line.source) displayLines);
+
+      bankRows = cfg.bindings.bank1;
+      rowByKey = key: lib.findFirst (row: row.key == key) null bankRows;
+
+      mangoBind = row: {
+        inherit (row) modifier keys dispatcher args description group subcat;
+      };
+
+      modeBind = row: dispatcher: args: description: {
+        inherit (row) modifier keys subcat;
+        inherit dispatcher args description;
+        group = "G13 Modes";
+      };
+
+      optionalModeBind = name: row: dispatcher: args: description:
+        lib.optionalAttrs (row != null) {
+          "g13-${name}" = modeBind row dispatcher args description;
+        };
+
+      mergeBinds = items: lib.foldl' (acc: item: acc // item) { } items;
+
+      commonRows = builtins.filter (
+        row:
+        !(builtins.elem row.key [
+          "g20"
+          "g21"
+          "g22"
+          "thumb-left"
+          "thumb-down"
+          "stick-left"
+          "stick-right"
+          "stick-up"
+          "stick-down"
+        ])
+      ) bankRows;
+
+      commonBinds = lib.listToAttrs (
+        map (row: lib.nameValuePair ("g13-" + row.key) (mangoBind row)) commonRows
       );
+
+      g20 = rowByKey "g20";
+      g21 = rowByKey "g21";
+      g22 = rowByKey "g22";
+      thumbLeft = rowByKey "thumb-left";
+      thumbDown = rowByKey "thumb-down";
+      stickLeft = rowByKey "stick-left";
+      stickRight = rowByKey "stick-right";
+      stickUp = rowByKey "stick-up";
+      stickDown = rowByKey "stick-down";
+
+      defaultBinds = mergeBinds [
+        (optionalModeBind "g20" g20 "setkeymode" "movement" "Movement mode")
+        (optionalModeBind "g21" g21 "setkeymode" "groups" "Groups mode")
+        (optionalModeBind "g22" g22 "setkeymode" "resize" "Resize mode")
+        (optionalModeBind "thumb-left" thumbLeft "focusstack" "prev" "Previous stack window")
+        (optionalModeBind "thumb-down" thumbDown "focusstack" "next" "Next stack window")
+        (optionalModeBind "stick-left" stickLeft "focusdir" "left" "Focus left")
+        (optionalModeBind "stick-right" stickRight "focusdir" "right" "Focus right")
+        (optionalModeBind "stick-up" stickUp "focusdir" "up" "Focus up")
+        (optionalModeBind "stick-down" stickDown "focusdir" "down" "Focus down")
+      ];
+
+      movementBinds = mergeBinds [
+        (optionalModeBind "g20" g20 "setkeymode" "default" "Return to default mode")
+        (optionalModeBind "g21" g21 "setkeymode" "groups" "Groups mode")
+        (optionalModeBind "g22" g22 "setkeymode" "resize" "Resize mode")
+        (optionalModeBind "thumb-left" thumbLeft "exchange_stack_client" "prev" "Previous stack window")
+        (optionalModeBind "thumb-down" thumbDown "exchange_stack_client" "next" "Next stack window")
+        (optionalModeBind "stick-left" stickLeft "exchange_client" "left" "Swap left")
+        (optionalModeBind "stick-right" stickRight "exchange_client" "right" "Swap right")
+        (optionalModeBind "stick-up" stickUp "exchange_client" "up" "Swap up")
+        (optionalModeBind "stick-down" stickDown "exchange_client" "down" "Swap down")
+      ];
+
+      groupsBinds = mergeBinds [
+        (optionalModeBind "g20" g20 "setkeymode" "movement" "Movement mode")
+        (optionalModeBind "g21" g21 "setkeymode" "default" "Return to default mode")
+        (optionalModeBind "g22" g22 "setkeymode" "resize" "Resize mode")
+        (optionalModeBind "thumb-left" thumbLeft "groupfocus" "prev" "Previous group member")
+        (optionalModeBind "thumb-down" thumbDown "groupfocus" "next" "Next group member")
+        (optionalModeBind "stick-left" stickLeft "groupjoin" "left" "Join group left")
+        (optionalModeBind "stick-right" stickRight "groupjoin" "right" "Join group right")
+        (optionalModeBind "stick-up" stickUp "groupjoin" "up" "Join group up")
+        (optionalModeBind "stick-down" stickDown "groupjoin" "down" "Join group down")
+      ];
+
+      resizeBinds = mergeBinds [
+        (optionalModeBind "g20" g20 "setkeymode" "movement" "Movement mode")
+        (optionalModeBind "g21" g21 "setkeymode" "groups" "Groups mode")
+        (optionalModeBind "g22" g22 "setkeymode" "default" "Return to default mode")
+        (optionalModeBind "stick-left" stickLeft "smartresizewin" "left" "Resize left")
+        (optionalModeBind "stick-right" stickRight "smartresizewin" "right" "Resize right")
+        (optionalModeBind "stick-up" stickUp "smartresizewin" "up" "Resize up")
+        (optionalModeBind "stick-down" stickDown "smartresizewin" "down" "Resize down")
+      ];
 
       detectorService = source: {
         description = "Ojuny G13 ${source} detector";
@@ -1413,12 +1780,12 @@ in
               message = "patch-logitech-g13: Stylix is required for the derived bank colors.";
             }
             {
-              assertion = builtins.length cfg.display.lines <= 5;
-              message = "patch-logitech-g13: display.lines supports at most 5 rows.";
+              assertion = lib.count (source: source.enable) (builtins.attrValues cfg.display.sources) <= 5;
+              message = "patch-logitech-g13: at most 5 display sources can be enabled.";
             }
             {
-              assertion = lib.count (line: line.enabled) cfg.display.lines >= 1;
-              message = "patch-logitech-g13: at least one display line must be enabled.";
+              assertion = lib.count (source: source.enable) (builtins.attrValues cfg.display.sources) >= 1;
+              message = "patch-logitech-g13: at least one display source must be enabled.";
             }
             {
               assertion = cfg.display.refreshMs >= 100;
@@ -1431,21 +1798,21 @@ in
               message = "patch-logitech-g13: every detector refresh must be positive.";
             }
             {
-              assertion = lib.all (
-                line: line.source != "custom" || cfg.detectors.custom.command != ""
-              ) (builtins.filter (line: line.enabled) cfg.display.lines);
+              assertion = !cfg.display.sources.custom.enable || cfg.detectors.custom.command != "";
               message = "patch-logitech-g13: an enabled custom line needs detectors.custom.command.";
             }
             {
-              assertion = lib.all (
-                bank: lib.all (row: row.keys != [ ]) (builtins.attrValues bank)
-              ) (builtins.attrValues cfg.bindings);
+              assertion = lib.all (row: row.keys != [ ]) bankRows;
               message = "patch-logitech-g13: every bind row needs at least one key.";
             }
           ];
 
           hardware.uinput.enable = true;
           services.udev.packages = [ driver ];
+          services.udev.extraRules = ''
+            KERNEL=="event*", ATTRS{name}=="G13", TAG+="uaccess"
+            KERNEL=="event*", ATTRS{name}=="G13 Filtered", TAG+="uaccess"
+          '';
           services.upower.enable = lib.mkDefault true;
           environment.systemPackages = [
             driver
@@ -1453,6 +1820,7 @@ in
             g13Int
             g13Raw
             g13Paste
+            g13Filter
             ojunyG13
           ];
           environment.sessionVariables.OJUNY_G13_CONFIG = configFile;
@@ -1477,6 +1845,21 @@ in
                 };
                 wantedBy = [ "default.target" ];
               };
+              g13-filter = {
+                description = "Ojuny G13 stick debounce";
+                after = [ "g13.service" ];
+                wants = [ "g13.service" ];
+                path = [ g13Filter ];
+                serviceConfig = {
+                  Type = "simple";
+                  ExecStart = "${g13Filter}/bin/g13-filter";
+                  Restart = "on-failure";
+                  RestartSec = 2;
+                  StandardOutput = "journal";
+                  StandardError = "journal";
+                };
+                wantedBy = [ "default.target" ];
+              };
             }
             // lib.optionalAttrs cfg.display.enable (
               {
@@ -1489,6 +1872,13 @@ in
                 ) detectorSources
               )
             );
+        })
+        (lib.mkIf (active && config ? desktop.ojuny.mango.binds) {
+          desktop.ojuny.mango.binds.common = commonBinds;
+          desktop.ojuny.mango.binds.default = defaultBinds;
+          desktop.ojuny.mango.binds.movement = movementBinds;
+          desktop.ojuny.mango.binds.groups = groupsBinds;
+          desktop.ojuny.mango.binds.resize = resizeBinds;
         })
         (lib.mkIf (active && config ? desktop.ojuny.dankMenu) {
           desktop.ojuny.dankMenu.extraEntries = {
@@ -1774,36 +2164,37 @@ in
       banks = [
         {
           number = 1;
-          name = "Workspaces";
-          color = "functions";
+          name = "Main";
           rows = cfg.bindings.bank1;
+          color = cfg.bindings.bank1Color;
+          customColor = cfg.bindings.bank1CustomColor;
         }
         {
           number = 2;
-          name = "Windows";
-          color = "keywords";
+          name = "Bank 2";
           rows = cfg.bindings.bank2;
+          color = cfg.bindings.bank2Color;
+          customColor = cfg.bindings.bank2CustomColor;
         }
         {
           number = 3;
-          name = "Media";
-          color = "strings";
+          name = "Bank 3";
           rows = cfg.bindings.bank3;
+          color = cfg.bindings.bank3Color;
+          customColor = cfg.bindings.bank3CustomColor;
         }
         {
           number = 4;
-          name = "Apps";
-          color = "support";
+          name = "Bank 4";
           rows = cfg.bindings.bank4;
+          color = cfg.bindings.bank4Color;
+          customColor = cfg.bindings.bank4CustomColor;
         }
       ];
 
-      sortedNames = bank: builtins.sort (a: b: a < b) (builtins.attrNames bank.rows);
-
-      rowEntries = bank: lib.imap0 (index: name: {
-        inherit index name;
-        row = bank.rows.${name};
-      }) (sortedNames bank);
+      rowEntries = bank: lib.imap0 (index: row: {
+        inherit index row;
+      }) bank.rows;
 
       modifiersOf = row: builtins.filter (modifier: normalize modifier != "none") row.modifier;
 
@@ -1828,13 +2219,13 @@ in
         if entry.row.keys == [ ] then
           ""
         else if isChord entry.row then
-          "G${toString (resolveGIndex entry.name)}=m,${toString (macroId bank entry)},${toString entry.row.repeats}"
+          "G${toString (resolveGIndex entry.row.key)}=m,${toString (macroId bank entry)},${toString entry.row.repeats}"
         else
-          "G${toString (resolveGIndex entry.name)}=p,k.${toString (resolveKey (builtins.head entry.row.keys))}";
+          "G${toString (resolveGIndex entry.row.key)}=p,k.${toString (resolveKey (builtins.head entry.row.keys))}";
 
-      bankColor = colorName:
+      bankColor = bank:
         let
-          hex = namedColors.${colorName}.hex;
+          hex = if bank.color == "custom" then bank.customColor else namedColors.${bank.color}.hex;
         in
         lib.concatStringsSep "," [
           (toString (lib.fromHexString (builtins.substring 1 2 hex)))
@@ -1846,7 +2237,7 @@ in
         let
           lines = map (entry: compileBinding bank entry) (rowEntries bank);
         in
-        "color=${bankColor bank.color}\n" + lib.concatStringsSep "\n" lines + "\n";
+        "color=${bankColor bank}\n" + lib.concatStringsSep "\n" lines + "\n";
 
       bankMacros = bank:
         map
@@ -1856,7 +2247,7 @@ in
               file = ".config/g13/macro-${toString (macroId bank entry)}.properties";
               text = ''
                 sequence=${macroSequence entry.row}
-                name=${entry.name}
+                name=${entry.row.key}
                 id=${toString (macroId bank entry)}
               '';
             }
@@ -1890,7 +2281,7 @@ in
         ) banks
       );
 
-      allRows = lib.concatMap (bank: map (entry: entry.row) (rowEntries bank)) banks;
+      allRows = lib.concatMap (bank: bank.rows) banks;
 
       actionText = row: lib.concatStringsSep " " ([ row.dispatcher ] ++ lib.optional (row.args != "") row.args);
 

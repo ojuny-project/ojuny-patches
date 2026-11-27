@@ -20,11 +20,15 @@ use are not measured. Fetching a patch repository needs network access.
 ```sh
 ojuny-patches sync
 ojuny-patches list available
-ojuny-patches install patch-zed
+ojuny-patches install zed
 ```
 
-`sync` refreshes the local registry. `list available` prints IDs;
-[CATALOGUE.md](CATALOGUE.md) adds descriptions and versions. `install` copies
+`sync` refreshes the local registry. `list available` prints an aligned
+`ID`, `NAME`, `SOURCE` table; `list installed` prints `ID`, `NAME`, `STATUS`.
+The `patch-` prefix is optional, and the argument may be an extended regular
+expression, so `install zed`, `install patch-zed` and `install '^patch-ze'`
+resolve the same patch. A pattern that matches several patches lists them and
+stops. `install` copies
 `modules/patches/patch-zed.nix` into the flake, stages it with `git add`, and
 leaves the patch disabled. A Nix flake evaluates the git tree, so an unstaged
 module is invisible and the rebuild reports an undefined option.

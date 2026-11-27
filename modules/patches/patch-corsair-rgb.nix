@@ -25,8 +25,8 @@
         # @option widget = "dropdown"; label = "Ambient"; group = "Palette"; groupOrder = 20; order = 10; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color every key starts at. Pick a foreground or accent color. It is dimmed by Ambient level so the highlights stay brighter.";
         ojuny.patch.corsair-rgb.palette.ambient = "functions";
 
-        # @option widget = "slider"; label = "Ambient level"; group = "Palette"; groupOrder = 20; order = 15; min = 0; max = 100; step = 1; unit = "%"; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Brightness of the ambient background. 30 keeps the base color visible without washing out the highlights.";
-        ojuny.patch.corsair-rgb.ambientLevel = 30;
+        # @option widget = "slider"; label = "Ambient level"; group = "Palette"; groupOrder = 20; order = 15; min = 0; max = 100; step = 1; unit = "%"; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Brightness of the ambient background. 40 keeps the base color visible without washing out the highlights.";
+        ojuny.patch.corsair-rgb.ambientLevel = 40;
 
         # @option widget = "dropdown"; label = "Unlit"; group = "Palette"; groupOrder = 20; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for volume-bar keys below the current volume. Pick a foreground or accent color. It is dimmed by Unlit level.";
         ojuny.patch.corsair-rgb.palette.unlit = "functions";
@@ -34,22 +34,22 @@
         # @option widget = "slider"; label = "Unlit level"; group = "Palette"; groupOrder = 20; order = 25; min = 0; max = 100; step = 1; unit = "%"; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Brightness of unlit volume keys and empty tag digits.";
         ojuny.patch.corsair-rgb.unlitLevel = 15;
 
-        # @option widget = "dropdown"; label = "Muted"; group = "Palette"; groupOrder = 20; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Low-contrast color available to state rows; no built-in highlight uses it.";
+        # @option widget = "dropdown"; label = "Muted"; group = "Palette"; groupOrder = 20; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Not used by built-in highlights.";
         ojuny.patch.corsair-rgb.palette.muted = "darkForeground";
 
-        # @option widget = "dropdown"; label = "Neutral"; group = "Palette"; groupOrder = 20; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for tag digits that have windows but are not active.";
+        # @option widget = "dropdown"; label = "Neutral"; group = "Palette"; groupOrder = 20; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Not used by built-in highlights.";
         ojuny.patch.corsair-rgb.palette.neutral = "defaultForeground";
 
-        # @option widget = "dropdown"; label = "Bright"; group = "Palette"; groupOrder = 20; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "High-contrast color available to state rows; no built-in highlight uses it.";
+        # @option widget = "dropdown"; label = "Bright"; group = "Palette"; groupOrder = 20; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for binds with no group.";
         ojuny.patch.corsair-rgb.palette.bright = "lightForeground";
 
         # @option widget = "dropdown"; label = "Primary"; group = "Palette"; groupOrder = 20; order = 60; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for keys bound in the active Mango keymode.";
         ojuny.patch.corsair-rgb.palette.primary = "functions";
 
-        # @option widget = "dropdown"; label = "Secondary"; group = "Palette"; groupOrder = 20; order = 70; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Spare accent available to state rows; no built-in highlight uses it.";
+        # @option widget = "dropdown"; label = "Secondary"; group = "Palette"; groupOrder = 20; order = 70; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for movement keymode keys and the legacy default layout.";
         ojuny.patch.corsair-rgb.palette.secondary = "keywords";
 
-        # @option widget = "dropdown"; label = "Accent"; group = "Palette"; groupOrder = 20; order = 80; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for modifier keys in active keymode and state highlights.";
+        # @option widget = "dropdown"; label = "Accent"; group = "Palette"; groupOrder = 20; order = 80; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for W, A, S, and D in default keymode.";
         ojuny.patch.corsair-rgb.palette.accent = "support";
 
         # @option widget = "dropdown"; label = "Success"; group = "Palette"; groupOrder = 20; order = 90; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for low-volume bars and success state rows.";
@@ -64,8 +64,8 @@
         # @option widget = "dropdown"; label = "Error"; group = "Palette"; groupOrder = 20; order = 120; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for urgent tag digits, high-volume bars, and error state rows.";
         ojuny.patch.corsair-rgb.palette.error = "variables";
 
-        # @option widget = "dropdown"; label = "Special"; group = "Palette"; groupOrder = 20; order = 130; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Spare accent available to state rows; no built-in highlight uses it.";
-        ojuny.patch.corsair-rgb.palette.special = "deprecated";
+        # @option widget = "dropdown"; label = "Special"; group = "Palette"; groupOrder = 20; order = 130; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for System binds. Avoid deprecated on dark schemes; it is nearly black.";
+        ojuny.patch.corsair-rgb.palette.special = "keywords";
 
         # @option widget = "slider"; label = "Gamma"; group = "Palette"; groupOrder = 20; order = 140; min = 1.0; max = 3.5; step = 0.1; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Brightness curve applied to every key color. Higher values brighten dark colors more.";
         ojuny.patch.corsair-rgb.gamma = 2.8;
@@ -115,8 +115,8 @@
         # @option widget = "switch"; label = "Keymode binds"; group = "Keymode"; groupOrder = 60; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light the keys and modifiers used by the current Mango keymode.";
         ojuny.patch.corsair-rgb.keymode.enable = true;
 
-        # @option widget = "dropdown"; label = "Modifier color"; group = "Keymode"; groupOrder = 60; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for SUPER, SHIFT, ALT, and CTRL when an active bind uses them.";
-        ojuny.patch.corsair-rgb.keymode.modifierColor = "support";
+        # @option widget = "dropdown"; label = "Modifier color"; group = "Keymode"; groupOrder = 60; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for SUPER, SHIFT, ALT, and CTRL in active binds. Keywords keeps them distinct from the green Applications group.";
+        ojuny.patch.corsair-rgb.keymode.modifierColor = "keywords";
 
         # @option widget = "table-list"; label = "State binds"; group = "State binds"; groupOrder = 70; order = 10; columns = [ "name" "match" "probe" "color" "enabled" ]; columnTypes = [ "str" "str" "str" "dropdown" "bool" ]; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "When the selected DMS state is active, light the keys of every bind whose action contains the match text. probe selects the state source.";
         ojuny.patch.corsair-rgb.stateBinds = [
@@ -124,7 +124,7 @@
             name = "Night mode";
             match = "night";
             probe = "dms-night";
-            color = "support";
+            color = "keywords";
             enabled = true;
           }
           {
@@ -143,7 +143,7 @@
           }
           {
             name = "Media playing";
-            match = "playpause";
+            match = "play";
             probe = "media-playing";
             color = "strings";
             enabled = true;
@@ -260,6 +260,8 @@
               "PREVIOUSSONG": "prev",
               "BRIGHTNESSDOWN": "lightdn",
               "BRIGHTNESSUP": "lightup",
+              "PAGE_UP": "pgup",
+              "PAGE_DOWN": "pgdn",
               "MINUS": "minus",
               "EQUAL": "equal",
               "LEFTBRACE": "lbrace",
@@ -566,6 +568,14 @@
                               occupied.add(index)
                   with self.lock:
                       self.tags = {"active": active, "urgent": urgent, "occupied": occupied}
+                      log(
+                          "tags: active="
+                          + str(sorted(active))
+                          + " urgent="
+                          + str(sorted(urgent))
+                          + " occupied="
+                          + str(sorted(occupied))
+                      )
                   self.event.set()
 
               def snapshot(self):
@@ -726,7 +736,7 @@
                       name: apply_gamma(value, gamma)
                       for name, value in self.config.get("palette", {}).items()
                   }
-                  self.ambient_level = int(self.config.get("ambientLevel", 30))
+                  self.ambient_level = int(self.config.get("ambientLevel", 40))
                   self.unlit_level = int(self.config.get("unlitLevel", 15))
                   self.ambient_color = scale_color(self.palette.get("ambient", "#000000"), self.ambient_level)
                   self.unlit_color = scale_color(self.palette.get("unlit", "#000000"), self.unlit_level)
@@ -798,22 +808,6 @@
                   snapshot = self.mango.snapshot()
                   overrides = {}
 
-                  if self.tags_config.get("enable", True):
-                      active = snapshot["tags"]["active"]
-                      urgent = snapshot["tags"]["urgent"]
-                      occupied = snapshot["tags"]["occupied"]
-                      for index in range(1, 11):
-                          key = "0" if index == 10 else str(index)
-                          if index in active:
-                              color = self.role_color(self.tags_config.get("active", "functions"))
-                          elif index in urgent:
-                              color = self.role_color(self.tags_config.get("urgent", "variables"))
-                          elif index in occupied:
-                              color = self.role_color(self.tags_config.get("occupied", "defaultForeground"))
-                          else:
-                              color = self.role_color(self.tags_config.get("empty", "comments"))
-                          overrides[key] = color
-
                   if self.volume_config.get("enable", True):
                       keys = [translate_key(key) for key in self.volume_config.get("keys", [])]
                       keys = [key for key in keys if key]
@@ -843,7 +837,7 @@
                           for bind in self.binds.get(mode, []) or []:
                               keys, modifiers = bind_keys(bind)
                               group = str(bind.get("group", "")).lower()
-                              key_color = self.role_color(group_colors.get(group, "accent"))
+                              key_color = self.role_color(group_colors.get(group, "bright"))
                               for key in keys:
                                   overrides[key] = key_color
                               for modifier in modifiers:
@@ -885,6 +879,40 @@
                           for key_list, role in layout:
                               for key in key_list.split(","):
                                   overrides[key] = self.role_color(role)
+
+                      alt_mode_roles = {
+                          "movement": "secondary",
+                          "groups": "error",
+                          "resize": "warning",
+                      }
+                      if active_mode in alt_mode_roles:
+                          for mode_bind in self.binds.get(active_mode, []) or []:
+                              mode_keys, _ = bind_keys(mode_bind)
+                              for mode_key in mode_keys:
+                                  overrides[mode_key] = self.role_color(alt_mode_roles[active_mode])
+                          overrides["bspace"] = self.role_color("error")
+                      overrides["f1"] = self.role_color(alt_mode_roles["movement"])
+                      overrides["f2"] = self.role_color(alt_mode_roles["groups"])
+                      overrides["f3"] = self.role_color(alt_mode_roles["resize"])
+                      if active_mode == "default":
+                          for wasd_key in ("w", "a", "s", "d"):
+                              overrides[wasd_key] = self.role_color("accent")
+
+                  if self.tags_config.get("enable", True):
+                      active = snapshot["tags"]["active"]
+                      urgent = snapshot["tags"]["urgent"]
+                      occupied = snapshot["tags"]["occupied"]
+                      for index in range(1, 11):
+                          key = "0" if index == 10 else str(index)
+                          if index in active:
+                              color = self.role_color(self.tags_config.get("active", "functions"))
+                          elif index in urgent:
+                              color = self.role_color(self.tags_config.get("urgent", "variables"))
+                          elif index in occupied:
+                              color = self.role_color(self.tags_config.get("occupied", "defaultForeground"))
+                          else:
+                              color = self.role_color(self.tags_config.get("empty", "comments"))
+                          overrides[key] = color
 
                   dms_state = self.dms.snapshot()
                   for state in self.state_binds:
@@ -1297,7 +1325,7 @@
 
         ambientLevel = lib.mkOption {
           type = lib.types.int;
-          default = 30;
+          default = 40;
           description = "Ambient background brightness percentage.";
         };
 
@@ -1388,8 +1416,8 @@
           };
           special = lib.mkOption {
             type = colorType;
-            default = "deprecated";
-            description = "Spare accent available to state rows; no built-in highlight uses it.";
+            default = "keywords";
+            description = "Color for System binds.";
           };
         };
 
@@ -1458,7 +1486,7 @@
 
           modifierColor = lib.mkOption {
             type = colorType;
-            default = "support";
+            default = "keywords";
             description = "Modifier color for active binds.";
           };
         };

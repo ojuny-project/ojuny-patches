@@ -92,7 +92,11 @@
                 nativeBuildInputs = [
                   pkgs.bash
                   pkgs.coreutils
+                  pkgs.diffutils
                   pkgs.gnugrep
+                  pkgs.jq
+                  pkgs.procps
+                  pkgs.util-linux
                 ];
               }
               ''
