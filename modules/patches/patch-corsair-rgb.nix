@@ -22,113 +22,109 @@
         # @option widget = "switch"; label = "Corsair RGB"; group = "Corsair RGB"; groupOrder = 10; order = 10; description = "Enable ckb-next and the dynamic RGB daemon.";
         ojuny.patch.corsair-rgb.enable = false;
 
-        # @option widget = "dropdown"; label = "Ambient"; group = "Palette"; groupOrder = 20; order = 10; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Baseline color for every key. selectionBackground is brighter than defaultBackground.";
+        # @option widget = "dropdown"; label = "Ambient"; group = "Palette"; groupOrder = 20; order = 10; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color every key starts at before tag, keymode, state, and volume highlights are applied.";
         ojuny.patch.corsair-rgb.palette.ambient = "selectionBackground";
 
-        # @option widget = "dropdown"; label = "Unlit"; group = "Palette"; groupOrder = 20; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for unlit volume keys and empty indicators.";
+        # @option widget = "dropdown"; label = "Unlit"; group = "Palette"; groupOrder = 20; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for volume-bar keys below the current volume and for tag digits with no windows.";
         ojuny.patch.corsair-rgb.palette.unlit = "comments";
 
-        # @option widget = "dropdown"; label = "Muted"; group = "Palette"; groupOrder = 20; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for muted or inactive text-like states.";
+        # @option widget = "dropdown"; label = "Muted"; group = "Palette"; groupOrder = 20; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Low-contrast color available to state rows; no built-in highlight uses it.";
         ojuny.patch.corsair-rgb.palette.muted = "darkForeground";
 
-        # @option widget = "dropdown"; label = "Neutral"; group = "Palette"; groupOrder = 20; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Neutral foreground color.";
+        # @option widget = "dropdown"; label = "Neutral"; group = "Palette"; groupOrder = 20; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for tag digits that have windows but are not active.";
         ojuny.patch.corsair-rgb.palette.neutral = "defaultForeground";
 
-        # @option widget = "dropdown"; label = "Bright"; group = "Palette"; groupOrder = 20; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Bright foreground color.";
+        # @option widget = "dropdown"; label = "Bright"; group = "Palette"; groupOrder = 20; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "High-contrast color available to state rows; no built-in highlight uses it.";
         ojuny.patch.corsair-rgb.palette.bright = "lightForeground";
 
-        # @option widget = "dropdown"; label = "Primary"; group = "Palette"; groupOrder = 20; order = 60; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Primary accent for active keymode binds.";
+        # @option widget = "dropdown"; label = "Primary"; group = "Palette"; groupOrder = 20; order = 60; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for keys bound in the active Mango keymode.";
         ojuny.patch.corsair-rgb.palette.primary = "functions";
 
-        # @option widget = "dropdown"; label = "Secondary"; group = "Palette"; groupOrder = 20; order = 70; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Secondary accent.";
+        # @option widget = "dropdown"; label = "Secondary"; group = "Palette"; groupOrder = 20; order = 70; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Spare accent available to state rows; no built-in highlight uses it.";
         ojuny.patch.corsair-rgb.palette.secondary = "keywords";
 
-        # @option widget = "dropdown"; label = "Accent"; group = "Palette"; groupOrder = 20; order = 80; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Information accent.";
+        # @option widget = "dropdown"; label = "Accent"; group = "Palette"; groupOrder = 20; order = 80; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for modifier keys in active keymode and state highlights.";
         ojuny.patch.corsair-rgb.palette.accent = "support";
 
-        # @option widget = "dropdown"; label = "Success"; group = "Palette"; groupOrder = 20; order = 90; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Success color.";
+        # @option widget = "dropdown"; label = "Success"; group = "Palette"; groupOrder = 20; order = 90; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for low-volume bars and success state rows.";
         ojuny.patch.corsair-rgb.palette.success = "strings";
 
-        # @option widget = "dropdown"; label = "Warning"; group = "Palette"; groupOrder = 20; order = 100; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Warning color.";
+        # @option widget = "dropdown"; label = "Warning"; group = "Palette"; groupOrder = 20; order = 100; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for warning state rows.";
         ojuny.patch.corsair-rgb.palette.warning = "classes";
 
-        # @option widget = "dropdown"; label = "Attention"; group = "Palette"; groupOrder = 20; order = 110; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Attention color for stay-awake and mid-volume states.";
+        # @option widget = "dropdown"; label = "Attention"; group = "Palette"; groupOrder = 20; order = 110; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for mid-volume bars and attention state rows.";
         ojuny.patch.corsair-rgb.palette.attention = "integers";
 
-        # @option widget = "dropdown"; label = "Error"; group = "Palette"; groupOrder = 20; order = 120; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Error, urgent and high-volume color.";
+        # @option widget = "dropdown"; label = "Error"; group = "Palette"; groupOrder = 20; order = 120; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for urgent tag digits, high-volume bars, and error state rows.";
         ojuny.patch.corsair-rgb.palette.error = "variables";
 
-        # @option widget = "dropdown"; label = "Special"; group = "Palette"; groupOrder = 20; order = 130; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Special workspace color.";
+        # @option widget = "dropdown"; label = "Special"; group = "Palette"; groupOrder = 20; order = 130; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Spare accent available to state rows; no built-in highlight uses it.";
         ojuny.patch.corsair-rgb.palette.special = "deprecated";
 
-        # @option widget = "slider"; label = "Gamma"; group = "Palette"; groupOrder = 20; order = 140; min = 1.0; max = 3.5; step = 0.1; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "LED gamma correction. 2.8 matches the old CachyOS daemon.";
+        # @option widget = "slider"; label = "Gamma"; group = "Palette"; groupOrder = 20; order = 140; min = 1.0; max = 3.5; step = 0.1; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Brightness curve applied to every key color. Higher values brighten dark colors more.";
         ojuny.patch.corsair-rgb.gamma = 2.8;
 
-        # @option widget = "text"; label = "Devices"; group = "Runtime"; groupOrder = 30; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "auto detects rgb-capable ckb-next devices. A comma-separated list such as ckb1,ckb2 forces devices.";
+        # @option widget = "text"; label = "Devices"; group = "Runtime"; groupOrder = 30; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "`auto` finds RGB-capable ckb-next devices. A comma-separated list forces specific devices.";
         ojuny.patch.corsair-rgb.devices = "auto";
 
-        # @option widget = "spin"; label = "Refresh seconds"; group = "Runtime"; groupOrder = 30; order = 20; min = 5; max = 600; unit = "s"; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Fallback reapply interval when no state event arrives.";
+        # @option widget = "spin"; label = "Refresh seconds"; group = "Runtime"; groupOrder = 30; order = 20; min = 5; max = 600; unit = "s"; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Reapply the whole frame when no keymode, tag, DMS, or volume event arrives.";
         ojuny.patch.corsair-rgb.refreshSeconds = 60;
 
-        # @option widget = "spin"; label = "State refresh seconds"; group = "Runtime"; groupOrder = 30; order = 30; min = 1; max = 60; unit = "s"; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "How often DMS and volume state are sampled.";
+        # @option widget = "spin"; label = "State refresh seconds"; group = "Runtime"; groupOrder = 30; order = 30; min = 1; max = 60; unit = "s"; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "How often DMS and volume state are checked.";
         ojuny.patch.corsair-rgb.stateRefreshSeconds = 2;
 
-        # @option widget = "switch"; label = "Volume bar"; group = "Volume bar"; groupOrder = 40; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light the configured keys as a volume bar.";
+        # @option widget = "switch"; label = "Volume bar"; group = "Volume bar"; groupOrder = 40; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light the selected keys as a bar; the number of lit keys follows the sink volume.";
         ojuny.patch.corsair-rgb.volumeBar.enable = true;
 
-        # @option widget = "list"; label = "Volume keys"; group = "Volume bar"; groupOrder = 40; order = 20; itemType = "string"; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "Keys used for the volume bar, in low-to-high order.";
-        ojuny.patch.corsair-rgb.volumeBar.keys = [
-          "f1"
-          "f2"
-          "f3"
-          "f4"
-          "f5"
-          "f6"
-          "f7"
-          "f8"
-          "f9"
-          "f10"
-          "f11"
-          "f12"
-        ];
+        # @option widget = "switch"; label = "Volume bar controls"; group = "Volume bar"; groupOrder = 40; order = 15; advanced = true; readonly = true; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Shows the volume bar controls when the patch and the volume bar are both on.";
+        ojuny.patch.corsair-rgb.volumeBar.visible =
+          config.ojuny.patch.corsair-rgb.enable && config.ojuny.patch.corsair-rgb.volumeBar.enable;
 
-        # @option widget = "dropdown"; label = "Volume mode"; group = "Volume bar"; groupOrder = 40; order = 30; choices = [ "solid" "ramp" "heat" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "solid uses one color. ramp colors each lit key by position. heat colors the whole bar by level.";
+        # @option widget = "dropdown"; label = "Volume mode"; group = "Volume bar"; groupOrder = 40; order = 30; choices = [ "solid" "ramp" "heat" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "`solid` uses one color; `ramp` colors each lit key by position; `heat` colors the bar by level.";
         ojuny.patch.corsair-rgb.volumeBar.mode = "solid";
 
-        # @option widget = "dropdown"; label = "Volume color"; group = "Volume bar"; groupOrder = 40; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "Color used by solid mode.";
+        # @option widget = "dropdown"; label = "Volume color"; group = "Volume bar"; groupOrder = 40; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "Color for every lit key in solid mode.";
         ojuny.patch.corsair-rgb.volumeBar.color = "functions";
 
-        # @option widget = "dropdown"; label = "Volume low"; group = "Volume bar"; groupOrder = 40; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "Low band color for ramp and heat modes.";
+        # @option widget = "dropdown"; label = "Volume low"; group = "Volume bar"; groupOrder = 40; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "Color for the low third of the bar in ramp mode, and the whole bar at low volume in heat mode.";
         ojuny.patch.corsair-rgb.volumeBar.low = "strings";
 
-        # @option widget = "dropdown"; label = "Volume mid"; group = "Volume bar"; groupOrder = 40; order = 60; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "Mid band color for ramp and heat modes.";
+        # @option widget = "dropdown"; label = "Volume mid"; group = "Volume bar"; groupOrder = 40; order = 60; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "Color for the middle third of the bar in ramp mode, and the whole bar at mid volume in heat mode.";
         ojuny.patch.corsair-rgb.volumeBar.mid = "integers";
 
-        # @option widget = "dropdown"; label = "Volume high"; group = "Volume bar"; groupOrder = 40; order = 70; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "High band color for ramp and heat modes.";
+        # @option widget = "dropdown"; label = "Volume high"; group = "Volume bar"; groupOrder = 40; order = 70; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "Color for the high third of the bar in ramp mode, and the whole bar at high volume in heat mode.";
         ojuny.patch.corsair-rgb.volumeBar.high = "variables";
 
-        # @option widget = "switch"; label = "Tag indicators"; group = "Tags"; groupOrder = 50; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light number keys 1 to 0 for the active Mango tags.";
+        # @option widget = "switch"; label = "Tag indicators"; group = "Tags"; groupOrder = 50; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light number keys 1 to 0 for Mango tags: active, occupied, urgent, and empty.";
         ojuny.patch.corsair-rgb.tags.enable = true;
 
-        # @option widget = "dropdown"; label = "Tag active"; group = "Tags"; groupOrder = 50; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.visible"; visibleWhen.equals = true; description = "Color for active tags.";
+        # @option widget = "switch"; label = "Tag controls"; group = "Tags"; groupOrder = 50; order = 15; advanced = true; readonly = true; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Shows the tag controls when the patch and tag indicators are both on.";
+        ojuny.patch.corsair-rgb.tags.visible =
+          config.ojuny.patch.corsair-rgb.enable && config.ojuny.patch.corsair-rgb.tags.enable;
+
+        # @option widget = "dropdown"; label = "Tag active"; group = "Tags"; groupOrder = 50; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.visible"; visibleWhen.equals = true; description = "Color for the tag currently shown on the monitor.";
         ojuny.patch.corsair-rgb.tags.active = "functions";
 
-        # @option widget = "dropdown"; label = "Tag occupied"; group = "Tags"; groupOrder = 50; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.visible"; visibleWhen.equals = true; description = "Color for inactive tags that hold clients.";
+        # @option widget = "dropdown"; label = "Tag occupied"; group = "Tags"; groupOrder = 50; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.visible"; visibleWhen.equals = true; description = "Color for a tag that has windows but is not currently shown.";
         ojuny.patch.corsair-rgb.tags.occupied = "defaultForeground";
 
-        # @option widget = "dropdown"; label = "Tag urgent"; group = "Tags"; groupOrder = 50; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.visible"; visibleWhen.equals = true; description = "Color for urgent tags.";
+        # @option widget = "dropdown"; label = "Tag urgent"; group = "Tags"; groupOrder = 50; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.visible"; visibleWhen.equals = true; description = "Color for a tag containing an urgent window.";
         ojuny.patch.corsair-rgb.tags.urgent = "variables";
 
-        # @option widget = "dropdown"; label = "Tag empty"; group = "Tags"; groupOrder = 50; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.visible"; visibleWhen.equals = true; description = "Color for empty tags.";
+        # @option widget = "dropdown"; label = "Tag empty"; group = "Tags"; groupOrder = 50; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.visible"; visibleWhen.equals = true; description = "Color for a tag with no windows.";
         ojuny.patch.corsair-rgb.tags.empty = "comments";
 
-        # @option widget = "switch"; label = "Keymode binds"; group = "Keymode"; groupOrder = 60; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light the keys and modifiers used by the active Mango keymode.";
+        # @option widget = "switch"; label = "Keymode binds"; group = "Keymode"; groupOrder = 60; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light the keys and modifiers used by the current Mango keymode.";
         ojuny.patch.corsair-rgb.keymode.enable = true;
 
-        # @option widget = "dropdown"; label = "Modifier color"; group = "Keymode"; groupOrder = 60; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.keymode.visible"; visibleWhen.equals = true; description = "Color for modifier keys used by active binds.";
+        # @option widget = "switch"; label = "Keymode controls"; group = "Keymode"; groupOrder = 60; order = 15; advanced = true; readonly = true; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Shows the keymode controls when the patch and keymode highlighting are both on.";
+        ojuny.patch.corsair-rgb.keymode.visible =
+          config.ojuny.patch.corsair-rgb.enable && config.ojuny.patch.corsair-rgb.keymode.enable;
+
+        # @option widget = "dropdown"; label = "Modifier color"; group = "Keymode"; groupOrder = 60; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.keymode.visible"; visibleWhen.equals = true; description = "Color for SUPER, SHIFT, ALT, and CTRL when an active bind uses them.";
         ojuny.patch.corsair-rgb.keymode.modifierColor = "support";
 
-        # @option widget = "table-list"; label = "State binds"; group = "State binds"; groupOrder = 70; order = 10; columns = [ "name" "match" "probe" "color" "enabled" ]; columnTypes = [ "str" "str" "str" "dropdown" "bool" ]; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Highlight the key bound to a function while that DMS state is active. match is a case-insensitive substring of the bind action. probe is dms-night, dms-dnd, audio-muted, or media-playing.";
+        # @option widget = "table-list"; label = "State binds"; group = "State binds"; groupOrder = 70; order = 10; columns = [ "name" "match" "probe" "color" "enabled" ]; columnTypes = [ "str" "str" "str" "dropdown" "bool" ]; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "When the selected DMS state is active, light the keys of every bind whose action contains the match text. probe selects the state source.";
         ojuny.patch.corsair-rgb.stateBinds = [
           {
             name = "Night mode";
@@ -160,7 +156,7 @@
           }
         ];
 
-        # @option widget = "switch"; label = "DMS menu entry"; group = "DMS"; groupOrder = 80; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Add Dynamic RGB rows to the Ojuny menu.";
+        # @option widget = "switch"; label = "Ojuny menu shortcuts"; group = "Ojuny menu"; groupOrder = 80; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Add Toggle lighting, Reload lighting, and Lighting status to the Ojuny application menu opened with SUPER+X.";
         ojuny.patch.corsair-rgb.dms.menuEntry = true;
       };
     };
@@ -1111,10 +1107,29 @@
             attention = hex cfg.palette.attention;
             error = hex cfg.palette.error;
             special = hex cfg.palette.special;
-          };
+          }
+          // builtins.listToAttrs (
+            map (name: {
+              inherit name;
+              value = hex name;
+            }) namedColors
+          );
           volumeBar = {
             enable = cfg.volumeBar.enable;
-            keys = cfg.volumeBar.keys;
+            keys = [
+              "f1"
+              "f2"
+              "f3"
+              "f4"
+              "f5"
+              "f6"
+              "f7"
+              "f8"
+              "f9"
+              "f10"
+              "f11"
+              "f12"
+            ];
             mode = cfg.volumeBar.mode;
             color = cfg.volumeBar.color;
             low = cfg.volumeBar.low;
@@ -1141,7 +1156,7 @@
         gamma = lib.mkOption {
           type = lib.types.float;
           default = 2.8;
-          description = "LED gamma correction.";
+          description = "Brightness curve applied to every key color.";
         };
 
         devices = lib.mkOption {
@@ -1196,27 +1211,27 @@
           secondary = lib.mkOption {
             type = colorType;
             default = "keywords";
-            description = "Secondary accent.";
+            description = "Spare accent available to state rows; no built-in highlight uses it.";
           };
           accent = lib.mkOption {
             type = colorType;
             default = "support";
-            description = "Information accent.";
+            description = "Color for modifier keys in active keymode and state highlights.";
           };
           success = lib.mkOption {
             type = colorType;
             default = "strings";
-            description = "Success color.";
+            description = "Color for low-volume bars and success state rows.";
           };
           warning = lib.mkOption {
             type = colorType;
             default = "classes";
-            description = "Warning color.";
+            description = "Color for warning state rows.";
           };
           attention = lib.mkOption {
             type = colorType;
             default = "integers";
-            description = "Attention color.";
+            description = "Color for mid-volume bars and attention state rows.";
           };
           error = lib.mkOption {
             type = colorType;
@@ -1226,30 +1241,17 @@
           special = lib.mkOption {
             type = colorType;
             default = "deprecated";
-            description = "Special workspace color.";
+            description = "Spare accent available to state rows; no built-in highlight uses it.";
           };
         };
 
         volumeBar = {
           enable = lib.mkEnableOption "the volume bar";
 
-          keys = lib.mkOption {
-            type = lib.types.listOf lib.types.str;
-            default = [
-              "f1"
-              "f2"
-              "f3"
-              "f4"
-              "f5"
-              "f6"
-              "f7"
-              "f8"
-              "f9"
-              "f10"
-              "f11"
-              "f12"
-            ];
-            description = "Keys used for the volume bar.";
+          visible = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Computed visibility gate for volume bar controls.";
           };
 
           mode = lib.mkOption {
@@ -1287,6 +1289,12 @@
         tags = {
           enable = lib.mkEnableOption "tag indicators";
 
+          visible = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Computed visibility gate for tag controls.";
+          };
+
           active = lib.mkOption {
             type = colorType;
             default = "functions";
@@ -1311,6 +1319,12 @@
 
         keymode = {
           enable = lib.mkEnableOption "keymode bind highlighting";
+
+          visible = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Computed visibility gate for keymode controls.";
+          };
 
           modifierColor = lib.mkOption {
             type = colorType;
@@ -1367,10 +1381,6 @@
             {
               assertion = cfg.devices != "";
               message = "patch-corsair-rgb: devices must not be empty.";
-            }
-            {
-              assertion = !cfg.volumeBar.enable || cfg.volumeBar.keys != [ ];
-              message = "patch-corsair-rgb: volumeBar.keys must not be empty while the volume bar is enabled.";
             }
             {
               assertion = lib.all (state: !state.enabled || state.match != "") cfg.stateBinds;
