@@ -318,18 +318,18 @@
         (deny "skill" "*")
         (deny "generate_image" "*")
         (deny "execute" "*")
+        (allow "read" "*")
         (deny "read" "*.env")
-        (allow "read" "*.env.example")
         (deny "read" "*.env.*")
+        (allow "read" "*.env.example")
         (deny "read" "*.age")
         (deny "read" "*.key")
         (deny "read" "*secret*")
-        (allow "read" "*")
         (allow "grep" "*")
         (allow "glob" "*")
         (allow "question" "*")
-        (ask "external_directory" "${flakeRoot}/*")
         (deny "external_directory" "*")
+        (ask "external_directory" "${flakeRoot}/*")
       ];
 
       fileActions = [
@@ -339,21 +339,20 @@
       ];
 
       fileRules = action: [
-        (deny action "flake.lock")
-        (deny action "${flakeRoot}/flake.lock")
-        (deny action "modules/07-system/00-hardware.nix")
-        (deny action "${flakeRoot}/modules/07-system/00-hardware.nix")
-        (deny action "modules/facter.json")
-        (deny action "${flakeRoot}/modules/facter.json")
-        (deny action "modules/backend/00-hardware-quirks.nix")
-        (deny action "${flakeRoot}/modules/backend/00-hardware-quirks.nix")
-        (deny action "modules/01-users/01-user.nix")
-        (deny action "${flakeRoot}/modules/01-users/01-user.nix")
-        (deny action "modules/07-system/00-host.nix")
-        (deny action "${flakeRoot}/modules/07-system/00-host.nix")
-        (ask action "**")
         (ask action "${flakeRoot}/**")
-        (deny action "*")
+        (ask action "**")
+        (deny action "${flakeRoot}/flake.lock")
+        (deny action "**/flake.lock")
+        (deny action "${flakeRoot}/modules/07-system/00-hardware.nix")
+        (deny action "**/modules/07-system/00-hardware.nix")
+        (deny action "${flakeRoot}/modules/facter.json")
+        (deny action "**/modules/facter.json")
+        (deny action "${flakeRoot}/modules/backend/00-hardware-quirks.nix")
+        (deny action "**/modules/backend/00-hardware-quirks.nix")
+        (deny action "${flakeRoot}/modules/01-users/01-user.nix")
+        (deny action "**/modules/01-users/01-user.nix")
+        (deny action "${flakeRoot}/modules/07-system/00-host.nix")
+        (deny action "**/modules/07-system/00-host.nix")
       ];
 
       editRules = lib.concatMap fileRules fileActions;
@@ -527,33 +526,35 @@
         (allow "shell" "systemctl is-enabled*")
       ];
 
-      agentShell =
-        dangerousShell
-        ++ [
-          (if cfg.runtimeActions then ask "shell" "ojuny *" else deny "shell" "ojuny *")
-          (ask "shell" "ojuny-agent-cli *")
-          (ask "shell" "ojuny-agent-cli sync*")
-          (ask "shell" "ojuny-agent-cli revert*")
-          (ask "shell" "ojuny-agent-cli lock*")
-        ]
-        ++ cliReadRules
-        ++ ojunyReadRules
-        ++ readOnlyShell
-        ++ [ (ask "shell" "*") ];
+      agentShell = [
+        (ask "shell" "*")
+      ]
+      ++ dangerousShell
+      ++ [
+        (if cfg.runtimeActions then ask "shell" "ojuny *" else deny "shell" "ojuny *")
+        (ask "shell" "ojuny-agent-cli *")
+        (ask "shell" "ojuny-agent-cli sync*")
+        (ask "shell" "ojuny-agent-cli revert*")
+        (ask "shell" "ojuny-agent-cli lock*")
+      ]
+      ++ cliReadRules
+      ++ ojunyReadRules
+      ++ readOnlyShell;
 
-      assistShell =
-        dangerousShell
-        ++ networkShell
-        ++ [
-          (deny "shell" "ojuny *")
-          (deny "shell" "ojuny-agent-cli sync*")
-          (deny "shell" "ojuny-agent-cli revert*")
-          (deny "shell" "ojuny-agent-cli lock*")
-        ]
-        ++ cliReadRules
-        ++ ojunyReadRules
-        ++ readOnlyShell
-        ++ [ (ask "shell" "*") ];
+      assistShell = [
+        (ask "shell" "*")
+      ]
+      ++ dangerousShell
+      ++ networkShell
+      ++ [
+        (deny "shell" "ojuny *")
+        (deny "shell" "ojuny-agent-cli sync*")
+        (deny "shell" "ojuny-agent-cli revert*")
+        (deny "shell" "ojuny-agent-cli lock*")
+      ]
+      ++ cliReadRules
+      ++ ojunyReadRules
+      ++ readOnlyShell;
 
       agentPermissions =
         readRules

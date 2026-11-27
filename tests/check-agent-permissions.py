@@ -34,15 +34,19 @@ def main():
             errors.append(f"missing rule {needle}")
         return index
 
+    if not re.search(r'fileRules = action: \[\s*\(ask action', text):
+        errors.append("fileRules must start with an ask so the edit tool stays available")
+    if '(ask action "**")' not in text:
+        errors.append("fileRules must ask for the relative path form")
     file_ask = first('(ask action "${flakeRoot}/**")')
-    file_blanket = first('(deny action "*")')
-    if 0 <= file_blanket < file_ask:
-        errors.append("fileRules blanket deny must come after the flake ask")
+    file_lock = first('(deny action "**/flake.lock")')
+    if 0 <= file_lock < file_ask:
+        errors.append("generated-file denies must come after the flake ask")
 
-    if not re.search(r"agentShell\s*=\s*dangerousShell", text):
-        errors.append("agentShell must put dangerousShell before the catch-all ask")
-    if not re.search(r"assistShell\s*=\s*dangerousShell", text):
-        errors.append("assistShell must put dangerousShell before the catch-all ask")
+    if not re.search(r'agentShell = \[\s*\(ask "shell" "\*"\)\s*\]\s*\+\+ dangerousShell', text):
+        errors.append("agentShell must start with the catch-all ask")
+    if not re.search(r'assistShell = \[\s*\(ask "shell" "\*"\)\s*\]\s*\+\+ dangerousShell', text):
+        errors.append("assistShell must start with the catch-all ask")
 
     for generated in (
         "modules/07-system/00-hardware.nix",
@@ -53,16 +57,18 @@ def main():
     ):
         if generated not in text:
             errors.append(f"generated file {generated} is not denied")
+        if f"**/{generated}" not in text:
+            errors.append(f"generated file {generated} has no relative deny")
 
     read_env = first('(deny "read" "*.env")')
     read_allow = first('(allow "read" "*")')
-    if 0 <= read_allow < read_env:
-        errors.append("readRules must deny secrets before the blanket allow")
+    if 0 <= read_env < read_allow:
+        errors.append("readRules must allow reads before the secret denies")
 
     ext_ask = first('(ask "external_directory" "${flakeRoot}/*")')
     ext_deny = first('(deny "external_directory" "*")')
-    if 0 <= ext_deny < ext_ask:
-        errors.append("external_directory ask must come before the blanket deny")
+    if 0 <= ext_ask < ext_deny:
+        errors.append("external_directory deny must come before the flake ask")
 
     if errors:
         print("\n".join(errors), file=sys.stderr)
