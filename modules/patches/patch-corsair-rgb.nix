@@ -128,7 +128,7 @@
         # @option widget = "dropdown"; label = "Modifier color"; group = "Keymode"; groupOrder = 60; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.keymode.enable"; visibleWhen.equals = true; description = "Color for modifier keys used by active binds.";
         ojuny.patch.corsair-rgb.keymode.modifierColor = "support";
 
-        # @option widget = "table-list"; label = "State binds"; group = "State binds"; groupOrder = 70; order = 10; columns = [ "name" "match" "probe" "color" "enabled" ]; columnTypes = [ "str" "str" "str" "dropdown" "bool" ]; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Highlight the key bound to a function while that DMS state is active. match is a case-insensitive substring of the bind action. probe is dms-night, dms-dnd, dms-inhibit, audio-muted, media-playing, or custom:<command>.";
+        # @option widget = "table-list"; label = "State binds"; group = "State binds"; groupOrder = 70; order = 10; columns = [ "name" "match" "probe" "color" "enabled" ]; columnTypes = [ "str" "str" "str" "dropdown" "bool" ]; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Highlight the key bound to a function while that DMS state is active. match is a case-insensitive substring of the bind action. probe is dms-night, dms-dnd, audio-muted, or media-playing.";
         ojuny.patch.corsair-rgb.stateBinds = [
           {
             name = "Night mode";
@@ -138,15 +138,8 @@
             enabled = true;
           }
           {
-            name = "Stay awake";
-            match = "inhibit";
-            probe = "dms-inhibit";
-            color = "attention";
-            enabled = true;
-          }
-          {
             name = "Do not disturb";
-            match = "toggleDoNotDisturb";
+            match = "inhibit";
             probe = "dms-dnd";
             color = "classes";
             enabled = true;
@@ -231,6 +224,7 @@
           from pathlib import Path
 
           RUNTIME_DIR = os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}")
+          CKBDIR = os.environ.get("OJUNY_RGB_CKB_DIR", "/dev/input")
           STATE_PATH = os.path.join(RUNTIME_DIR, "ojuny-rgb.json")
           PID_PATH = os.path.join(RUNTIME_DIR, "ojuny-rgb.pid")
 
@@ -383,13 +377,13 @@
               if text.startswith("/"):
                   return text
               if text.startswith("ckb"):
-                  return os.path.join("/dev/input", text)
-              return os.path.join("/dev/input", text)
+                  return os.path.join(CKBDIR, text)
+              return os.path.join(CKBDIR, text)
 
 
           def detect_devices(selection):
               candidates = []
-              connected = Path("/dev/input/ckb0/connected")
+              connected = Path(CKBDIR) / "ckb0" / "connected"
               if connected.exists():
                   try:
                       for line in connected.read_text(encoding="utf-8", errors="replace").splitlines():
@@ -516,6 +510,7 @@
                       except (OSError, socket.timeout):
                           pass
                       if not self.stop.is_set():
+                          self.socket_path = self._find() or path
                           time.sleep(0.5)
 
               def _on_keymode(self, data):
@@ -562,7 +557,7 @@
                   self.interval = interval
                   self.socket_path = None
                   self.lock = threading.Lock()
-                  self.state = {"night": False, "dnd": False, "inhibit": False, "muted": False, "playing": False}
+                  self.state = {"night": False, "dnd": False, "muted": False, "playing": False}
                   self.event = threading.Event()
                   self.stop = threading.Event()
 
@@ -585,7 +580,6 @@
                       state = {
                           "night": self._night(),
                           "dnd": self._dnd(),
-                          "inhibit": self._inhibit(),
                           "muted": self._muted(),
                           "playing": self._playing(),
                       }
@@ -603,10 +597,6 @@
               def _dnd(self):
                   value = self.call("notifications", "getDoNotDisturb")
                   return str(value).strip().lower() == "true"
-
-              def _inhibit(self):
-                  value = self.call("inhibit", "status")
-                  return bool(value and "enabled" in value.lower())
 
               def _muted(self):
                   value = self.call("audio", "status")
@@ -730,18 +720,14 @@
                       return dms_state.get("night", False)
                   if probe == "dms-dnd":
                       return dms_state.get("dnd", False)
-                  if probe == "dms-inhibit":
-                      return dms_state.get("inhibit", False)
                   if probe == "audio-muted":
                       return dms_state.get("muted", False)
                   if probe == "media-playing":
                       return dms_state.get("playing", False)
-                  if isinstance(probe, str) and probe.startswith("custom:"):
-                      code, _, _ = run_command(["sh", "-c", probe[len("custom:"):]], timeout=2.0)
-                      return code == 0
                   return False
 
               def apply(self):
+                  self.last_apply = time.monotonic()
                   if not self.devices:
                       self.devices = detect_devices(self.config.get("devices", "auto"))
                   if not self.devices:
@@ -788,7 +774,6 @@
                                   [
                                       str(bind.get("dispatcher", "")),
                                       " ".join(str(arg) for arg in bind.get("args", []) or []),
-                                      str(bind.get("description", "")),
                                   ]
                               ).lower()
                               if match not in text:
@@ -839,7 +824,6 @@
                       for device in self.devices:
                           write_command(device, command)
 
-                  self.last_apply = time.monotonic()
                   self.write_state(snapshot)
 
               def write_state(self, snapshot=None):
@@ -859,6 +843,12 @@
                           for name, values in (snapshot.get("tags", {}) or {}).items()
                       },
                       "dms": self.dms.snapshot(),
+                      "palette": self.palette,
+                      "paletteSource": "stylix",
+                      "watchers": {
+                          "mango": bool(self.mango.socket_path),
+                          "dms": bool(self.dms.socket_path),
+                      },
                       "lastApply": self.last_apply,
                   }
                   atomic_write(STATE_PATH, json.dumps(state, indent=2, sort_keys=True))
@@ -908,6 +898,9 @@
                               self.volume, self.muted = volume, muted
                           self.apply()
                       if now - self.last_apply >= self.refresh:
+                          volume, muted = read_volume()
+                          if (volume, muted) != (self.volume, self.muted):
+                              self.volume, self.muted = volume, muted
                           self.apply()
                       time.sleep(0.1)
                   try:
@@ -942,6 +935,9 @@
               print(f"layout: {state.get('layout')}")
               print(f"volume: {state.get('volume')}% muted={state.get('muted')}")
               print(f"devices: {', '.join(state.get('devices', [])) or 'none'}")
+              print(f"palette source: {state.get('paletteSource')}")
+              print(f"watchers: {state.get('watchers')}")
+              print(f"palette: {json.dumps(state.get('palette', {}), sort_keys=True)}")
               print(f"last apply: {state.get('lastApply')}")
 
 
@@ -959,13 +955,20 @@
               apply_parser = subparsers.add_parser("apply")
               apply_parser.add_argument("--config", dest="apply_config")
               apply_parser.add_argument("--binds", dest="apply_binds")
+              apply_parser.add_argument("--json", action="store_true", dest="sub_json")
 
-              subparsers.add_parser("status")
-              subparsers.add_parser("devices")
+              status_parser = subparsers.add_parser("status")
+              status_parser.add_argument("--json", action="store_true", dest="sub_json")
+
+              devices_parser = subparsers.add_parser("devices")
+              devices_parser.add_argument("--json", action="store_true", dest="sub_json")
+
               subparsers.add_parser("toggle")
               subparsers.add_parser("reload")
 
               args = parser.parse_args(argv)
+              if getattr(args, "sub_json", False):
+                  args.json = True
 
               if args.command == "run":
                   config_path = args.run_config or args.config
@@ -1329,7 +1332,7 @@
                 };
                 probe = lib.mkOption {
                   type = lib.types.str;
-                  description = "DMS state probe or custom:<command>.";
+                  description = "DMS state probe.";
                 };
                 color = lib.mkOption {
                   type = colorType;
@@ -1378,13 +1381,11 @@
                 builtins.elem state.probe [
                   "dms-night"
                   "dms-dnd"
-                  "dms-inhibit"
                   "audio-muted"
                   "media-playing"
                 ]
-                || lib.hasPrefix "custom:" state.probe
               ) cfg.stateBinds;
-              message = "patch-corsair-rgb: stateBinds.probe must be dms-night, dms-dnd, dms-inhibit, audio-muted, media-playing, or custom:<command>.";
+              message = "patch-corsair-rgb: stateBinds.probe must be dms-night, dms-dnd, audio-muted, or media-playing.";
             }
             {
               assertion = stylixAvailable;
