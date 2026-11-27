@@ -1646,8 +1646,21 @@ in
         inherit (row) modifier keys dispatcher args description group subcat;
       };
 
+      mangoKey = key:
+        if key == "F13" then
+          "code:183"
+        else if key == "F14" then
+          "code:184"
+        else if key == "F15" then
+          "code:185"
+        else if key == "F16" then
+          "code:186"
+        else
+          key;
+
       modeBind = row: dispatcher: args: description: {
-        inherit (row) modifier keys subcat;
+        inherit (row) modifier subcat;
+        keys = map mangoKey row.keys;
         inherit dispatcher args description;
         group = "G13 Modes";
       };

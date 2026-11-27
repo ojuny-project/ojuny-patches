@@ -699,6 +699,8 @@
                   self.binds_path = binds_path
                   self.stop_event = threading.Event()
                   self.volume_event = threading.Event()
+                  self.volume_lock = threading.Lock()
+                  self.volume_process = None
                   self.config = {}
                   self.binds = {}
                   self.palette = {}
@@ -996,22 +998,59 @@
               def _volume_watch(self):
                   while not self.stop_event.is_set():
                       try:
-                          process = subprocess.Popen(
-                              ["pactl", "subscribe"],
-                              stdout=subprocess.PIPE,
-                              text=True,
-                              bufsize=1,
-                          )
-                          for line in process.stdout:
+                          with self.volume_lock:
                               if self.stop_event.is_set():
-                                  break
-                              if "change" in line or "new" in line or "remove" in line:
-                                  self.volume_event.set()
-                          process.wait(timeout=1)
+                                  return
+                              process = subprocess.Popen(
+                                  ["pactl", "subscribe"],
+                                  stdout=subprocess.PIPE,
+                                  text=True,
+                                  bufsize=1,
+                              )
+                              self.volume_process = process
+                          try:
+                              for line in process.stdout:
+                                  if self.stop_event.is_set():
+                                      break
+                                  if "change" in line or "new" in line or "remove" in line:
+                                      self.volume_event.set()
+                          finally:
+                              with self.volume_lock:
+                                  if self.volume_process is process:
+                                      self.volume_process = None
+                              if process.poll() is None:
+                                  process.terminate()
+                              try:
+                                  process.wait(timeout=1)
+                              except subprocess.TimeoutExpired:
+                                  process.kill()
+                                  process.wait()
                       except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
                           if self.stop_event.is_set():
                               break
                           time.sleep(max(1.0, self.state_refresh))
+
+              def request_stop(self):
+                  self.stop_event.set()
+                  self.mango.stop.set()
+                  self.dms.stop.set()
+
+              def close(self):
+                  self.request_stop()
+                  with self.volume_lock:
+                      process = self.volume_process
+                      self.volume_process = None
+                  if process is None or process.poll() is not None:
+                      return
+                  process.terminate()
+                  try:
+                      process.wait(timeout=2)
+                  except subprocess.TimeoutExpired:
+                      process.kill()
+                      try:
+                          process.wait(timeout=2)
+                      except subprocess.TimeoutExpired:
+                          pass
 
               def toggle(self):
                   self.enabled = not self.enabled
@@ -1033,38 +1072,42 @@
                   self.mango.start()
                   self.dms.start()
                   threading.Thread(target=self._volume_watch, daemon=True).start()
-                  while not self.stop_event.is_set():
-                      now = time.monotonic()
-                      if now - self.last_device_scan >= 5.0:
-                          self.last_device_scan = now
-                          new_devices = detect_devices(self.config.get("devices", "auto"))
-                          new_paths = [device["path"] for device in new_devices]
-                          old_paths = [device["path"] for device in self.devices]
-                          if new_paths != old_paths:
-                              self.devices = new_devices
-                              self.activated = set()
-                              self.last_frame = None
-                              self.log_devices()
-                              if self.devices:
-                                  self.apply()
-                      if self.mango.event.is_set() or self.dms.event.is_set() or self.volume_event.is_set():
-                          self.mango.event.clear()
-                          self.dms.event.clear()
-                          self.volume_event.clear()
-                          volume, muted = read_volume()
-                          if (volume, muted) != (self.volume, self.muted):
-                              self.volume, self.muted = volume, muted
-                          self.apply()
-                      if now - self.last_apply >= self.refresh:
-                          volume, muted = read_volume()
-                          if (volume, muted) != (self.volume, self.muted):
-                              self.volume, self.muted = volume, muted
-                          self.apply()
-                      time.sleep(0.1)
                   try:
-                      os.unlink(PID_PATH)
-                  except OSError:
-                      pass
+                      while not self.stop_event.is_set():
+                          now = time.monotonic()
+                          if now - self.last_device_scan >= 5.0:
+                              self.last_device_scan = now
+                              new_devices = detect_devices(self.config.get("devices", "auto"))
+                              new_paths = [device["path"] for device in new_devices]
+                              old_paths = [device["path"] for device in self.devices]
+                              if new_paths != old_paths:
+                                  self.devices = new_devices
+                                  self.activated = set()
+                                  self.last_frame = None
+                                  self.log_devices()
+                                  if self.devices:
+                                      self.apply()
+                          if self.mango.event.is_set() or self.dms.event.is_set() or self.volume_event.is_set():
+                              self.mango.event.clear()
+                              self.dms.event.clear()
+                              self.volume_event.clear()
+                              volume, muted = read_volume()
+                              if (volume, muted) != (self.volume, self.muted):
+                                  self.volume, self.muted = volume, muted
+                              self.apply()
+                          if now - self.last_apply >= self.refresh:
+                              volume, muted = read_volume()
+                              if (volume, muted) != (self.volume, self.muted):
+                                  self.volume, self.muted = volume, muted
+                              self.apply()
+                          time.sleep(0.1)
+                  finally:
+                      self.close()
+                      try:
+                          os.unlink(PID_PATH)
+                      except OSError:
+                          pass
+
 
 
           def read_pid():
@@ -1143,7 +1186,7 @@
                           daemon.reload()
                           daemon.apply()
                       elif signum in (signal.SIGTERM, signal.SIGINT):
-                          daemon.stop_event.set()
+                          daemon.request_stop()
 
                   signal.signal(signal.SIGUSR1, handle)
                   signal.signal(signal.SIGHUP, handle)
@@ -1580,6 +1623,7 @@
               ExecStart = "${ojunyRgb}/bin/ojuny-rgb run --config ${rgbConfig} --binds ${bindsJson}";
               Restart = "on-failure";
               RestartSec = 2;
+              TimeoutStopSec = 10;
             };
           };
         })
