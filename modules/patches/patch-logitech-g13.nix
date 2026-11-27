@@ -1169,7 +1169,11 @@ in
                 started = time.monotonic()
                 try:
                     values = function(detector, timeout)
-                    if values and any(str(value) != "" for value in values.values()):
+                    if (
+                        time.monotonic() - started <= timeout
+                        and values
+                        and any(str(value) != "" for value in values.values())
+                    ):
                         payload = {
                             "timestamp": time.time(),
                             "values": values,

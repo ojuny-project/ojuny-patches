@@ -22,11 +22,17 @@
         # @option widget = "switch"; label = "Corsair RGB"; group = "Corsair RGB"; groupOrder = 10; order = 10; description = "Enable ckb-next and the dynamic RGB daemon.";
         ojuny.patch.corsair-rgb.enable = false;
 
-        # @option widget = "dropdown"; label = "Ambient"; group = "Palette"; groupOrder = 20; order = 10; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color every key starts at before tag, keymode, state, and volume highlights are applied.";
-        ojuny.patch.corsair-rgb.palette.ambient = "selectionBackground";
+        # @option widget = "dropdown"; label = "Ambient"; group = "Palette"; groupOrder = 20; order = 10; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color every key starts at. Pick a foreground or accent color. It is dimmed by Ambient level so the highlights stay brighter.";
+        ojuny.patch.corsair-rgb.palette.ambient = "functions";
 
-        # @option widget = "dropdown"; label = "Unlit"; group = "Palette"; groupOrder = 20; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for volume-bar keys below the current volume and for tag digits with no windows.";
-        ojuny.patch.corsair-rgb.palette.unlit = "comments";
+        # @option widget = "slider"; label = "Ambient level"; group = "Palette"; groupOrder = 20; order = 15; min = 0; max = 100; step = 1; unit = "%"; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Brightness of the ambient background. 30 keeps the base color visible without washing out the highlights.";
+        ojuny.patch.corsair-rgb.ambientLevel = 30;
+
+        # @option widget = "dropdown"; label = "Unlit"; group = "Palette"; groupOrder = 20; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for volume-bar keys below the current volume. Pick a foreground or accent color. It is dimmed by Unlit level.";
+        ojuny.patch.corsair-rgb.palette.unlit = "functions";
+
+        # @option widget = "slider"; label = "Unlit level"; group = "Palette"; groupOrder = 20; order = 25; min = 0; max = 100; step = 1; unit = "%"; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Brightness of unlit volume keys and empty tag digits.";
+        ojuny.patch.corsair-rgb.unlitLevel = 15;
 
         # @option widget = "dropdown"; label = "Muted"; group = "Palette"; groupOrder = 20; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Low-contrast color available to state rows; no built-in highlight uses it.";
         ojuny.patch.corsair-rgb.palette.muted = "darkForeground";
@@ -76,52 +82,40 @@
         # @option widget = "switch"; label = "Volume bar"; group = "Volume bar"; groupOrder = 40; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light the selected keys as a bar; the number of lit keys follows the sink volume.";
         ojuny.patch.corsair-rgb.volumeBar.enable = true;
 
-        # @option widget = "switch"; label = "Volume bar controls"; group = "Volume bar"; groupOrder = 40; order = 15; advanced = true; readonly = true; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Shows the volume bar controls when the patch and the volume bar are both on.";
-        ojuny.patch.corsair-rgb.volumeBar.visible =
-          config.ojuny.patch.corsair-rgb.enable && config.ojuny.patch.corsair-rgb.volumeBar.enable;
-
-        # @option widget = "dropdown"; label = "Volume mode"; group = "Volume bar"; groupOrder = 40; order = 30; choices = [ "solid" "ramp" "heat" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "`solid` uses one color; `ramp` colors each lit key by position; `heat` colors the bar by level.";
+        # @option widget = "dropdown"; label = "Volume mode"; group = "Volume bar"; groupOrder = 40; order = 30; choices = [ "solid" "ramp" "heat" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "`solid` uses one color; `ramp` colors each lit key by position; `heat` colors the bar by level.";
         ojuny.patch.corsair-rgb.volumeBar.mode = "solid";
 
-        # @option widget = "dropdown"; label = "Volume color"; group = "Volume bar"; groupOrder = 40; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "Color for every lit key in solid mode.";
+        # @option widget = "dropdown"; label = "Volume color"; group = "Volume bar"; groupOrder = 40; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for every lit key in solid mode.";
         ojuny.patch.corsair-rgb.volumeBar.color = "functions";
 
-        # @option widget = "dropdown"; label = "Volume low"; group = "Volume bar"; groupOrder = 40; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "Color for the low third of the bar in ramp mode, and the whole bar at low volume in heat mode.";
+        # @option widget = "dropdown"; label = "Volume low"; group = "Volume bar"; groupOrder = 40; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for the low third of the bar in ramp mode, and the whole bar at low volume in heat mode.";
         ojuny.patch.corsair-rgb.volumeBar.low = "strings";
 
-        # @option widget = "dropdown"; label = "Volume mid"; group = "Volume bar"; groupOrder = 40; order = 60; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "Color for the middle third of the bar in ramp mode, and the whole bar at mid volume in heat mode.";
+        # @option widget = "dropdown"; label = "Volume mid"; group = "Volume bar"; groupOrder = 40; order = 60; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for the middle third of the bar in ramp mode, and the whole bar at mid volume in heat mode.";
         ojuny.patch.corsair-rgb.volumeBar.mid = "integers";
 
-        # @option widget = "dropdown"; label = "Volume high"; group = "Volume bar"; groupOrder = 40; order = 70; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.volumeBar.visible"; visibleWhen.equals = true; description = "Color for the high third of the bar in ramp mode, and the whole bar at high volume in heat mode.";
+        # @option widget = "dropdown"; label = "Volume high"; group = "Volume bar"; groupOrder = 40; order = 70; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for the high third of the bar in ramp mode, and the whole bar at high volume in heat mode.";
         ojuny.patch.corsair-rgb.volumeBar.high = "variables";
 
         # @option widget = "switch"; label = "Tag indicators"; group = "Tags"; groupOrder = 50; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light number keys 1 to 0 for Mango tags: active, occupied, urgent, and empty.";
         ojuny.patch.corsair-rgb.tags.enable = true;
 
-        # @option widget = "switch"; label = "Tag controls"; group = "Tags"; groupOrder = 50; order = 15; advanced = true; readonly = true; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Shows the tag controls when the patch and tag indicators are both on.";
-        ojuny.patch.corsair-rgb.tags.visible =
-          config.ojuny.patch.corsair-rgb.enable && config.ojuny.patch.corsair-rgb.tags.enable;
-
-        # @option widget = "dropdown"; label = "Tag active"; group = "Tags"; groupOrder = 50; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.visible"; visibleWhen.equals = true; description = "Color for the tag currently shown on the monitor.";
+        # @option widget = "dropdown"; label = "Tag active"; group = "Tags"; groupOrder = 50; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for the tag currently shown on the monitor.";
         ojuny.patch.corsair-rgb.tags.active = "functions";
 
-        # @option widget = "dropdown"; label = "Tag occupied"; group = "Tags"; groupOrder = 50; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.visible"; visibleWhen.equals = true; description = "Color for a tag that has windows but is not currently shown.";
+        # @option widget = "dropdown"; label = "Tag occupied"; group = "Tags"; groupOrder = 50; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for a tag that has windows but is not currently shown.";
         ojuny.patch.corsair-rgb.tags.occupied = "defaultForeground";
 
-        # @option widget = "dropdown"; label = "Tag urgent"; group = "Tags"; groupOrder = 50; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.visible"; visibleWhen.equals = true; description = "Color for a tag containing an urgent window.";
+        # @option widget = "dropdown"; label = "Tag urgent"; group = "Tags"; groupOrder = 50; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for a tag containing an urgent window.";
         ojuny.patch.corsair-rgb.tags.urgent = "variables";
 
-        # @option widget = "dropdown"; label = "Tag empty"; group = "Tags"; groupOrder = 50; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.tags.visible"; visibleWhen.equals = true; description = "Color for a tag with no windows.";
+        # @option widget = "dropdown"; label = "Tag empty"; group = "Tags"; groupOrder = 50; order = 50; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for a tag with no windows.";
         ojuny.patch.corsair-rgb.tags.empty = "comments";
 
         # @option widget = "switch"; label = "Keymode binds"; group = "Keymode"; groupOrder = 60; order = 10; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Light the keys and modifiers used by the current Mango keymode.";
         ojuny.patch.corsair-rgb.keymode.enable = true;
 
-        # @option widget = "switch"; label = "Keymode controls"; group = "Keymode"; groupOrder = 60; order = 15; advanced = true; readonly = true; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Shows the keymode controls when the patch and keymode highlighting are both on.";
-        ojuny.patch.corsair-rgb.keymode.visible =
-          config.ojuny.patch.corsair-rgb.enable && config.ojuny.patch.corsair-rgb.keymode.enable;
-
-        # @option widget = "dropdown"; label = "Modifier color"; group = "Keymode"; groupOrder = 60; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.keymode.visible"; visibleWhen.equals = true; description = "Color for SUPER, SHIFT, ALT, and CTRL when an active bind uses them.";
+        # @option widget = "dropdown"; label = "Modifier color"; group = "Keymode"; groupOrder = 60; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "Color for SUPER, SHIFT, ALT, and CTRL when an active bind uses them.";
         ojuny.patch.corsair-rgb.keymode.modifierColor = "support";
 
         # @option widget = "table-list"; label = "State binds"; group = "State binds"; groupOrder = 70; order = 10; columns = [ "name" "match" "probe" "color" "enabled" ]; columnTypes = [ "str" "str" "str" "dropdown" "bool" ]; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" ]; visibleWhen.path = "ojuny.patch.corsair-rgb.enable"; visibleWhen.equals = true; description = "When the selected DMS state is active, light the keys of every bind whose action contains the match text. probe selects the state source.";
@@ -224,6 +218,7 @@
           CKBDIR = os.environ.get("OJUNY_RGB_CKB_DIR", "/dev/input")
           STATE_PATH = os.path.join(RUNTIME_DIR, "ojuny-rgb.json")
           PID_PATH = os.path.join(RUNTIME_DIR, "ojuny-rgb.pid")
+          WRITE_WARNINGS = set()
 
           MODIFIER_KEYS = {
               "SUPER": "lwin",
@@ -329,6 +324,21 @@
               return "".join(f"{channel:02X}" for channel in channels)
 
 
+          def scale_color(value, level):
+              text = str(value).lstrip("#")
+              if len(text) != 6:
+                  return "000000"
+              factor = max(0, min(100, int(level))) / 100.0
+              channels = []
+              for index in (0, 2, 4):
+                  try:
+                      channel = int(text[index:index + 2], 16)
+                  except ValueError:
+                      channel = 0
+                  channels.append(max(0, min(255, int(channel * factor))))
+              return "".join(f"{channel:02X}" for channel in channels)
+
+
           def translate_key(value):
               if isinstance(value, int):
                   value = str(value)
@@ -411,15 +421,25 @@
               return devices
 
 
-          def write_command(device, command):
+          def write_commands(device, commands):
+              if not commands:
+                  return False
+              path = device["cmd"]
+              payload = "\n".join(commands) + "\n"
               try:
-                  descriptor = os.open(device["cmd"], os.O_WRONLY | os.O_NONBLOCK)
-              except OSError:
+                  descriptor = os.open(path, os.O_WRONLY | os.O_NONBLOCK)
+              except OSError as error:
+                  if path not in WRITE_WARNINGS:
+                      WRITE_WARNINGS.add(path)
+                      log(f"cannot open {path}: {error}")
                   return False
               try:
-                  os.write(descriptor, (command + "\n").encode("utf-8"))
+                  os.write(descriptor, payload.encode("utf-8"))
                   return True
-              except OSError:
+              except OSError as error:
+                  if path not in WRITE_WARNINGS:
+                      WRITE_WARNINGS.add(path)
+                      log(f"cannot write {path}: {error}")
                   return False
               finally:
                   os.close(descriptor)
@@ -447,6 +467,7 @@
                   self.keymode = ""
                   self.tags = {"active": set(), "urgent": set(), "occupied": set()}
                   self.layout = ""
+                  self.logged_path = None
                   self.event = threading.Event()
                   self.stop = threading.Event()
 
@@ -463,8 +484,14 @@
                   while not self.stop.is_set():
                       path = self._find()
                       if not path:
+                          if self.logged_path is not None:
+                              log("Mango IPC socket lost; retrying")
+                              self.logged_path = None
                           time.sleep(1.0)
                           continue
+                      if path != self.logged_path:
+                          log(f"watching Mango IPC at {path}")
+                          self.logged_path = path
                       self.socket_path = path
                       workers = [
                           threading.Thread(target=self._watch, args=("watch keymode", self._on_keymode), daemon=True),
@@ -513,6 +540,7 @@
               def _on_keymode(self, data):
                   with self.lock:
                       self.keymode = str(data.get("keymode", ""))
+                      log(f"keymode: {self.keymode}")
                   self.event.set()
 
               def _on_layout(self, data):
@@ -673,12 +701,22 @@
                   self.volume = 0
                   self.muted = False
                   self.last_apply = 0.0
+                  self.last_device_scan = 0.0
                   self.enabled = True
+                  self.activated = set()
+                  self.last_frame = None
                   self.reload()
                   self.devices = detect_devices(self.config.get("devices", "auto"))
                   self.mango = MangoClient()
                   self.dms = DmsClient(float(self.config.get("stateRefreshSeconds", 2)))
+                  self.log_devices()
                   self.write_state()
+
+              def log_devices(self):
+                  if self.devices:
+                      log("detected devices: " + ", ".join(device["path"] for device in self.devices))
+                  else:
+                      log("no RGB-capable ckb-next devices found; retrying")
 
               def reload(self):
                   self.config = read_json(self.config_path)
@@ -688,29 +726,44 @@
                       name: apply_gamma(value, gamma)
                       for name, value in self.config.get("palette", {}).items()
                   }
+                  self.ambient_level = int(self.config.get("ambientLevel", 30))
+                  self.unlit_level = int(self.config.get("unlitLevel", 15))
+                  self.ambient_color = scale_color(self.palette.get("ambient", "#000000"), self.ambient_level)
+                  self.unlit_color = scale_color(self.palette.get("unlit", "#000000"), self.unlit_level)
+                  self.has_binds = any(self.binds.values())
                   self.volume_config = self.config.get("volumeBar", {})
                   self.tags_config = self.config.get("tags", {})
                   self.keymode_config = self.config.get("keymode", {})
                   self.state_binds = self.config.get("stateBinds", [])
                   self.refresh = float(self.config.get("refreshSeconds", 60))
                   self.state_refresh = float(self.config.get("stateRefreshSeconds", 2))
+                  total = sum(len(binds) for binds in self.binds.values())
+                  log(f"loaded {total} binds in {len(self.binds)} modes")
+                  self.last_frame = None
+
+              def role_color(self, name, fallback=None):
+                  if name == "ambient":
+                      return self.ambient_color
+                  if name == "unlit":
+                      return self.unlit_color
+                  return self.palette.get(name, fallback or self.palette.get("accent", "FFFFFF"))
 
               def volume_color(self, index, lit):
                   mode = self.volume_config.get("mode", "solid")
                   if mode == "solid":
-                      return self.palette.get(self.volume_config.get("color", "functions"), self.palette["primary"])
+                      return self.role_color(self.volume_config.get("color", "functions"))
                   if mode == "heat":
                       if self.volume < 50:
-                          return self.palette.get(self.volume_config.get("low", "strings"), self.palette["success"])
+                          return self.role_color(self.volume_config.get("low", "strings"))
                       if self.volume < 80:
-                          return self.palette.get(self.volume_config.get("mid", "integers"), self.palette["attention"])
-                      return self.palette.get(self.volume_config.get("high", "variables"), self.palette["error"])
+                          return self.role_color(self.volume_config.get("mid", "integers"))
+                      return self.role_color(self.volume_config.get("high", "variables"))
                   fraction = index / max(1, lit - 1)
                   if fraction < 0.33:
-                      return self.palette.get(self.volume_config.get("low", "strings"), self.palette["success"])
+                      return self.role_color(self.volume_config.get("low", "strings"))
                   if fraction < 0.66:
-                      return self.palette.get(self.volume_config.get("mid", "integers"), self.palette["attention"])
-                  return self.palette.get(self.volume_config.get("high", "variables"), self.palette["error"])
+                      return self.role_color(self.volume_config.get("mid", "integers"))
+                  return self.role_color(self.volume_config.get("high", "variables"))
 
               def probe_active(self, probe, dms_state):
                   if probe == "dms-night":
@@ -731,29 +784,107 @@
                       self.write_state()
                       return
                   if not self.enabled:
+                      self.last_frame = None
                       for device in self.devices:
-                          write_command(device, "rgb 000000")
+                          commands = []
+                          if device["path"] not in self.activated:
+                              commands.append("active")
+                              self.activated.add(device["path"])
+                          commands.append("rgb 000000")
+                          write_commands(device, commands)
                       self.write_state()
                       return
 
                   snapshot = self.mango.snapshot()
                   overrides = {}
 
+                  if self.tags_config.get("enable", True):
+                      active = snapshot["tags"]["active"]
+                      urgent = snapshot["tags"]["urgent"]
+                      occupied = snapshot["tags"]["occupied"]
+                      for index in range(1, 11):
+                          key = "0" if index == 10 else str(index)
+                          if index in active:
+                              color = self.role_color(self.tags_config.get("active", "functions"))
+                          elif index in urgent:
+                              color = self.role_color(self.tags_config.get("urgent", "variables"))
+                          elif index in occupied:
+                              color = self.role_color(self.tags_config.get("occupied", "defaultForeground"))
+                          else:
+                              color = self.role_color(self.tags_config.get("empty", "comments"))
+                          overrides[key] = color
+
+                  if self.volume_config.get("enable", True):
+                      keys = [translate_key(key) for key in self.volume_config.get("keys", [])]
+                      keys = [key for key in keys if key]
+                      if keys:
+                          lit = round((self.volume / 100.0) * len(keys))
+                          for index, key in enumerate(keys):
+                              if index < lit:
+                                  overrides[key] = self.volume_color(index, lit)
+                              else:
+                                  overrides[key] = self.unlit_color
+
                   if self.keymode_config.get("enable", True):
-                      active_mode = snapshot["keymode"] or "default"
+                      active_mode = str(snapshot.get("keymode", "") or "default").lower()
                       modes = ["common"]
                       if active_mode and active_mode != "common":
                           modes.append(active_mode)
+                      group_colors = {
+                          "navigation": "primary",
+                          "windows": "error",
+                          "applications": "success",
+                          "system": "special",
+                          "alt modes": "warning",
+                          "media": "attention",
+                      }
+                      modifier_color = self.role_color(self.keymode_config.get("modifierColor", "support"))
                       for mode in modes:
                           for bind in self.binds.get(mode, []) or []:
                               keys, modifiers = bind_keys(bind)
+                              group = str(bind.get("group", "")).lower()
+                              key_color = self.role_color(group_colors.get(group, "accent"))
                               for key in keys:
-                                  overrides[key] = self.palette["primary"]
+                                  overrides[key] = key_color
                               for modifier in modifiers:
-                                  overrides[modifier] = self.palette.get(
-                                      self.keymode_config.get("modifierColor", "support"),
-                                      self.palette["accent"],
-                                  )
+                                  overrides[modifier] = modifier_color
+
+                      if not self.has_binds:
+                          layouts = {
+                              "default": (
+                                  ("a,w,d,s,lshift,rshift,lwin,esc", "secondary"),
+                                  ("f1,f2,f3,f4", "unlit"),
+                              ),
+                              "window": (
+                                  ("a,w,d,s,lshift,rshift,lwin,f1", "warning"),
+                                  ("f2,f3,f4", "unlit"),
+                                  ("esc", "error"),
+                              ),
+                              "group": (
+                                  ("a,w,s,d,lshift,rshift,lwin,f2", "error"),
+                                  ("f1,f3,f4", "unlit"),
+                                  ("esc", "error"),
+                              ),
+                              "scripts": (
+                                  ("a,w,s,d,lshift,rshift,lwin,f3", "primary"),
+                                  ("f1,f2,f4", "unlit"),
+                                  ("esc", "error"),
+                              ),
+                              "theming": (
+                                  ("a,w,d,s,lshift,rshift,lwin,f4", "success"),
+                                  ("f1,f2,f3", "unlit"),
+                                  ("esc", "error"),
+                              ),
+                          }
+                          aliases = {
+                              "movement": "window",
+                              "groups": "group",
+                              "resize": "scripts",
+                          }
+                          layout = layouts.get(aliases.get(active_mode, active_mode), layouts["default"])
+                          for key_list, role in layout:
+                              for key in key_list.split(","):
+                                  overrides[key] = self.role_color(role)
 
                   dms_state = self.dms.snapshot()
                   for state in self.state_binds:
@@ -761,7 +892,7 @@
                           continue
                       if not self.probe_active(state.get("probe", ""), dms_state):
                           continue
-                      color = self.palette.get(state.get("color", "accent"), self.palette["accent"])
+                      color = self.role_color(state.get("color", "accent"))
                       match = str(state.get("match", "")).lower()
                       if not match:
                           continue
@@ -779,47 +910,30 @@
                               for key in keys:
                                   overrides[key] = color
                               for modifier in modifiers:
-                                  overrides[modifier] = self.palette.get(
-                                      self.keymode_config.get("modifierColor", "support"),
-                                      self.palette["accent"],
-                                  )
+                                  overrides[modifier] = modifier_color
 
-                  if self.tags_config.get("enable", True):
-                      active = snapshot["tags"]["active"]
-                      urgent = snapshot["tags"]["urgent"]
-                      occupied = snapshot["tags"]["occupied"]
-                      for index in range(1, 11):
-                          key = "0" if index == 10 else str(index)
-                          if index in active:
-                              color = self.palette.get(self.tags_config.get("active", "functions"), self.palette["primary"])
-                          elif index in urgent:
-                              color = self.palette.get(self.tags_config.get("urgent", "variables"), self.palette["error"])
-                          elif index in occupied:
-                              color = self.palette.get(self.tags_config.get("occupied", "defaultForeground"), self.palette["neutral"])
-                          else:
-                              color = self.palette.get(self.tags_config.get("empty", "comments"), self.palette["unlit"])
-                          overrides[key] = color
+                  frame = (
+                      tuple(sorted(device["path"] for device in self.devices)),
+                      self.ambient_color,
+                      tuple(sorted(overrides.items())),
+                  )
+                  if frame == self.last_frame:
+                      self.write_state(snapshot)
+                      return
+                  self.last_frame = frame
 
-                  if self.volume_config.get("enable", True):
-                      keys = [translate_key(key) for key in self.volume_config.get("keys", [])]
-                      keys = [key for key in keys if key]
-                      if keys:
-                          lit = round((self.volume / 100.0) * len(keys))
-                          for index, key in enumerate(keys):
-                              if index < lit:
-                                  overrides[key] = self.volume_color(index, lit)
-                              else:
-                                  overrides[key] = self.palette["unlit"]
-
-                  for device in self.devices:
-                      write_command(device, "rgb " + self.palette["ambient"])
                   groups = {}
                   for key, color in overrides.items():
                       groups.setdefault(color, []).append(key)
-                  for color, keys in groups.items():
-                      command = "rgb " + ",".join(keys) + ":" + color
-                      for device in self.devices:
-                          write_command(device, command)
+                  for device in self.devices:
+                      commands = []
+                      if device["path"] not in self.activated:
+                          commands.append("active")
+                          self.activated.add(device["path"])
+                      commands.append("rgb " + self.ambient_color)
+                      for color, keys in groups.items():
+                          commands.append("rgb " + ",".join(keys) + ":" + color)
+                      write_commands(device, commands)
 
                   self.write_state(snapshot)
 
@@ -840,6 +954,7 @@
                           for name, values in (snapshot.get("tags", {}) or {}).items()
                       },
                       "dms": self.dms.snapshot(),
+                      "bindModes": {mode: len(binds) for mode, binds in self.binds.items()},
                       "palette": self.palette,
                       "paletteSource": "stylix",
                       "watchers": {
@@ -872,9 +987,15 @@
 
               def toggle(self):
                   self.enabled = not self.enabled
+                  self.last_frame = None
                   if not self.enabled:
                       for device in self.devices:
-                          write_command(device, "rgb 000000")
+                          commands = []
+                          if device["path"] not in self.activated:
+                              commands.append("active")
+                              self.activated.add(device["path"])
+                          commands.append("rgb 000000")
+                          write_commands(device, commands)
                       self.write_state()
                       return
                   self.apply()
@@ -886,6 +1007,18 @@
                   threading.Thread(target=self._volume_watch, daemon=True).start()
                   while not self.stop_event.is_set():
                       now = time.monotonic()
+                      if now - self.last_device_scan >= 5.0:
+                          self.last_device_scan = now
+                          new_devices = detect_devices(self.config.get("devices", "auto"))
+                          new_paths = [device["path"] for device in new_devices]
+                          old_paths = [device["path"] for device in self.devices]
+                          if new_paths != old_paths:
+                              self.devices = new_devices
+                              self.activated = set()
+                              self.last_frame = None
+                              self.log_devices()
+                              if self.devices:
+                                  self.apply()
                       if self.mango.event.is_set() or self.dms.event.is_set() or self.volume_event.is_set():
                           self.mango.event.clear()
                           self.dms.event.clear()
@@ -932,6 +1065,7 @@
               print(f"layout: {state.get('layout')}")
               print(f"volume: {state.get('volume')}% muted={state.get('muted')}")
               print(f"devices: {', '.join(state.get('devices', [])) or 'none'}")
+              print(f"bind modes: {state.get('bindModes')}")
               print(f"palette source: {state.get('paletteSource')}")
               print(f"watchers: {state.get('watchers')}")
               print(f"palette: {json.dumps(state.get('palette', {}), sort_keys=True)}")
@@ -1090,6 +1224,8 @@
       rgbConfig = pkgs.writeText "ojuny-rgb.json" (
         builtins.toJSON {
           gamma = cfg.gamma;
+          ambientLevel = cfg.ambientLevel;
+          unlitLevel = cfg.unlitLevel;
           devices = cfg.devices;
           refreshSeconds = cfg.refreshSeconds;
           stateRefreshSeconds = cfg.stateRefreshSeconds;
@@ -1159,6 +1295,18 @@
           description = "Brightness curve applied to every key color.";
         };
 
+        ambientLevel = lib.mkOption {
+          type = lib.types.int;
+          default = 30;
+          description = "Ambient background brightness percentage.";
+        };
+
+        unlitLevel = lib.mkOption {
+          type = lib.types.int;
+          default = 15;
+          description = "Unlit volume key brightness percentage.";
+        };
+
         devices = lib.mkOption {
           type = lib.types.str;
           default = "auto";
@@ -1180,13 +1328,13 @@
         palette = {
           ambient = lib.mkOption {
             type = colorType;
-            default = "selectionBackground";
-            description = "Baseline key color.";
+            default = "functions";
+            description = "Ambient key color before highlights.";
           };
           unlit = lib.mkOption {
             type = colorType;
-            default = "comments";
-            description = "Unlit volume and empty indicator color.";
+            default = "functions";
+            description = "Unlit volume key color.";
           };
           muted = lib.mkOption {
             type = colorType;
@@ -1248,12 +1396,6 @@
         volumeBar = {
           enable = lib.mkEnableOption "the volume bar";
 
-          visible = lib.mkOption {
-            type = lib.types.bool;
-            default = false;
-            description = "Computed visibility gate for volume bar controls.";
-          };
-
           mode = lib.mkOption {
             type = lib.types.enum [
               "solid"
@@ -1289,12 +1431,6 @@
         tags = {
           enable = lib.mkEnableOption "tag indicators";
 
-          visible = lib.mkOption {
-            type = lib.types.bool;
-            default = false;
-            description = "Computed visibility gate for tag controls.";
-          };
-
           active = lib.mkOption {
             type = colorType;
             default = "functions";
@@ -1319,12 +1455,6 @@
 
         keymode = {
           enable = lib.mkEnableOption "keymode bind highlighting";
-
-          visible = lib.mkOption {
-            type = lib.types.bool;
-            default = false;
-            description = "Computed visibility gate for keymode controls.";
-          };
 
           modifierColor = lib.mkOption {
             type = colorType;
@@ -1411,9 +1541,7 @@
 
           systemd.user.services.ojuny-rgb = {
             description = "Ojuny Corsair RGB daemon";
-            wantedBy = [ "mango-session.target" ];
-            after = [ "mango-session.target" ];
-            partOf = [ "mango-session.target" ];
+            wantedBy = [ "default.target" ];
             restartTriggers = [
               rgbConfig
               bindsJson
@@ -1452,7 +1580,7 @@
                 "trigger.ojuny-rgb.status" = {
                   icon = "info";
                   label = "Lighting status";
-                  action = "ghostty -e ${ojunyRgb}/bin/ojuny-rgb status";
+                  action = "ghostty -e sh -c '${ojunyRgb}/bin/ojuny-rgb status; printf \"\\nPress Enter to close.\\n\"; read -r _'";
                 };
               };
         })
