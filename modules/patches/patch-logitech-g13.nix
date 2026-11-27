@@ -1339,6 +1339,7 @@ in
       servicePath =
         with pkgs;
         [
+          bash
           coreutils
           gnugrep
           gawk
