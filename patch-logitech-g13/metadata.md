@@ -17,11 +17,20 @@ To remove, turn Logitech G13 off, rebuild, run `ojuny-patches remove patch-logit
 
 ## Display
 
-The LCD is 5 lines by 25 characters. Each source has its own controls for enable, order, preset, and an optional custom format. Presets are Default, Compact, and Detailed. Custom uses the format field; the field description lists the available variables.
+The LCD display is off by default. Enable it after enabling the patch.
 
-Each detector runs in its own user service at its configured refresh interval and writes a JSON snapshot under `$XDG_RUNTIME_DIR/ojuny/g13/`. The render loop runs at `display.refreshMs`, reads the latest snapshots, substitutes `$variable` placeholders, and writes `/run/user/<uid>/g13-lcd` only when the frame changes. A slow detector never blocks the render loop; its line keeps the last successful value, and a source with no value yet leaves its line blank.
+The line table holds the LCD rows. Each row is one line, and its dropdown combines a source with a detail level:
+
+- Off leaves the line blank.
+- Default is the normal summary.
+- Compact is the shortest useful line.
+- Detailed adds values and may be truncated to 25 characters.
+
+Add, remove, or reorder rows in the table. The row order is the display order.
 
 Media titles longer than 25 characters scroll one character per media refresh. The offset resets when the track changes.
+
+Detector settings are under Advanced. Each detector runs in its own user service and writes a JSON snapshot under `$XDG_RUNTIME_DIR/ojuny/g13/`. The render loop runs at `display.refreshMs`, reads the latest snapshots, substitutes values, and writes `/run/user/<uid>/g13-lcd` only when the frame changes. A slow detector never blocks the render loop; its line keeps the last successful value, and a source with no value yet leaves its line blank.
 
 `g13-int` writes a framed temporary message and `g13-raw` writes a raw temporary message. The render loop shows either file for one pass, then returns to the status frame.
 
@@ -44,7 +53,7 @@ The same rows are registered in the DMS keybinds menu as the `g13` provider.
 
 ## Colors
 
-Each bank has a color dropdown with all sixteen Stylix names plus `custom`. Choosing `custom` reveals a color picker. Unset named colors follow the active Stylix palette.
+Each bank has a color dropdown with all sixteen Stylix names plus `custom`. Choosing `custom` reveals a color picker. Named colors follow the active Stylix palette.
 
 ## Limits
 

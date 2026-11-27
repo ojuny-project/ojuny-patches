@@ -29,6 +29,58 @@ let
     "custom"
   ];
 
+  displayChoices = [
+    "Off"
+    "CPU - Default"
+    "CPU - Compact"
+    "CPU - Detailed"
+    "RAM - Default"
+    "RAM - Compact"
+    "RAM - Detailed"
+    "Disk - Default"
+    "Disk - Compact"
+    "Disk - Detailed"
+    "GPU - Default"
+    "GPU - Compact"
+    "GPU - Detailed"
+    "Media - Default"
+    "Media - Compact"
+    "Media - Detailed"
+    "Network - Default"
+    "Network - Compact"
+    "Network - Detailed"
+    "Battery - Default"
+    "Battery - Compact"
+    "Battery - Detailed"
+    "Audio - Default"
+    "Audio - Compact"
+    "Audio - Detailed"
+    "Workspace - Default"
+    "Workspace - Compact"
+    "Workspace - Detailed"
+    "Keymode - Default"
+    "Keymode - Compact"
+    "Keymode - Detailed"
+    "Layout - Default"
+    "Layout - Compact"
+    "Layout - Detailed"
+    "Clock - Default"
+    "Clock - Compact"
+    "Clock - Detailed"
+    "Date - Default"
+    "Date - Compact"
+    "Date - Detailed"
+    "Uptime - Default"
+    "Uptime - Compact"
+    "Uptime - Detailed"
+    "Weather - Default"
+    "Weather - Compact"
+    "Weather - Detailed"
+    "Custom - Default"
+    "Custom - Compact"
+    "Custom - Detailed"
+  ];
+
   colorNames = [
     "defaultBackground"
     "lighterBackground"
@@ -114,35 +166,6 @@ in
         description = "Detector settings.";
       };
 
-      mkDisplaySource = order: enabled: variables: lib.mkOption {
-        type = lib.types.submodule {
-          options = {
-            enable = lib.mkOption {
-              type = lib.types.bool;
-              default = enabled;
-              description = "Show this source on the LCD.";
-            };
-            order = lib.mkOption {
-              type = lib.types.int;
-              default = order;
-              description = "Display order; lower numbers come first.";
-            };
-            preset = lib.mkOption {
-              type = lib.types.enum [ "default" "compact" "detailed" "custom" ];
-              default = "default";
-              description = "Format preset. custom uses the format field.";
-            };
-            format = lib.mkOption {
-              type = lib.types.str;
-              default = "";
-              description = "Custom format, only used when preset is custom. Available variables: ${variables}.";
-            };
-          };
-        };
-        default = { };
-        description = "LCD line settings.";
-      };
-
       mkBindRow = lib.types.submodule {
         options = {
           key = lib.mkOption {
@@ -223,7 +246,7 @@ in
         display = {
           enable = lib.mkOption {
             type = lib.types.bool;
-            default = true;
+            default = false;
             description = "Enable the LCD render loop and detector services.";
           };
           refreshMs = lib.mkOption {
@@ -231,23 +254,26 @@ in
             default = 500;
             description = "LCD render interval in milliseconds.";
           };
-          sources = {
-            cpu = mkDisplaySource 10 true "$cpu_clock, $cpu_usage, $cpu_temp, $time";
-            ram = mkDisplaySource 20 true "$ram_used, $ram_cached, $ram_free, $ram_total, $ram_percent";
-            disk = mkDisplaySource 30 true "$disk_used, $disk_free, $disk_read, $disk_write";
-            gpu = mkDisplaySource 40 true "$gpu_vendor, $gpu_usage, $gpu_clock, $gpu_vram, $gpu_temp";
-            media = mkDisplaySource 50 true "$media_title, $media_status, $media_artist, $media_album, $media_position, $media_length";
-            network = mkDisplaySource 60 false "$network_interface, $network_state, $network_connection, $network_ip, $network_signal, $network_rx, $network_tx";
-            battery = mkDisplaySource 70 false "$battery_percent, $battery_state, $battery_time";
-            audio = mkDisplaySource 80 false "$audio_volume, $audio_muted, $audio_source_volume, $audio_source_muted";
-            workspace = mkDisplaySource 90 false "$workspace, $workspace_layout, $workspace_monitor";
-            keymode = mkDisplaySource 100 false "$keymode";
-            layout = mkDisplaySource 110 false "$layout";
-            clock = mkDisplaySource 120 false "$time";
-            date = mkDisplaySource 130 false "$date, $weekday, $day, $month, $year";
-            uptime = mkDisplaySource 140 false "$uptime, $uptime_days, $uptime_hours";
-            weather = mkDisplaySource 150 false "$weather_location, $weather_temp, $weather_condition, $weather_humidity, $weather_wind";
-            custom = mkDisplaySource 160 false "$custom, $custom_<key>";
+          lines = lib.mkOption {
+            type = lib.types.listOf (
+              lib.types.submodule {
+                options = {
+                  line = lib.mkOption {
+                    type = lib.types.str;
+                    default = "Off";
+                    description = "LCD line content.";
+                  };
+                };
+              }
+            );
+            default = [
+              { line = "CPU - Default"; }
+              { line = "RAM - Default"; }
+              { line = "Disk - Default"; }
+              { line = "GPU - Default"; }
+              { line = "Media - Default"; }
+            ];
+            description = "LCD lines in order.";
           };
         };
 
@@ -304,106 +330,67 @@ in
         # @option widget = "switch"; label = "Logitech G13"; group = "Logitech G13"; groupOrder = 10; order = 10; description = "Enable the G13 driver, LCD display and bind banks.";
         ojuny.patch.logitech-g13.enable = false;
 
-        # @option widget = "switch"; label = "LCD display"; group = "Display"; groupOrder = 20; order = 10; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Run the detector and render services.";
-        ojuny.patch.logitech-g13.display.enable = true;
+        # @option widget = "switch"; label = "LCD display"; group = "Display"; groupOrder = 20; order = 10; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Turn the G13 LCD status display on or off. The driver and bind banks stay active.";
+        ojuny.patch.logitech-g13.display.enable = false;
 
-        # @option widget = "spin"; label = "Refresh interval"; group = "Display"; groupOrder = 20; order = 20; min = 100; step = 100; unit = "ms"; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "How often the render loop builds and compares a frame.";
+        # @option widget = "spin"; label = "Refresh interval"; group = "Display"; groupOrder = 20; order = 20; min = 100; step = 100; unit = "ms"; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "How often the LCD redraws. The default 500 ms is twice per second.";
         ojuny.patch.logitech-g13.display.refreshMs = 500;
 
-        # @option widget = "submodule"; label = "CPU line"; group = "Display"; groupOrder = 20; order = 30; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the CPU line.";
-        ojuny.patch.logitech-g13.display.sources.cpu = { enable = true; order = 10; preset = "default"; format = ""; };
+        # @option widget = "table-list"; label = "LCD lines"; group = "Display"; groupOrder = 20; order = 30; columns = [ "line" ]; columnTypes = [ "dropdown" ]; choices = [ "Off" "CPU - Default" "CPU - Compact" "CPU - Detailed" "RAM - Default" "RAM - Compact" "RAM - Detailed" "Disk - Default" "Disk - Compact" "Disk - Detailed" "GPU - Default" "GPU - Compact" "GPU - Detailed" "Media - Default" "Media - Compact" "Media - Detailed" "Network - Default" "Network - Compact" "Network - Detailed" "Battery - Default" "Battery - Compact" "Battery - Detailed" "Audio - Default" "Audio - Compact" "Audio - Detailed" "Workspace - Default" "Workspace - Compact" "Workspace - Detailed" "Keymode - Default" "Keymode - Compact" "Keymode - Detailed" "Layout - Default" "Layout - Compact" "Layout - Detailed" "Clock - Default" "Clock - Compact" "Clock - Detailed" "Date - Default" "Date - Compact" "Date - Detailed" "Uptime - Default" "Uptime - Compact" "Uptime - Detailed" "Weather - Default" "Weather - Compact" "Weather - Detailed" "Custom - Default" "Custom - Compact" "Custom - Detailed" ]; firstValueEditable = true; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Add, remove, and order the LCD lines. The row order is the display order.";
+        ojuny.patch.logitech-g13.display.lines = [
+          { line = "CPU - Default"; }
+          { line = "RAM - Default"; }
+          { line = "Disk - Default"; }
+          { line = "GPU - Default"; }
+          { line = "Media - Default"; }
+        ];
 
-        # @option widget = "submodule"; label = "RAM line"; group = "Display"; groupOrder = 20; order = 40; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the RAM line.";
-        ojuny.patch.logitech-g13.display.sources.ram = { enable = true; order = 20; preset = "default"; format = ""; };
-
-        # @option widget = "submodule"; label = "Disk line"; group = "Display"; groupOrder = 20; order = 50; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the disk line.";
-        ojuny.patch.logitech-g13.display.sources.disk = { enable = true; order = 30; preset = "default"; format = ""; };
-
-        # @option widget = "submodule"; label = "GPU line"; group = "Display"; groupOrder = 20; order = 60; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the GPU line.";
-        ojuny.patch.logitech-g13.display.sources.gpu = { enable = true; order = 40; preset = "default"; format = ""; };
-
-        # @option widget = "submodule"; label = "Media line"; group = "Display"; groupOrder = 20; order = 70; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the media line. The title scrolls.";
-        ojuny.patch.logitech-g13.display.sources.media = { enable = true; order = 50; preset = "default"; format = ""; };
-
-        # @option widget = "submodule"; label = "Network line"; group = "Display"; groupOrder = 20; order = 80; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the network line.";
-        ojuny.patch.logitech-g13.display.sources.network = { enable = false; order = 60; preset = "default"; format = ""; };
-
-        # @option widget = "submodule"; label = "Battery line"; group = "Display"; groupOrder = 20; order = 90; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the battery line.";
-        ojuny.patch.logitech-g13.display.sources.battery = { enable = false; order = 70; preset = "default"; format = ""; };
-
-        # @option widget = "submodule"; label = "Audio line"; group = "Display"; groupOrder = 20; order = 100; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the audio line.";
-        ojuny.patch.logitech-g13.display.sources.audio = { enable = false; order = 80; preset = "default"; format = ""; };
-
-        # @option widget = "submodule"; label = "Workspace line"; group = "Display"; groupOrder = 20; order = 110; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the workspace line.";
-        ojuny.patch.logitech-g13.display.sources.workspace = { enable = false; order = 90; preset = "default"; format = ""; };
-
-        # @option widget = "submodule"; label = "Keymode line"; group = "Display"; groupOrder = 20; order = 120; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the keymode line.";
-        ojuny.patch.logitech-g13.display.sources.keymode = { enable = false; order = 100; preset = "default"; format = ""; };
-
-        # @option widget = "submodule"; label = "Keyboard layout line"; group = "Display"; groupOrder = 20; order = 130; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the keyboard layout line.";
-        ojuny.patch.logitech-g13.display.sources.layout = { enable = false; order = 110; preset = "default"; format = ""; };
-
-        # @option widget = "submodule"; label = "Clock line"; group = "Display"; groupOrder = 20; order = 140; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the clock line.";
-        ojuny.patch.logitech-g13.display.sources.clock = { enable = false; order = 120; preset = "default"; format = ""; };
-
-        # @option widget = "submodule"; label = "Date line"; group = "Display"; groupOrder = 20; order = 150; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the date line.";
-        ojuny.patch.logitech-g13.display.sources.date = { enable = false; order = 130; preset = "default"; format = ""; };
-
-        # @option widget = "submodule"; label = "Uptime line"; group = "Display"; groupOrder = 20; order = 160; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the uptime line.";
-        ojuny.patch.logitech-g13.display.sources.uptime = { enable = false; order = 140; preset = "default"; format = ""; };
-
-        # @option widget = "submodule"; label = "Weather line"; group = "Display"; groupOrder = 20; order = 170; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the weather line.";
-        ojuny.patch.logitech-g13.display.sources.weather = { enable = false; order = 150; preset = "default"; format = ""; };
-
-        # @option widget = "submodule"; label = "Custom line"; group = "Display"; groupOrder = 20; order = 180; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Enable, order, preset and optional custom format for the custom line.";
-        ojuny.patch.logitech-g13.display.sources.custom = { enable = false; order = 160; preset = "default"; format = ""; };
-
-        # @option widget = "submodule"; label = "CPU detector"; group = "Detectors"; groupOrder = 30; order = 10; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "CPU clock, usage, temperature and time.";
+        # @option widget = "submodule"; label = "CPU detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 10; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "CPU clock, usage, temperature and time.";
         ojuny.patch.logitech-g13.detectors.cpu = { refresh = 1.0; timeout = 2; };
 
-        # @option widget = "submodule"; label = "RAM detector"; group = "Detectors"; groupOrder = 30; order = 20; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Used, cached and free memory.";
+        # @option widget = "submodule"; label = "RAM detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 20; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Used, cached and free memory.";
         ojuny.patch.logitech-g13.detectors.ram = { refresh = 1.0; timeout = 2; };
 
-        # @option widget = "submodule"; label = "Disk detector"; group = "Detectors"; groupOrder = 30; order = 30; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Disk usage and read/write rates.";
+        # @option widget = "submodule"; label = "Disk detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 30; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Disk usage and read/write rates.";
         ojuny.patch.logitech-g13.detectors.disk = { refresh = 2.0; timeout = 2; mount = "/"; };
 
-        # @option widget = "submodule"; label = "GPU detector"; group = "Detectors"; groupOrder = 30; order = 40; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "GPU usage, clock, VRAM and temperature. auto prefers a working nvidia-smi, then AMD, then Intel.";
+        # @option widget = "submodule"; label = "GPU detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 40; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "GPU usage, clock, VRAM and temperature. auto prefers a working nvidia-smi, then AMD, then Intel.";
         ojuny.patch.logitech-g13.detectors.gpu = { refresh = 1.0; timeout = 2; vendor = "auto"; };
 
-        # @option widget = "submodule"; label = "Network detector"; group = "Detectors"; groupOrder = 30; order = 50; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Interface state, address, signal and traffic rates.";
+        # @option widget = "submodule"; label = "Network detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 50; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Interface state, address, signal and traffic rates.";
         ojuny.patch.logitech-g13.detectors.network = { refresh = 1.0; timeout = 2; interface = "auto"; };
 
-        # @option widget = "submodule"; label = "Battery detector"; group = "Detectors"; groupOrder = 30; order = 60; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Battery percentage, state and remaining time.";
+        # @option widget = "submodule"; label = "Battery detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 60; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Battery percentage, state and remaining time.";
         ojuny.patch.logitech-g13.detectors.battery = { refresh = 30.0; timeout = 2; device = "auto"; };
 
-        # @option widget = "submodule"; label = "Audio detector"; group = "Detectors"; groupOrder = 30; order = 70; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Output and input volume and mute state.";
+        # @option widget = "submodule"; label = "Audio detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 70; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Output and input volume and mute state.";
         ojuny.patch.logitech-g13.detectors.audio = { refresh = 1.0; timeout = 2; };
 
-        # @option widget = "submodule"; label = "Media detector"; group = "Detectors"; groupOrder = 30; order = 80; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Player status, title, artist, album and timing. The title scrolls.";
+        # @option widget = "submodule"; label = "Media detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 80; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Player status, title, artist, album and timing. The title scrolls.";
         ojuny.patch.logitech-g13.detectors.media = { refresh = 0.35; timeout = 2; };
 
-        # @option widget = "submodule"; label = "Workspace detector"; group = "Detectors"; groupOrder = 30; order = 90; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Active Mango workspace and its layout.";
+        # @option widget = "submodule"; label = "Workspace detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 90; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Active Mango workspace and its layout.";
         ojuny.patch.logitech-g13.detectors.workspace = { refresh = 1.0; timeout = 2; };
 
-        # @option widget = "submodule"; label = "Keymode detector"; group = "Detectors"; groupOrder = 30; order = 100; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Current Mango keymode.";
+        # @option widget = "submodule"; label = "Keymode detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 100; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Current Mango keymode.";
         ojuny.patch.logitech-g13.detectors.keymode = { refresh = 1.0; timeout = 2; };
 
-        # @option widget = "submodule"; label = "Keyboard layout detector"; group = "Detectors"; groupOrder = 30; order = 110; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Current XKB keyboard layout.";
+        # @option widget = "submodule"; label = "Keyboard layout detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 110; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Current XKB keyboard layout.";
         ojuny.patch.logitech-g13.detectors.layout = { refresh = 1.0; timeout = 2; };
 
-        # @option widget = "submodule"; label = "Clock detector"; group = "Detectors"; groupOrder = 30; order = 120; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Current local time.";
+        # @option widget = "submodule"; label = "Clock detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 120; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Current local time.";
         ojuny.patch.logitech-g13.detectors.clock = { refresh = 1.0; timeout = 2; };
 
-        # @option widget = "submodule"; label = "Date detector"; group = "Detectors"; groupOrder = 30; order = 130; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Current local date.";
+        # @option widget = "submodule"; label = "Date detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 130; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Current local date.";
         ojuny.patch.logitech-g13.detectors.date = { refresh = 60.0; timeout = 2; };
 
-        # @option widget = "submodule"; label = "Uptime detector"; group = "Detectors"; groupOrder = 30; order = 140; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "System uptime.";
+        # @option widget = "submodule"; label = "Uptime detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 140; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "System uptime.";
         ojuny.patch.logitech-g13.detectors.uptime = { refresh = 60.0; timeout = 2; };
 
-        # @option widget = "submodule"; label = "Weather detector"; group = "Detectors"; groupOrder = 30; order = 150; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Weather from wttr.in.";
+        # @option widget = "submodule"; label = "Weather detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 150; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Weather from wttr.in.";
         ojuny.patch.logitech-g13.detectors.weather = { refresh = 900.0; timeout = 2; location = ""; };
 
-        # @option widget = "submodule"; label = "Custom detector"; group = "Detectors"; groupOrder = 30; order = 160; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Run a shell command and expose its output.";
+        # @option widget = "submodule"; label = "Custom detector"; group = "Detectors"; advanced = true; groupOrder = 30; order = 160; visibleWhen.path = "ojuny.patch.logitech-g13.display.enable"; visibleWhen.equals = true; description = "Run a shell command and expose its output.";
         ojuny.patch.logitech-g13.detectors.custom = { refresh = 5.0; timeout = 2; command = ""; };
 
         # @option widget = "keybinds"; label = "Bank 1: Main"; group = "Banks"; groupOrder = 40; order = 10; bindFields = [ "key" "label" "subcat" "modifier" "keys" "dispatcher" "args" "description" "group" "repeats" ]; bindFieldTypes = [ "str" "str" "str" "list" "list" "str" "str" "str" "str" "int" ]; bindPreview = [ "subcat" ]; bindSort = [ ]; bindKeyField = "label"; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Rows are in physical order: G1 to G7, G8 to G14, G15 to G19, G20 to G22, thumb, then stick. No tag or main-keyboard duplicate rows.";
@@ -438,13 +425,13 @@ in
           { key = "stick-down"; label = "Stick down"; subcat = "Stick Down"; modifier = [ ]; keys = [ "F16" ]; dispatcher = "focusdir"; args = "down"; description = "Focus, exchange, group join, or resize down by mode"; group = "Navigation"; repeats = 0; }
         ];
 
-        # @option widget = "keybinds"; label = "Bank 2"; group = "Banks"; groupOrder = 40; order = 20; bindFields = [ "key" "label" "subcat" "modifier" "keys" "dispatcher" "args" "description" "group" "repeats" ]; bindFieldTypes = [ "str" "str" "str" "list" "list" "str" "str" "str" "str" "int" ]; bindPreview = [ "subcat" ]; bindSort = [ ]; bindKeyField = "label"; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Empty by default. Add the rows you want for the second hardware bank.";
+        # @option widget = "keybinds"; label = "Bank 2"; group = "Banks"; advanced = true; groupOrder = 40; order = 20; bindFields = [ "key" "label" "subcat" "modifier" "keys" "dispatcher" "args" "description" "group" "repeats" ]; bindFieldTypes = [ "str" "str" "str" "list" "list" "str" "str" "str" "str" "int" ]; bindPreview = [ "subcat" ]; bindSort = [ ]; bindKeyField = "label"; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Empty by default. Add the rows you want for the second hardware bank.";
         ojuny.patch.logitech-g13.bindings.bank2 = [ ];
 
-        # @option widget = "keybinds"; label = "Bank 3"; group = "Banks"; groupOrder = 40; order = 30; bindFields = [ "key" "label" "subcat" "modifier" "keys" "dispatcher" "args" "description" "group" "repeats" ]; bindFieldTypes = [ "str" "str" "str" "list" "list" "str" "str" "str" "str" "int" ]; bindPreview = [ "subcat" ]; bindSort = [ ]; bindKeyField = "label"; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Empty by default. Add the rows you want for the third hardware bank.";
+        # @option widget = "keybinds"; label = "Bank 3"; group = "Banks"; advanced = true; groupOrder = 40; order = 30; bindFields = [ "key" "label" "subcat" "modifier" "keys" "dispatcher" "args" "description" "group" "repeats" ]; bindFieldTypes = [ "str" "str" "str" "list" "list" "str" "str" "str" "str" "int" ]; bindPreview = [ "subcat" ]; bindSort = [ ]; bindKeyField = "label"; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Empty by default. Add the rows you want for the third hardware bank.";
         ojuny.patch.logitech-g13.bindings.bank3 = [ ];
 
-        # @option widget = "keybinds"; label = "Bank 4"; group = "Banks"; groupOrder = 40; order = 40; bindFields = [ "key" "label" "subcat" "modifier" "keys" "dispatcher" "args" "description" "group" "repeats" ]; bindFieldTypes = [ "str" "str" "str" "list" "list" "str" "str" "str" "str" "int" ]; bindPreview = [ "subcat" ]; bindSort = [ ]; bindKeyField = "label"; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Empty by default. Add the rows you want for the fourth hardware bank.";
+        # @option widget = "keybinds"; label = "Bank 4"; group = "Banks"; advanced = true; groupOrder = 40; order = 40; bindFields = [ "key" "label" "subcat" "modifier" "keys" "dispatcher" "args" "description" "group" "repeats" ]; bindFieldTypes = [ "str" "str" "str" "list" "list" "str" "str" "str" "str" "int" ]; bindPreview = [ "subcat" ]; bindSort = [ ]; bindKeyField = "label"; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "Empty by default. Add the rows you want for the fourth hardware bank.";
         ojuny.patch.logitech-g13.bindings.bank4 = [ ];
 
         # @option widget = "dropdown"; label = "Bank 1 color"; group = "Bank colors"; groupOrder = 50; order = 10; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" "custom" ]; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "LCD backlight color for bank 1. Choose a Stylix name or custom.";
@@ -453,22 +440,22 @@ in
         # @option widget = "color"; label = "Bank 1 custom color"; group = "Bank colors"; groupOrder = 50; order = 11; visibleWhen.path = "ojuny.patch.logitech-g13.bindings.bank1Color"; visibleWhen.equals = "custom"; description = "Custom bank 1 backlight color.";
         ojuny.patch.logitech-g13.bindings.bank1CustomColor = "#89b4fa";
 
-        # @option widget = "dropdown"; label = "Bank 2 color"; group = "Bank colors"; groupOrder = 50; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" "custom" ]; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "LCD backlight color for bank 2. Choose a Stylix name or custom.";
+        # @option widget = "dropdown"; label = "Bank 2 color"; group = "Bank colors"; advanced = true; groupOrder = 50; order = 20; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" "custom" ]; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "LCD backlight color for bank 2. Choose a Stylix name or custom.";
         ojuny.patch.logitech-g13.bindings.bank2Color = "keywords";
 
-        # @option widget = "color"; label = "Bank 2 custom color"; group = "Bank colors"; groupOrder = 50; order = 21; visibleWhen.path = "ojuny.patch.logitech-g13.bindings.bank2Color"; visibleWhen.equals = "custom"; description = "Custom bank 2 backlight color.";
+        # @option widget = "color"; label = "Bank 2 custom color"; group = "Bank colors"; advanced = true; groupOrder = 50; order = 21; visibleWhen.path = "ojuny.patch.logitech-g13.bindings.bank2Color"; visibleWhen.equals = "custom"; description = "Custom bank 2 backlight color.";
         ojuny.patch.logitech-g13.bindings.bank2CustomColor = "#cba6f7";
 
-        # @option widget = "dropdown"; label = "Bank 3 color"; group = "Bank colors"; groupOrder = 50; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" "custom" ]; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "LCD backlight color for bank 3. Choose a Stylix name or custom.";
+        # @option widget = "dropdown"; label = "Bank 3 color"; group = "Bank colors"; advanced = true; groupOrder = 50; order = 30; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" "custom" ]; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "LCD backlight color for bank 3. Choose a Stylix name or custom.";
         ojuny.patch.logitech-g13.bindings.bank3Color = "strings";
 
-        # @option widget = "color"; label = "Bank 3 custom color"; group = "Bank colors"; groupOrder = 50; order = 31; visibleWhen.path = "ojuny.patch.logitech-g13.bindings.bank3Color"; visibleWhen.equals = "custom"; description = "Custom bank 3 backlight color.";
+        # @option widget = "color"; label = "Bank 3 custom color"; group = "Bank colors"; advanced = true; groupOrder = 50; order = 31; visibleWhen.path = "ojuny.patch.logitech-g13.bindings.bank3Color"; visibleWhen.equals = "custom"; description = "Custom bank 3 backlight color.";
         ojuny.patch.logitech-g13.bindings.bank3CustomColor = "#a6e3a1";
 
-        # @option widget = "dropdown"; label = "Bank 4 color"; group = "Bank colors"; groupOrder = 50; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" "custom" ]; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "LCD backlight color for bank 4. Choose a Stylix name or custom.";
+        # @option widget = "dropdown"; label = "Bank 4 color"; group = "Bank colors"; advanced = true; groupOrder = 50; order = 40; choices = [ "defaultBackground" "lighterBackground" "selectionBackground" "comments" "darkForeground" "defaultForeground" "lightForeground" "lightBackground" "variables" "integers" "classes" "strings" "support" "functions" "keywords" "deprecated" "custom" ]; visibleWhen.path = "ojuny.patch.logitech-g13.enable"; visibleWhen.equals = true; description = "LCD backlight color for bank 4. Choose a Stylix name or custom.";
         ojuny.patch.logitech-g13.bindings.bank4Color = "support";
 
-        # @option widget = "color"; label = "Bank 4 custom color"; group = "Bank colors"; groupOrder = 50; order = 41; visibleWhen.path = "ojuny.patch.logitech-g13.bindings.bank4Color"; visibleWhen.equals = "custom"; description = "Custom bank 4 backlight color.";
+        # @option widget = "color"; label = "Bank 4 custom color"; group = "Bank colors"; advanced = true; groupOrder = 50; order = 41; visibleWhen.path = "ojuny.patch.logitech-g13.bindings.bank4Color"; visibleWhen.equals = "custom"; description = "Custom bank 4 backlight color.";
         ojuny.patch.logitech-g13.bindings.bank4CustomColor = "#89dceb";
 
         home-manager.sharedModules = lib.mkIf active [
@@ -1572,27 +1559,45 @@ in
       };
 
       resolveDisplayFormat = source: line:
-        if line.preset == "custom" then
-          line.format
+        displayPresets.${source}.${line.preset} or displayPresets.${source}.default;
+
+      sourceNames = {
+        CPU = "cpu";
+        RAM = "ram";
+        Disk = "disk";
+        GPU = "gpu";
+        Media = "media";
+        Network = "network";
+        Battery = "battery";
+        Audio = "audio";
+        Workspace = "workspace";
+        Keymode = "keymode";
+        Layout = "layout";
+        Clock = "clock";
+        Date = "date";
+        Uptime = "uptime";
+        Weather = "weather";
+        Custom = "custom";
+      };
+
+      parseDisplayChoice = choice:
+        if choice == "Off" || choice == "" then
+          { source = "off"; preset = "default"; }
         else
-          displayPresets.${source}.${line.preset} or displayPresets.${source}.default;
+          let
+            parts = lib.splitString " - " choice;
+          in
+          {
+            source = sourceNames.${lib.head parts};
+            preset = lib.toLower (lib.last parts);
+          };
 
-      displayEntries = lib.mapAttrsToList (
-        source: line:
-        {
-          inherit source;
-          inherit (line) enable order preset format;
-        }
-      ) cfg.display.sources;
+      displayLineValues = map (row: parseDisplayChoice row.line) cfg.display.lines;
 
-      enabledDisplayEntries = lib.sort (a: b: a.order < b.order) (
-        builtins.filter (entry: entry.enable) displayEntries
-      );
-
-      displayLines = map (entry: {
-        inherit (entry) source;
-        format = resolveDisplayFormat entry.source entry;
-      }) (lib.take 5 enabledDisplayEntries);
+      displayLines = map (line: {
+        inherit (line) source;
+        format = resolveDisplayFormat line.source line;
+      }) (builtins.filter (line: line.source != "off") displayLineValues);
 
       configFile = pkgs.writeText "ojuny-g13.json" (
         builtins.toJSON {
@@ -1780,15 +1785,11 @@ in
               message = "patch-logitech-g13: Stylix is required for the derived bank colors.";
             }
             {
-              assertion = lib.count (source: source.enable) (builtins.attrValues cfg.display.sources) <= 5;
-              message = "patch-logitech-g13: at most 5 display sources can be enabled.";
+              assertion = !cfg.display.enable || lib.any (line: line.source != "off") displayLineValues;
+              message = "patch-logitech-g13: at least one display line needs a source.";
             }
             {
-              assertion = lib.count (source: source.enable) (builtins.attrValues cfg.display.sources) >= 1;
-              message = "patch-logitech-g13: at least one display source must be enabled.";
-            }
-            {
-              assertion = cfg.display.refreshMs >= 100;
+              assertion = !cfg.display.enable || cfg.display.refreshMs >= 100;
               message = "patch-logitech-g13: display.refreshMs must be at least 100.";
             }
             {
@@ -1798,8 +1799,8 @@ in
               message = "patch-logitech-g13: every detector refresh must be positive.";
             }
             {
-              assertion = !cfg.display.sources.custom.enable || cfg.detectors.custom.command != "";
-              message = "patch-logitech-g13: an enabled custom line needs detectors.custom.command.";
+              assertion = !cfg.display.enable || !(lib.any (line: line.source == "custom") displayLineValues) || cfg.detectors.custom.command != "";
+              message = "patch-logitech-g13: a custom display line needs detectors.custom.command.";
             }
             {
               assertion = lib.all (row: row.keys != [ ]) bankRows;
