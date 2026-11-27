@@ -199,7 +199,8 @@
       colorType = lib.types.enum namedColors;
 
       stylixAvailable = options ? stylix;
-      colors = if stylixAvailable then config.lib.stylix.colors else null;
+      namedColorsAvailable = stylixAvailable && self ? colors;
+      colors = if namedColorsAvailable then self.colors config.lib.stylix.colors else null;
       hex = name: colors.${name}.hex;
 
       pythonSource = pkgs.writeTextFile {
@@ -1388,14 +1389,14 @@
               message = "patch-corsair-rgb: stateBinds.probe must be dms-night, dms-dnd, audio-muted, or media-playing.";
             }
             {
-              assertion = stylixAvailable;
-              message = "patch-corsair-rgb: the Stylix module is required for the named-color palette.";
+              assertion = namedColorsAvailable;
+              message = "patch-corsair-rgb: Stylix and the ojuny named-colors module (flake.colors) are required for the palette.";
             }
           ];
 
           hardware.ckb-next.enable = true;
         })
-        (lib.mkIf (active && stylixAvailable) {
+        (lib.mkIf (active && namedColorsAvailable) {
           environment.systemPackages = [ ojunyRgb ];
 
           systemd.user.services.ojuny-rgb = {
@@ -1417,31 +1418,33 @@
           };
         })
         (lib.optionalAttrs (options ? desktop.ojuny.dankMenu) {
-          desktop.ojuny.dankMenu.extraEntries = lib.mkIf (active && stylixAvailable && cfg.dms.menuEntry) {
-            "trigger.ojuny-rgb" = {
-              icon = "lightbulb";
-              label = "Dynamic RGB";
-              aliases = [
-                "rgb"
-                "keyboard"
-              ];
-            };
-            "trigger.ojuny-rgb.toggle" = {
-              icon = "toggle_on";
-              label = "Toggle lighting";
-              action = "${ojunyRgb}/bin/ojuny-rgb toggle";
-            };
-            "trigger.ojuny-rgb.reload" = {
-              icon = "refresh";
-              label = "Reload lighting";
-              action = "${ojunyRgb}/bin/ojuny-rgb reload";
-            };
-            "trigger.ojuny-rgb.status" = {
-              icon = "info";
-              label = "Lighting status";
-              action = "ghostty -e ${ojunyRgb}/bin/ojuny-rgb status";
-            };
-          };
+          desktop.ojuny.dankMenu.extraEntries =
+            lib.mkIf (active && namedColorsAvailable && cfg.dms.menuEntry)
+              {
+                "trigger.ojuny-rgb" = {
+                  icon = "lightbulb";
+                  label = "Dynamic RGB";
+                  aliases = [
+                    "rgb"
+                    "keyboard"
+                  ];
+                };
+                "trigger.ojuny-rgb.toggle" = {
+                  icon = "toggle_on";
+                  label = "Toggle lighting";
+                  action = "${ojunyRgb}/bin/ojuny-rgb toggle";
+                };
+                "trigger.ojuny-rgb.reload" = {
+                  icon = "refresh";
+                  label = "Reload lighting";
+                  action = "${ojunyRgb}/bin/ojuny-rgb reload";
+                };
+                "trigger.ojuny-rgb.status" = {
+                  icon = "info";
+                  label = "Lighting status";
+                  action = "ghostty -e ${ojunyRgb}/bin/ojuny-rgb status";
+                };
+              };
         })
       ];
     };
