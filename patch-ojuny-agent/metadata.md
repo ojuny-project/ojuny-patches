@@ -81,9 +81,9 @@ Validation runs the changed-file parse and format checks, `nix flake check
 --no-build`, and a host evaluation. It does not build or activate the system.
 
 Generated files are denied even inside the flake: `flake.lock`,
-`modules/07-system/00-hardware.nix`, `modules/07-system/facter.json`,
-`modules/07-system/00-hardware-quirks.nix`, and
-`modules/01-users/01-user.nix`.
+`modules/07-system/00-hardware.nix`, `modules/facter.json`,
+`modules/backend/00-hardware-quirks.nix`, `modules/01-users/01-user.nix`, and
+`modules/07-system/00-host.nix`.
 
 ## Git sync and conflicts
 

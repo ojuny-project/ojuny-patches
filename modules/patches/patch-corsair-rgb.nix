@@ -1025,6 +1025,8 @@
                               except subprocess.TimeoutExpired:
                                   process.kill()
                                   process.wait()
+                          if not self.stop_event.is_set():
+                              time.sleep(max(1.0, self.state_refresh))
                       except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
                           if self.stop_event.is_set():
                               break
