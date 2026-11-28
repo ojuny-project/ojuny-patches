@@ -966,7 +966,7 @@
         else if cfg.defaultAgent == "opencode" && (ojunyAgent.enable or false) then
           ''
             cd ${lib.escapeShellArg flakeRoot} || exit 1
-            session=$(${agentCommands.opencode} api post /api/session -d '{"agent":"${ojunyAgentSelected}","model":{"providerID":"${ojunyAgentModelProvider}","id":"${ojunyAgentModelId}"}}' 2>/dev/null || true)
+            session=$(${agentCommands.opencode} api post /api/session -d '{"directory":"${flakeRoot}","agent":"${ojunyAgentSelected}","model":{"providerID":"${ojunyAgentModelProvider}","id":"${ojunyAgentModelId}"}}' 2>/dev/null || true)
             session_id=$(printf '%s' "$session" | ${pkgs.jq}/bin/jq -r '.data.id // empty' 2>/dev/null || true)
             if [ -n "$session_id" ]; then
               exec ${agentCommands.opencode} --session "$session_id" "$@"
@@ -1005,7 +1005,7 @@
                 for b in ${pkgs.vscodium}/bin/*; do
                   n=$(basename "$b")
                   if [ "$n" = codium ] || [ "$n" = vscodium ]; then
-                    makeWrapper "$b" "$out/bin/$n" --add-flags "--profile nix"
+                    makeWrapper "$b" "$out/bin/$n" --add-flags "--profile=nix --ozone-platform=wayland"
                   else
                     ln -s "$b" "$out/bin/$n"
                   fi
