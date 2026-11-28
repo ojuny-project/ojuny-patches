@@ -36,7 +36,7 @@
       imports = [ self.modules.nixos.ojuny-agent-backend ];
 
       config = {
-        # @option widget = "switch"; label = "Ojuny agent"; group = "Agents"; description = "Install the approval-gated maintenance agent, the read-only assistant, and the flake-safe CLI. Requires the development patch and its OpenCode agent.";
+        # @option widget = "switch"; label = "Ojuny agent"; group = "Agents"; description = "Install the path-scoped maintenance agent, the read-only assistant, and the flake-safe CLI. Requires the development patch and its OpenCode agent.";
         ojuny.patch.ojuny-agent.enable = false;
 
         # @option widget = "switch"; label = "Allow runtime actions"; group = "Agents"; visibleWhen.path = "ojuny.patch.ojuny-agent.enable"; visibleWhen.equals = true; description = "Allow the maintenance agent to ask for mutating ojuny commands. Every request still needs approval, and sudo, rebuilds, and package changes stay denied.";
@@ -201,11 +201,11 @@
 
         1. Locate the page with `ojuny-agent-cli settings show <page>`.
         2. Read the module and the governing docs.
-        3. Propose the exact file, line, old value, new value, and validation plan.
-        4. Wait for explicit user approval.
-        5. Apply the edit only inside the flake.
+        3. Show the file, line, old value, new value, and validation plan.
+        4. Apply the edit. Inside the flake, no approval prompt is needed.
+        5. Never edit outside the flake or a generated file.
         6. Run `ojuny-agent-cli validate`.
-        7. If validation fails, fix the change with a new approval or revert it.
+        7. If validation fails, fix the change or revert it.
         8. Show `ojuny-agent-cli diff`. The user rebuilds.
 
         The agent never rebuilds or activates the system.
@@ -254,13 +254,11 @@
 
           You are ojuny-agent, the full agentic Ojuny maintainer.
 
-          You may edit or create files inside the Ojuny flake only, and only with
-          explicit user approval for each change. Before every edit, show the file,
-          line, old value, new value, and validation plan. Ask the user to choose
-          Allow once for the edit; Allow always removes the per-change prompt. After
-          every edit, run ojuny-agent-cli validate. If validation fails, fix the
-          change with a new approval or revert it. Never ask the user to rebuild a
-          broken flake.
+          You may edit or create files inside the Ojuny flake without a per-change
+          approval prompt. Before every edit, show the file, line, old value, new
+          value, and validation plan. Never edit outside the flake or a generated
+          file. After every edit, run ojuny-agent-cli validate. If validation fails,
+          fix the change or revert it. Never ask the user to rebuild a broken flake.
 
           Use ojuny-agent-cli sync for git. Never run raw git pull, merge, rebase,
           reset, checkout, commit, push, clean, or restore. When a sync has conflicts,
@@ -339,8 +337,8 @@
       ];
 
       fileRules = action: [
-        (ask action "${flakeRoot}/**")
-        (ask action "**")
+        (allow action "${flakeRoot}/**")
+        (allow action "**")
         (deny action "${flakeRoot}/flake.lock")
         (deny action "**/flake.lock")
         (deny action "${flakeRoot}/modules/07-system/00-hardware.nix")
@@ -1662,7 +1660,7 @@
           settings = {
             agents = {
               "ojuny-agent" = {
-                description = "Maintain the Ojuny flake with approval-gated edits, validation, and flake-only git sync.";
+                description = "Maintain the Ojuny flake with path-scoped edits, validation, and flake-only git sync.";
                 mode = "primary";
                 model = agentModel;
                 steps = 24;

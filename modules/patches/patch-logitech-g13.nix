@@ -398,10 +398,10 @@ in
           { key = "g1"; label = "Minimize to scratchpad"; subcat = "G1"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "A" ]; dispatcher = "minimized"; args = ""; description = "Send the focused window to the scratchpad"; group = "Scratchpad"; repeats = 0; }
           { key = "g2"; label = "Toggle scratchpad"; subcat = "G2"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "B" ]; dispatcher = "toggle_scratchpad"; args = ""; description = "Show or hide the scratchpad"; group = "Scratchpad"; repeats = 0; }
           { key = "g3"; label = "Restore minimized"; subcat = "G3"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "C" ]; dispatcher = "restore_minimized"; args = ""; description = "Restore the minimized window to the current workspace"; group = "Scratchpad"; repeats = 0; }
-          { key = "g4"; label = "Toggle floating"; subcat = "G4"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "D" ]; dispatcher = "togglefloating"; args = ""; description = "Toggle the focused window floating state"; group = "Window"; repeats = 0; }
-          { key = "g5"; label = "Toggle fake fullscreen"; subcat = "G5"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "E" ]; dispatcher = "togglefakefullscreen"; args = ""; description = "Toggle fake fullscreen without covering the bar"; group = "Window"; repeats = 0; }
-          { key = "g6"; label = "Toggle global or sticky"; subcat = "G6"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "F" ]; dispatcher = "toggleglobal"; args = ""; description = "Show the focused window on every workspace"; group = "Window"; repeats = 0; }
-          { key = "g7"; label = "Toggle overlay"; subcat = "G7"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "G" ]; dispatcher = "toggleoverlay"; args = ""; description = "Toggle overlay state for the focused window"; group = "Window"; repeats = 0; }
+          { key = "g4"; label = "Toggle floating"; subcat = "G4"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "D" ]; dispatcher = "togglefloating"; args = ""; description = "Toggle the focused window floating state"; group = "Windows"; repeats = 0; }
+          { key = "g5"; label = "Toggle fake fullscreen"; subcat = "G5"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "E" ]; dispatcher = "togglefakefullscreen"; args = ""; description = "Toggle fake fullscreen without covering the bar"; group = "Windows"; repeats = 0; }
+          { key = "g6"; label = "Toggle global or sticky"; subcat = "G6"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "F" ]; dispatcher = "toggleglobal"; args = ""; description = "Show the focused window on every workspace"; group = "Windows"; repeats = 0; }
+          { key = "g7"; label = "Toggle overlay"; subcat = "G7"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "G" ]; dispatcher = "toggleoverlay"; args = ""; description = "Toggle overlay state for the focused window"; group = "Windows"; repeats = 0; }
           { key = "g8"; label = "Layout: monocle"; subcat = "G8"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "H" ]; dispatcher = "setlayout"; args = "monocle"; description = "Switch the current workspace to monocle"; group = "Layout"; repeats = 0; }
           { key = "g9"; label = "Layout: dwindle"; subcat = "G9"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "I" ]; dispatcher = "setlayout"; args = "dwindle"; description = "Switch the current workspace to dwindle"; group = "Layout"; repeats = 0; }
           { key = "g10"; label = "Layout: scroller"; subcat = "G10"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "J" ]; dispatcher = "setlayout"; args = "scroller"; description = "Switch the current workspace to scroller"; group = "Layout"; repeats = 0; }
@@ -419,6 +419,7 @@ in
           { key = "g22"; label = "Resize mode"; subcat = "G22"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "V" ]; dispatcher = "setkeymode"; args = "resize"; description = "Enter resize mode; press again to return"; group = "Modes"; repeats = 0; }
           { key = "thumb-left"; label = "Previous stack window"; subcat = "Thumb Left"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "W" ]; dispatcher = "focusstack"; args = "prev"; description = "Previous stack window in default mode; previous exchange or group member in movement and groups"; group = "Navigation"; repeats = 0; }
           { key = "thumb-down"; label = "Next stack window"; subcat = "Thumb Down"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "X" ]; dispatcher = "focusstack"; args = "next"; description = "Next stack window in default mode; next exchange or group member in movement and groups"; group = "Navigation"; repeats = 0; }
+          { key = "undef1"; label = "G13 keybinds"; subcat = "Misc"; modifier = [ "SUPER" "ALT" "CTRL" ]; keys = [ "Y" ]; dispatcher = "spawn"; args = "dms ipc call keybinds open g13"; description = "Open the Logitech G13 keybinds menu"; group = "DMS"; repeats = 0; }
           { key = "stick-left"; label = "Stick left"; subcat = "Stick Left"; modifier = [ ]; keys = [ "F13" ]; dispatcher = "focusdir"; args = "left"; description = "Focus, exchange, group join, or resize left by mode"; group = "Navigation"; repeats = 0; }
           { key = "stick-right"; label = "Stick right"; subcat = "Stick Right"; modifier = [ ]; keys = [ "F14" ]; dispatcher = "focusdir"; args = "right"; description = "Focus, exchange, group join, or resize right by mode"; group = "Navigation"; repeats = 0; }
           { key = "stick-up"; label = "Stick up"; subcat = "Stick Up"; modifier = [ ]; keys = [ "F15" ]; dispatcher = "focusdir"; args = "up"; description = "Focus, exchange, group join, or resize up by mode"; group = "Navigation"; repeats = 0; }
@@ -1386,6 +1387,7 @@ in
         #!${pythonEvdev}/bin/python3
         """Debounce the G13 stick directions."""
 
+        import sys
         import time
 
         import evdev
@@ -1398,6 +1400,11 @@ in
             ecodes.KEY_F16,
         }
         LOCKOUT = 0.3
+        RETRY_DELAY = 1.0
+
+
+        def log(message):
+            print(f"g13-filter: {message}", file=sys.stderr, flush=True)
 
 
         def find_device():
@@ -1412,52 +1419,101 @@ in
             return None
 
 
+        class StickFilter:
+            def __init__(self):
+                self.last_code = None
+                self.last_time = 0.0
+                self.suppressed = set()
+                self.pressed = set()
+
+            def handle(self, event, now):
+                if event.type != ecodes.EV_KEY or event.code not in STICK_CODES:
+                    return True
+                if event.value == 1:
+                    if (
+                        self.last_code is not None
+                        and event.code != self.last_code
+                        and now - self.last_time < LOCKOUT
+                    ):
+                        self.suppressed.add(event.code)
+                        return False
+                    self.last_code = event.code
+                    self.last_time = now
+                    self.suppressed.discard(event.code)
+                    self.pressed.add(event.code)
+                    return True
+                if event.value == 2:
+                    return event.code not in self.suppressed
+                if event.value == 0:
+                    self.pressed.discard(event.code)
+                    if event.code in self.suppressed:
+                        self.suppressed.discard(event.code)
+                        return False
+                return True
+
+            def releases(self):
+                return [(code, 0) for code in sorted(self.pressed)]
+
+
+        def open_output(source):
+            try:
+                return evdev.UInput.from_device(source, name="G13 Filtered")
+            except OSError as error:
+                log(f"uinput unavailable: {error}")
+                return None
+
+
+        def release_pressed(output, stick):
+            for code, value in stick.releases():
+                try:
+                    output.write(ecodes.EV_KEY, code, value)
+                except OSError:
+                    break
+            try:
+                output.syn()
+            except OSError:
+                pass
+
+
         def run():
             while True:
                 source = find_device()
                 if source is None:
-                    time.sleep(1.0)
+                    time.sleep(RETRY_DELAY)
                     continue
-                output = None
+                output = open_output(source)
+                if output is None:
+                    source.close()
+                    time.sleep(RETRY_DELAY)
+                    continue
                 try:
                     source.grab()
-                    output = evdev.UInput.from_device(source, name="G13 Filtered")
-                    last_code = None
-                    last_time = 0.0
-                    suppressed = set()
+                except OSError as error:
+                    log(f"grab failed: {error}")
+                    output.close()
+                    source.close()
+                    time.sleep(RETRY_DELAY)
+                    continue
+                stick = StickFilter()
+                try:
                     for event in source.read():
-                        if event.type == ecodes.EV_KEY and event.code in STICK_CODES:
-                            now = time.monotonic()
-                            if event.value == 1:
-                                if (
-                                    last_code is not None
-                                    and event.code != last_code
-                                    and now - last_time < LOCKOUT
-                                ):
-                                    suppressed.add(event.code)
-                                    continue
-                                last_code = event.code
-                                last_time = now
-                                suppressed.discard(event.code)
-                            elif event.value == 0:
-                                if event.code in suppressed:
-                                    suppressed.discard(event.code)
-                                    continue
-                        output.write_event(event)
-                except OSError:
-                    pass
+                        if stick.handle(event, time.monotonic()):
+                            output.write_event(event)
+                except OSError as error:
+                    log(f"read failed: {error}")
                 finally:
-                    if output is not None:
-                        output.close()
+                    release_pressed(output, stick)
+                    output.close()
                     try:
                         source.ungrab()
                     except OSError:
                         pass
                     source.close()
-                    time.sleep(1.0)
+                    time.sleep(RETRY_DELAY)
 
 
-        run()
+        if __name__ == "__main__":
+            run()
       '';
 
       filterScript = pkgs.runCommandLocal "g13-filter.py" {
@@ -1472,6 +1528,34 @@ in
         runtimeInputs = [ pythonEvdev ];
         text = ''
           exec ${filterScript}/bin/g13-filter.py "$@"
+        '';
+      };
+
+      stickScript = pkgs.writeShellApplication {
+        name = "ojuny-g13-stick";
+        runtimeInputs = [ pkgs.coreutils ];
+        text = ''
+          state="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/ojuny-g13-stick.last"
+          now=$(date +%s%N)
+          last=0
+          if [ -r "$state" ]; then
+            last=$(cat "$state" 2>/dev/null) || last=0
+          fi
+          case "$last" in
+            *[!0-9]*) last=0 ;;
+          esac
+          [ -n "$last" ] || last=0
+          lockout_ms=300
+          lockout_ns=$((lockout_ms * 1000000))
+          if [ "$last" -gt 0 ] && [ $((now - last)) -lt "$lockout_ns" ]; then
+            exit 0
+          fi
+          mkdir -p "$(dirname "$state")"
+          printf '%s\n' "$now" > "$state"
+          if [ -n "''${2:-}" ]; then
+            exec mmsg dispatch "$1,$2"
+          fi
+          exec mmsg dispatch "$1"
         '';
       };
 
@@ -1670,6 +1754,18 @@ in
           "g13-${name}" = modeBind row dispatcher args description;
         };
 
+      stickCommand = dispatcher: args:
+        "${stickScript}/bin/ojuny-g13-stick ${dispatcher}"
+        + lib.optionalString (args != "") " ${args}";
+
+      stickBind = row: dispatcher: args: description:
+        modeBind row "spawn" (stickCommand dispatcher args) description;
+
+      optionalStickBind = name: row: dispatcher: args: description:
+        lib.optionalAttrs (row != null) {
+          "g13-${name}" = stickBind row dispatcher args description;
+        };
+
       mergeBinds = items: lib.foldl' (acc: item: acc // item) { } items;
 
       commonRows = builtins.filter (
@@ -1707,10 +1803,10 @@ in
         (optionalModeBind "g22" g22 "setkeymode" "resize" "Resize mode")
         (optionalModeBind "thumb-left" thumbLeft "focusstack" "prev" "Previous stack window")
         (optionalModeBind "thumb-down" thumbDown "focusstack" "next" "Next stack window")
-        (optionalModeBind "stick-left" stickLeft "focusdir" "left" "Focus left")
-        (optionalModeBind "stick-right" stickRight "focusdir" "right" "Focus right")
-        (optionalModeBind "stick-up" stickUp "focusdir" "up" "Focus up")
-        (optionalModeBind "stick-down" stickDown "focusdir" "down" "Focus down")
+        (optionalStickBind "stick-left" stickLeft "focusdir" "left" "Focus left")
+        (optionalStickBind "stick-right" stickRight "focusdir" "right" "Focus right")
+        (optionalStickBind "stick-up" stickUp "focusdir" "up" "Focus up")
+        (optionalStickBind "stick-down" stickDown "focusdir" "down" "Focus down")
       ];
 
       movementBinds = mergeBinds [
@@ -1719,10 +1815,10 @@ in
         (optionalModeBind "g22" g22 "setkeymode" "resize" "Resize mode")
         (optionalModeBind "thumb-left" thumbLeft "exchange_stack_client" "prev" "Previous stack window")
         (optionalModeBind "thumb-down" thumbDown "exchange_stack_client" "next" "Next stack window")
-        (optionalModeBind "stick-left" stickLeft "exchange_client" "left" "Swap left")
-        (optionalModeBind "stick-right" stickRight "exchange_client" "right" "Swap right")
-        (optionalModeBind "stick-up" stickUp "exchange_client" "up" "Swap up")
-        (optionalModeBind "stick-down" stickDown "exchange_client" "down" "Swap down")
+        (optionalStickBind "stick-left" stickLeft "exchange_client" "left" "Swap left")
+        (optionalStickBind "stick-right" stickRight "exchange_client" "right" "Swap right")
+        (optionalStickBind "stick-up" stickUp "exchange_client" "up" "Swap up")
+        (optionalStickBind "stick-down" stickDown "exchange_client" "down" "Swap down")
       ];
 
       groupsBinds = mergeBinds [
@@ -1731,21 +1827,42 @@ in
         (optionalModeBind "g22" g22 "setkeymode" "resize" "Resize mode")
         (optionalModeBind "thumb-left" thumbLeft "groupfocus" "prev" "Previous group member")
         (optionalModeBind "thumb-down" thumbDown "groupfocus" "next" "Next group member")
-        (optionalModeBind "stick-left" stickLeft "groupjoin" "left" "Join group left")
-        (optionalModeBind "stick-right" stickRight "groupjoin" "right" "Join group right")
-        (optionalModeBind "stick-up" stickUp "groupjoin" "up" "Join group up")
-        (optionalModeBind "stick-down" stickDown "groupjoin" "down" "Join group down")
+        (optionalStickBind "stick-left" stickLeft "groupjoin" "left" "Join group left")
+        (optionalStickBind "stick-right" stickRight "groupjoin" "right" "Join group right")
+        (optionalStickBind "stick-up" stickUp "groupjoin" "up" "Join group up")
+        (optionalStickBind "stick-down" stickDown "groupjoin" "down" "Join group down")
       ];
 
       resizeBinds = mergeBinds [
         (optionalModeBind "g20" g20 "setkeymode" "movement" "Movement mode")
         (optionalModeBind "g21" g21 "setkeymode" "groups" "Groups mode")
         (optionalModeBind "g22" g22 "setkeymode" "default" "Return to default mode")
-        (optionalModeBind "stick-left" stickLeft "smartresizewin" "left" "Resize left")
-        (optionalModeBind "stick-right" stickRight "smartresizewin" "right" "Resize right")
-        (optionalModeBind "stick-up" stickUp "smartresizewin" "up" "Resize up")
-        (optionalModeBind "stick-down" stickDown "smartresizewin" "down" "Resize down")
+        (optionalStickBind "stick-left" stickLeft "smartresizewin" "left" "Resize left")
+        (optionalStickBind "stick-right" stickRight "smartresizewin" "right" "Resize right")
+        (optionalStickBind "stick-up" stickUp "smartresizewin" "up" "Resize up")
+        (optionalStickBind "stick-down" stickDown "smartresizewin" "down" "Resize down")
       ];
+
+      bindKey = bind: lib.concatStringsSep "+" (bind.modifier ++ bind.keys);
+      bindAction = bind: lib.concatStringsSep "," ([ bind.dispatcher ] ++ lib.optional (bind.args != "") bind.args);
+      tomlString = value: "\"" + lib.replaceStrings [ "\\" "\"" ] [ "\\\\" "\\\"" ] value + "\"";
+
+      renderBindMode = mode: binds:
+        "[bind.${mode}]\n"
+        + lib.concatStrings (
+          lib.mapAttrsToList (
+            _: bind: "${tomlString (bindKey bind)} = ${tomlString (bindAction bind)}\n"
+          ) binds
+        )
+        + "\n";
+
+      mangoBindsFile = toString (pkgs.writeText "ojuny-g13-binds.toml" (
+        renderBindMode "common" commonBinds
+        + renderBindMode "default" defaultBinds
+        + renderBindMode "movement" movementBinds
+        + renderBindMode "groups" groupsBinds
+        + renderBindMode "resize" resizeBinds
+      ));
 
       detectorService = source: {
         description = "Ojuny G13 ${source} detector";
@@ -1887,12 +2004,8 @@ in
               )
             );
         })
-        (lib.mkIf (active && config ? desktop.ojuny.mango.binds) {
-          desktop.ojuny.mango.binds.common = commonBinds;
-          desktop.ojuny.mango.binds.default = defaultBinds;
-          desktop.ojuny.mango.binds.movement = movementBinds;
-          desktop.ojuny.mango.binds.groups = groupsBinds;
-          desktop.ojuny.mango.binds.resize = resizeBinds;
+        (lib.mkIf (active && config ? desktop.ojuny.mango.source) {
+          desktop.ojuny.mango.source = lib.mkAfter [ mangoBindsFile ];
         })
         (lib.mkIf (active && config ? desktop.ojuny.dankMenu) {
           desktop.ojuny.dankMenu.extraEntries = {

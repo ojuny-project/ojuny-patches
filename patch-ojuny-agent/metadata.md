@@ -1,6 +1,6 @@
 name: Ojuny agent
 id: patch-ojuny-agent
-description: Approval-gated maintenance agent and read-only assistant for the Ojuny flake, with a flake-safe CLI for validation and git sync
+description: Path-scoped maintenance agent and read-only assistant for the Ojuny flake, with a flake-safe CLI for validation and git sync
 dependencies: patch-development
 version: 2
 
@@ -37,7 +37,7 @@ evaluation.
 ## Agents
 
 `ojuny-agent` is the full agentic flavour. It can edit or create files inside
-the flake only with explicit approval, validate every edit, show a diff, revert
+the flake without a per-change prompt, validate every edit, show a diff, revert
 changes, and sync the flake git. It can ask to use network clients and web
 fetching. It cannot rebuild, activate, use sudo, install packages, or change
 services. Runtime `ojuny` commands are denied by default. The Allow runtime
@@ -68,14 +68,14 @@ and always use the configured Ojuny flake.
 1. Locate the page with `ojuny-agent-cli settings show <page>`.
 2. Read the module and the governing docs.
 3. Propose the file, line, old value, new value, and validation plan.
-4. Wait for explicit approval.
+4. Apply the edit. Inside the flake no approval prompt is needed.
 5. Apply the edit inside the flake only.
 6. Run `ojuny-agent-cli validate`.
 7. Fix or revert a failed change. Do not ask for a rebuild.
 8. Show `ojuny-agent-cli diff`. The user rebuilds.
 
-Choose Allow once for an edit. Allow always saves a durable allow rule for that
-path and removes the per-change approval prompt for later edits.
+Edits inside the flake apply directly. Generated files are denied even inside
+the flake.
 
 Validation runs the changed-file parse and format checks, `nix flake check
 --no-build`, and a host evaluation. It does not build or activate the system.
@@ -104,7 +104,7 @@ then runs `sync --continue`. `sync --abort` aborts an in-progress merge.
 - No reads of `.env`, key, age, or secret files.
 - No raw `git pull`, merge, rebase, reset, commit, push, or clean. Use the CLI.
 - The explain agent denies write actions and network clients. The full agent asks
-  for approval before it edits, creates, fetches, or runs a network client.
+  for approval before it fetches or runs a network client.
 - The CLI does not push.
 
 ## Documentation

@@ -34,14 +34,14 @@ def main():
             errors.append(f"missing rule {needle}")
         return index
 
-    if not re.search(r'fileRules = action: \[\s*\(ask action', text):
-        errors.append("fileRules must start with an ask so the edit tool stays available")
-    if '(ask action "**")' not in text:
-        errors.append("fileRules must ask for the relative path form")
-    file_ask = first('(ask action "${flakeRoot}/**")')
+    if not re.search(r'fileRules = action: \[\s*\(allow action', text):
+        errors.append("fileRules must allow edits inside the flake by default")
+    if '(allow action "**")' not in text:
+        errors.append("fileRules must allow the relative path form")
+    file_allow = first('(allow action "${flakeRoot}/**")')
     file_lock = first('(deny action "**/flake.lock")')
-    if 0 <= file_lock < file_ask:
-        errors.append("generated-file denies must come after the flake ask")
+    if 0 <= file_lock < file_allow:
+        errors.append("generated-file denies must come after the flake allow")
 
     if not re.search(r'agentShell = \[\s*\(ask "shell" "\*"\)\s*\]\s*\+\+ dangerousShell', text):
         errors.append("agentShell must start with the catch-all ask")
